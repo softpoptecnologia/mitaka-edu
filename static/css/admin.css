@@ -484,6 +484,14 @@ body {
   max-width: 22rem;
 }
 
+.stack-meta,
+.table-clean .small.text-muted,
+.fw-medium + .small {
+  display: block;
+  margin-top: 0.35rem;
+  line-height: 1.45;
+}
+
 .entity-chip {
   display: inline-flex;
   align-items: center;

@@ -75,7 +75,7 @@
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
               <a href="{% url 'teacher:student' item.student.pk %}">{{ item.student.full_name }}</a>
-              <div class="small text-muted">{{ item.classroom.name }}</div>
+              <div class="stack-meta small text-muted">{{ item.classroom.name }}</div>
             </div>
             <a href="{% url 'teacher:student' item.student.pk %}?tab=geral" class="btn btn-sm btn-outline-primary">Ver</a>
           </li>

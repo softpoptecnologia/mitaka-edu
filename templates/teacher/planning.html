@@ -29,7 +29,7 @@
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
               <div>
                 <strong>{{ insight.skill.name }}</strong>
-                <div class="small text-muted">{{ insight.needy }} de {{ insight.total }} estudantes ({{ insight.pct }}%) precisam de atenção</div>
+                <div class="stack-meta small text-muted">{{ insight.needy }} de {{ insight.total }} estudantes ({{ insight.pct }}%) precisam de atenção</div>
               </div>
               <div class="progress flex-grow-1" style="max-width: 120px; height: 8px;">
                 <div class="progress-bar bg-danger" role="progressbar" style="width: {{ insight.pct }}%" aria-valuenow="{{ insight.pct }}" aria-valuemin="0" aria-valuemax="100"></div>
@@ -71,8 +71,8 @@
           {% for plan in plans %}
           <li class="mb-3 pb-3 border-bottom">
             <strong>{{ plan.title }}</strong>
-            {% if plan.skill %}<div class="small text-muted">{{ plan.skill.name }}</div>{% endif %}
-            <div class="small text-muted">Criado em {{ plan.created_at|date:"d/m/Y" }}</div>
+            {% if plan.skill %}<div class="stack-meta small text-muted">{{ plan.skill.name }}</div>{% endif %}
+            <div class="stack-meta small text-muted">Criado em {{ plan.created_at|date:"d/m/Y" }}</div>
           </li>
           {% endfor %}
         </ul>

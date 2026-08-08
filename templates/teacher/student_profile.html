@@ -67,7 +67,7 @@
           <div class="skill-row {% if status.needs_attention %}is-attention{% else %}is-ok{% endif %}">
             <div>
               <div class="skill-name">{{ status.skill.name }}</div>
-              {% if status.skill.bncc_code %}<div class="small text-muted">{{ status.skill.bncc_code }}</div>{% endif %}
+              {% if status.skill.bncc_code %}<div class="stack-meta small text-muted">{{ status.skill.bncc_code }}</div>{% endif %}
             </div>
             <span class="status-pill {% if status.needs_attention %}status-pill-attention{% else %}status-pill-ok{% endif %}">{{ status.status_label }}</span>
           </div>
@@ -501,7 +501,7 @@
       {% for enroll in trajectory %}
       <li class="timeline-item">
         <div class="skill-name">{{ enroll.school_year }} · {{ enroll.classroom.name }}</div>
-        <div class="small text-muted">{{ enroll.classroom.school.name }}</div>
+        <div class="stack-meta small text-muted">{{ enroll.classroom.school.name }}</div>
         <span class="status-pill status-pill-in_progress mt-2">{{ enroll.get_status_display }}</span>
       </li>
       {% endfor %}
