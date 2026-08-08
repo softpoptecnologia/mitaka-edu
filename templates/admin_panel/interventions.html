@@ -36,31 +36,36 @@
       </div>
       <div class="card-body p-0">
         {% if student_ints %}
-        <div class="table-responsive">
-          <table class="table table-clean table-hover mb-0 align-middle">
-            <thead>
-              <tr>
-                <th>Estudante</th>
-                <th>Habilidade</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in student_ints %}
-              <tr>
-                <td>
-                  <span class="entity-chip">
-                    <span class="entity-avatar entity-avatar-student" aria-hidden="true">{{ item.student.full_name|slice:":1" }}</span>
-                    {{ item.student.full_name }}
-                  </span>
-                </td>
-                <td class="cell-skill">{{ item.skill.name }}</td>
-                <td><span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+        <ol class="chrono">
+          {% for item in student_ints %}
+          {% with when=item.starts_on|default:item.created_at %}
+          {% ifchanged "student" when|date:"Y-m" %}
+          <li class="chrono-group">{{ when|date:"F Y"|capfirst }}</li>
+          {% endifchanged %}
+          <li class="chrono-item chrono-item-{{ item.status }}">
+            <div class="chrono-when">
+              <div class="chrono-day">{{ when|date:"d" }}</div>
+              <div class="chrono-month">{{ when|date:"b" }}</div>
+              <div class="chrono-year">{{ when|date:"Y" }}</div>
+            </div>
+            <div class="chrono-rail" aria-hidden="true"><span class="chrono-dot"></span></div>
+            <article class="chrono-card">
+              <div class="chrono-card-head">
+                <div class="chrono-title">{{ item.student.full_name }}</div>
+                <span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span>
+              </div>
+              <p class="chrono-text mb-2">{{ item.skill.name }}</p>
+              {% if item.objective %}<p class="small text-muted mb-2">{{ item.objective|truncatewords:18 }}</p>{% endif %}
+              <div class="chrono-meta">
+                {% if item.starts_on %}<span><strong>Início</strong> {{ item.starts_on|date:"d/m/Y" }}</span>{% endif %}
+                {% if item.ends_on %}<span><strong>Término</strong> {{ item.ends_on|date:"d/m/Y" }}</span>{% endif %}
+                {% if not item.starts_on and not item.ends_on %}<span>Registrada em {{ item.created_at|date:"d/m/Y" }}</span>{% endif %}
+              </div>
+            </article>
+          </li>
+          {% endwith %}
+          {% endfor %}
+        </ol>
         {% else %}
         <div class="empty-state">
           <i class="bi bi-emoji-smile" aria-hidden="true"></i>
@@ -78,33 +83,36 @@
       </div>
       <div class="card-body p-0">
         {% if class_ints %}
-        <div class="table-responsive">
-          <table class="table table-clean table-hover mb-0 align-middle">
-            <thead>
-              <tr>
-                <th>Turma</th>
-                <th>Habilidade</th>
-                <th>Status</th>
-                <th>Objetivo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in class_ints %}
-              <tr>
-                <td>
-                  <span class="entity-chip">
-                    <span class="entity-avatar entity-avatar-class" aria-hidden="true"><i class="bi bi-easel2"></i></span>
-                    {{ item.classroom.name }}
-                  </span>
-                </td>
-                <td class="cell-skill">{{ item.skill.name }}</td>
-                <td><span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span></td>
-                <td class="small text-muted">{{ item.objective|truncatewords:10 }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+        <ol class="chrono">
+          {% for item in class_ints %}
+          {% with when=item.starts_on|default:item.created_at %}
+          {% ifchanged "class" when|date:"Y-m" %}
+          <li class="chrono-group">{{ when|date:"F Y"|capfirst }}</li>
+          {% endifchanged %}
+          <li class="chrono-item chrono-item-{{ item.status }}">
+            <div class="chrono-when">
+              <div class="chrono-day">{{ when|date:"d" }}</div>
+              <div class="chrono-month">{{ when|date:"b" }}</div>
+              <div class="chrono-year">{{ when|date:"Y" }}</div>
+            </div>
+            <div class="chrono-rail" aria-hidden="true"><span class="chrono-dot"></span></div>
+            <article class="chrono-card">
+              <div class="chrono-card-head">
+                <div class="chrono-title">{{ item.classroom.name }}</div>
+                <span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span>
+              </div>
+              <p class="chrono-text mb-2">{{ item.skill.name }}</p>
+              {% if item.objective %}<p class="small text-muted mb-2">{{ item.objective|truncatewords:18 }}</p>{% endif %}
+              <div class="chrono-meta">
+                {% if item.starts_on %}<span><strong>Início</strong> {{ item.starts_on|date:"d/m/Y" }}</span>{% endif %}
+                {% if item.ends_on %}<span><strong>Término</strong> {{ item.ends_on|date:"d/m/Y" }}</span>{% endif %}
+                {% if not item.starts_on and not item.ends_on %}<span>Registrada em {{ item.created_at|date:"d/m/Y" }}</span>{% endif %}
+              </div>
+            </article>
+          </li>
+          {% endwith %}
+          {% endfor %}
+        </ol>
         {% else %}
         <div class="empty-state">
           <i class="bi bi-easel2" aria-hidden="true"></i>

@@ -251,36 +251,38 @@
           </div>
         </form>
         {% if sessions %}
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>Instrumento</th>
-                <th>Status</th>
-                <th>Data</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for session in sessions %}
-              <tr>
-                <td>{{ session.instrument.title }}</td>
-                <td>
-                  <span class="status-pill {% if session.status == 'completed' %}status-pill-completed{% elif session.status == 'in_progress' %}status-pill-in_progress{% else %}status-pill-planned{% endif %}">{{ session.get_status_display }}</span>
-                </td>
-                <td>{{ session.started_at|date:"d/m/Y H:i" }}</td>
-                <td class="text-end">
-                  {% if session.status == 'completed' %}
-                  <a href="{% url 'teacher:session_result' session.pk %}" class="btn btn-sm btn-outline-primary">Resultado</a>
-                  {% elif session.status == 'in_progress' %}
-                  <a href="{% url 'assessment:play' session.pk %}" class="btn btn-sm btn-primary">Continuar</a>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+        <ol class="chrono">
+          {% for session in sessions %}
+          {% ifchanged session.started_at|date:"Y-m" %}
+          <li class="chrono-group">{{ session.started_at|date:"F Y"|capfirst }}</li>
+          {% endifchanged %}
+          <li class="chrono-item chrono-item-{{ session.status }}">
+            <div class="chrono-when">
+              <div class="chrono-day">{{ session.started_at|date:"d" }}</div>
+              <div class="chrono-month">{{ session.started_at|date:"b" }}</div>
+              <div class="chrono-time">{{ session.started_at|date:"H:i" }}</div>
+            </div>
+            <div class="chrono-rail" aria-hidden="true"><span class="chrono-dot"></span></div>
+            <article class="chrono-card">
+              <div class="chrono-card-head">
+                <div class="chrono-title">{{ session.instrument.title }}</div>
+                <span class="status-pill {% if session.status == 'completed' %}status-pill-completed{% elif session.status == 'in_progress' %}status-pill-in_progress{% else %}status-pill-planned{% endif %}">{{ session.get_status_display }}</span>
+              </div>
+              <div class="chrono-meta">
+                <span><strong>Habilidade</strong> {{ session.instrument.skill.name }}</span>
+                {% if session.completed_at %}<span><strong>Concluída</strong> {{ session.completed_at|date:"d/m/Y H:i" }}</span>{% endif %}
+              </div>
+              <div class="chrono-actions">
+                {% if session.status == 'completed' %}
+                <a href="{% url 'teacher:session_result' session.pk %}" class="btn btn-sm btn-outline-primary">Ver resultado</a>
+                {% elif session.status == 'in_progress' %}
+                <a href="{% url 'assessment:play' session.pk %}" class="btn btn-sm btn-primary">Continuar</a>
+                {% endif %}
+              </div>
+            </article>
+          </li>
+          {% endfor %}
+        </ol>
         {% else %}
         <div class="empty-note mb-0">
           <i class="bi bi-clock-history" aria-hidden="true"></i>
@@ -306,11 +308,21 @@
   <a href="{% url 'teacher:evidence_create' student.pk %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nova evidência</a>
 </div>
 {% if evidences %}
-<div class="row g-3">
+<ol class="chrono">
   {% for evidence in evidences %}
-  <div class="col-md-6">
-    <article class="evidence-card">
-      <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+  {% ifchanged evidence.recorded_at|date:"Y-m" %}
+  <li class="chrono-group">{{ evidence.recorded_at|date:"F Y"|capfirst }}</li>
+  {% endifchanged %}
+  <li class="chrono-item chrono-item-sky">
+    <div class="chrono-when">
+      <div class="chrono-day">{{ evidence.recorded_at|date:"d" }}</div>
+      <div class="chrono-month">{{ evidence.recorded_at|date:"b" }}</div>
+      <div class="chrono-time">{{ evidence.recorded_at|date:"H:i" }}</div>
+    </div>
+    <div class="chrono-rail" aria-hidden="true"><span class="chrono-dot"></span></div>
+    <article class="chrono-card">
+      <div class="chrono-card-head">
+        <div class="chrono-title">{% if evidence.skill %}{{ evidence.skill.name }}{% else %}Registro pedagógico{% endif %}</div>
         <span class="status-pill status-pill-in_progress">
           {% if evidence.file_type == 'photo' %}<i class="bi bi-image me-1" aria-hidden="true"></i>
           {% elif evidence.file_type == 'audio' %}<i class="bi bi-mic me-1" aria-hidden="true"></i>
@@ -318,17 +330,20 @@
           {% else %}<i class="bi bi-chat-text me-1" aria-hidden="true"></i>{% endif %}
           {{ evidence.get_file_type_display }}
         </span>
-        <small class="text-muted">{{ evidence.recorded_at|date:"d/m/Y H:i" }}</small>
       </div>
-      {% if evidence.skill %}<div class="small text-primary mb-1">{{ evidence.skill.name }}</div>{% endif %}
-      {% if evidence.description %}<p class="mb-2">{{ evidence.description }}</p>{% endif %}
+      {% if evidence.description %}<p class="chrono-text">{{ evidence.description }}</p>{% endif %}
+      <div class="chrono-meta">
+        {% if evidence.recorded_by %}<span><strong>Registrado por</strong> {{ evidence.recorded_by.get_full_name|default:evidence.recorded_by.username }}</span>{% endif %}
+      </div>
       {% if evidence.file %}
-      <a href="{{ evidence.file.url }}" class="small" target="_blank" rel="noopener">Ver arquivo</a>
+      <div class="chrono-actions">
+        <a href="{{ evidence.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Ver arquivo</a>
+      </div>
       {% endif %}
     </article>
-  </div>
+  </li>
   {% endfor %}
-</div>
+</ol>
 {% else %}
 <div class="section-card">
   <div class="empty-note mb-0">
@@ -358,21 +373,32 @@
   <a href="{% url 'teacher:intervention_create' student.pk %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nova intervenção</a>
 </div>
 {% if interventions %}
-<div class="row g-3">
+<ol class="chrono">
   {% for intervention in interventions %}
-  <div class="col-md-6">
-    <article class="intervention-card">
-      <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-        <div class="skill-name">{{ intervention.skill.name }}</div>
+  {% with when=intervention.starts_on|default:intervention.created_at %}
+  {% ifchanged when|date:"Y-m" %}
+  <li class="chrono-group">{{ when|date:"F Y"|capfirst }}</li>
+  {% endifchanged %}
+  <li class="chrono-item chrono-item-{{ intervention.status }}">
+    <div class="chrono-when">
+      <div class="chrono-day">{{ when|date:"d" }}</div>
+      <div class="chrono-month">{{ when|date:"b" }}</div>
+      <div class="chrono-year">{{ when|date:"Y" }}</div>
+    </div>
+    <div class="chrono-rail" aria-hidden="true"><span class="chrono-dot"></span></div>
+    <article class="chrono-card">
+      <div class="chrono-card-head">
+        <div class="chrono-title">{{ intervention.skill.name }}</div>
         <span class="status-pill status-pill-{{ intervention.status }}">{{ intervention.get_status_display }}</span>
       </div>
-      {% if intervention.objective %}<p class="small text-muted mb-2">{{ intervention.objective|truncatewords:18 }}</p>{% endif %}
-      <div class="small text-muted mb-3">
-        {% if intervention.starts_on %}{{ intervention.starts_on|date:"d/m/Y" }}{% endif %}
-        {% if intervention.ends_on %} — {{ intervention.ends_on|date:"d/m/Y" }}{% endif %}
-        {% if not intervention.starts_on and not intervention.ends_on %}Período ainda não definido{% endif %}
+      {% if intervention.objective %}<p class="chrono-text">{{ intervention.objective }}</p>{% endif %}
+      <div class="chrono-meta">
+        {% if intervention.starts_on %}<span><strong>Início</strong> {{ intervention.starts_on|date:"d/m/Y" }}</span>{% endif %}
+        {% if intervention.ends_on %}<span><strong>Previsão de término</strong> {{ intervention.ends_on|date:"d/m/Y" }}</span>{% endif %}
+        {% if not intervention.starts_on and not intervention.ends_on %}<span>Período ainda não definido · registrada em {{ intervention.created_at|date:"d/m/Y" }}</span>{% endif %}
+        {% if intervention.responsible %}<span><strong>Responsável</strong> {{ intervention.responsible.get_full_name|default:intervention.responsible.username }}</span>{% endif %}
       </div>
-      <form method="post" action="{% url 'teacher:intervention_status' intervention.pk %}">
+      <form method="post" action="{% url 'teacher:intervention_status' intervention.pk %}" class="chrono-actions">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
         <label class="form-label small mb-1" for="status-{{ intervention.pk }}">Atualizar status</label>
@@ -383,9 +409,10 @@
         </select>
       </form>
     </article>
-  </div>
+  </li>
+  {% endwith %}
   {% endfor %}
-</div>
+</ol>
 {% else %}
 <div class="section-card section-card-student">
   <div class="empty-note mb-0">
@@ -450,37 +477,54 @@
       </div>
       <div class="card-body p-3">
         {% if support_plans %}
-        {% for plan in support_plans %}
-        <div class="mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
-          <div class="d-flex justify-content-between align-items-start gap-2">
-            <div>
-              <div class="fw-semibold">{{ plan.school_year }}</div>
-              <span class="status-pill status-pill-in_progress">{{ plan.get_status_display }}</span>
+        <ol class="chrono">
+          {% for plan in support_plans %}
+          {% with when=plan.start_date|default:plan.created_at %}
+          {% ifchanged when|date:"Y-m" %}
+          <li class="chrono-group">{{ when|date:"F Y"|capfirst }}</li>
+          {% endifchanged %}
+          <li class="chrono-item chrono-item-{{ plan.status }}">
+            <div class="chrono-when">
+              <div class="chrono-day">{{ when|date:"d" }}</div>
+              <div class="chrono-month">{{ when|date:"b" }}</div>
+              <div class="chrono-year">{{ when|date:"Y" }}</div>
             </div>
-            {% if can_manage_support_plan %}
-            <div class="d-flex gap-1">
-              <a href="{% url 'teacher:support_plan_update' plan.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
-              <a href="{% url 'teacher:support_strategy_create' plan.pk %}" class="btn btn-sm btn-outline-primary">Estratégia</a>
-            </div>
-            {% endif %}
-          </div>
-          {% if plan.notes %}<p class="small mb-2 mt-2">{{ plan.notes }}</p>{% endif %}
-          <ul class="small mb-0 mt-2">
-            {% for strategy in plan.strategies.all %}
-            {% if strategy.is_active %}
-            <li>
-              {{ strategy.strategy }}
-              {% if strategy.accessibility_feature %}
-              <span class="text-muted">({{ strategy.accessibility_feature.name }})</span>
+            <div class="chrono-rail" aria-hidden="true"><span class="chrono-dot"></span></div>
+            <article class="chrono-card">
+              <div class="chrono-card-head">
+                <div class="chrono-title">Plano {{ plan.school_year }}</div>
+                <span class="status-pill status-pill-{{ plan.status }}">{{ plan.get_status_display }}</span>
+              </div>
+              {% if plan.notes %}<p class="chrono-text">{{ plan.notes }}</p>{% endif %}
+              <div class="chrono-meta">
+                {% if plan.start_date %}<span><strong>Início</strong> {{ plan.start_date|date:"d/m/Y" }}</span>{% endif %}
+                {% if plan.end_date %}<span><strong>Término</strong> {{ plan.end_date|date:"d/m/Y" }}</span>{% endif %}
+              </div>
+              <ul class="small mb-0 mt-2">
+                {% for strategy in plan.strategies.all %}
+                {% if strategy.is_active %}
+                <li>
+                  {{ strategy.strategy }}
+                  {% if strategy.accessibility_feature %}
+                  <span class="text-muted">({{ strategy.accessibility_feature.name }})</span>
+                  {% endif %}
+                </li>
+                {% endif %}
+                {% empty %}
+                <li class="text-muted">Sem estratégias registradas.</li>
+                {% endfor %}
+              </ul>
+              {% if can_manage_support_plan %}
+              <div class="chrono-actions d-flex gap-1">
+                <a href="{% url 'teacher:support_plan_update' plan.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                <a href="{% url 'teacher:support_strategy_create' plan.pk %}" class="btn btn-sm btn-outline-primary">Estratégia</a>
+              </div>
               {% endif %}
-            </li>
-            {% endif %}
-            {% empty %}
-            <li class="text-muted">Sem estratégias registradas.</li>
-            {% endfor %}
-          </ul>
-        </div>
-        {% endfor %}
+            </article>
+          </li>
+          {% endwith %}
+          {% endfor %}
+        </ol>
         {% else %}
         <p class="text-muted mb-0">Nenhum plano de apoio ativo.{% if can_manage_support_plan %} AEE ou coordenação podem criar o plano desta criança.{% endif %}</p>
         {% endif %}
@@ -497,12 +541,25 @@
   </div>
   <div class="card-body p-3">
     {% if trajectory %}
-    <ol class="timeline">
+    <ol class="chrono">
       {% for enroll in trajectory %}
-      <li class="timeline-item">
-        <div class="skill-name">{{ enroll.school_year }} · {{ enroll.classroom.name }}</div>
-        <div class="stack-meta small text-muted">{{ enroll.classroom.school.name }}</div>
-        <span class="status-pill status-pill-in_progress mt-2">{{ enroll.get_status_display }}</span>
+      <li class="chrono-item {% if enroll.status == 'completed' %}chrono-item-completed{% elif enroll.status == 'cancelled' %}chrono-item-cancelled{% else %}chrono-item-active{% endif %}">
+        <div class="chrono-when">
+          <div class="chrono-day chrono-day-year">{{ enroll.school_year.year }}</div>
+          {% if enroll.enrolled_at %}<div class="chrono-month">{{ enroll.enrolled_at|date:"d/m" }}</div>{% endif %}
+        </div>
+        <div class="chrono-rail" aria-hidden="true"><span class="chrono-dot"></span></div>
+        <article class="chrono-card">
+          <div class="chrono-card-head">
+            <div class="chrono-title">{{ enroll.classroom.name }}</div>
+            <span class="status-pill {% if enroll.status == 'completed' %}status-pill-completed{% elif enroll.status == 'cancelled' %}status-pill-cancelled{% else %}status-pill-in_progress{% endif %}">{{ enroll.get_status_display }}</span>
+          </div>
+          <div class="chrono-meta">
+            <span><strong>Escola</strong> {{ enroll.classroom.school.name }}</span>
+            <span><strong>Ano letivo</strong> {{ enroll.school_year }}</span>
+            {% if enroll.enrolled_at %}<span><strong>Matrícula</strong> {{ enroll.enrolled_at|date:"d/m/Y" }}</span>{% endif %}
+          </div>
+        </article>
       </li>
       {% endfor %}
     </ol>

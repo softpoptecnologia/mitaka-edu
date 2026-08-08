@@ -171,17 +171,21 @@ class StudentProfileView(TeacherRequiredMixin, View):
         instruments = AssessmentInstrument.objects.filter(is_active=True, is_published=True).select_related("skill")
         sessions = AssessmentSession.objects.filter(enrollment__student=student).select_related(
             "instrument", "instrument__skill"
-        )
+        ).order_by("-started_at")
         if q_status:
             sessions = sessions.filter(status=q_status)
         if q_modo == "adapted":
             sessions = sessions.exclude(active_features=[])
         if q_skill:
             sessions = sessions.filter(instrument__skill_id=q_skill)
-        evidences = Evidence.objects.filter(student=student, is_active=True).select_related("skill")
+        evidences = Evidence.objects.filter(student=student, is_active=True).select_related(
+            "skill", "recorded_by"
+        ).order_by("-recorded_at")
         if q_skill:
             evidences = evidences.filter(skill_id=q_skill)
-        interventions = StudentIntervention.objects.filter(student=student, is_active=True).select_related("skill")
+        interventions = StudentIntervention.objects.filter(student=student, is_active=True).select_related(
+            "skill", "responsible"
+        ).order_by("-starts_on", "-created_at")
         if q_status and tab == "intervencoes":
             interventions = interventions.filter(status=q_status)
         if q_skill:
@@ -189,7 +193,7 @@ class StudentProfileView(TeacherRequiredMixin, View):
         statuses = StudentSkillStatus.objects.filter(student=student).select_related("skill", "last_session")
         trajectory = student.enrollments.filter(is_active=True).select_related(
             "classroom", "school_year", "classroom__school"
-        )
+        ).order_by("school_year__year", "enrolled_at")
         resource_labels = (
             active_resource_labels_for_teacher(student)
             if can_view_accessibility_profile(request.user, student)
@@ -197,7 +201,7 @@ class StudentProfileView(TeacherRequiredMixin, View):
         )
         support_plans = StudentSupportPlan.objects.filter(student=student, is_active=True).prefetch_related(
             "strategies", "strategies__accessibility_feature"
-        )
+        ).order_by("-start_date", "-created_at")
         if tab == "apoio":
             ensure_default_features()
         all_features = AccessibilityFeature.objects.filter(is_active=True).select_related("category")

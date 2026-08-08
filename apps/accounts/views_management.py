@@ -251,8 +251,12 @@ class InterventionsListView(ManagementRequiredMixin, View):
     def get(self, request):
         q = (request.GET.get("q") or "").strip()
         status = request.GET.get("status", "")
-        student_ints = StudentIntervention.objects.filter(is_active=True).select_related("student", "skill")
-        class_ints = ClassroomIntervention.objects.filter(is_active=True).select_related("classroom", "skill")
+        student_ints = StudentIntervention.objects.filter(is_active=True).select_related(
+            "student", "skill", "responsible"
+        ).order_by("-starts_on", "-created_at")
+        class_ints = ClassroomIntervention.objects.filter(is_active=True).select_related(
+            "classroom", "skill", "responsible"
+        ).order_by("-starts_on", "-created_at")
         if q:
             student_ints = student_ints.filter(student__full_name__icontains=q)
             class_ints = class_ints.filter(classroom__name__icontains=q)
