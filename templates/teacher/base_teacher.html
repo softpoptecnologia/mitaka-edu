@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui7">
+<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui8">
 <style>
   .teacher-nav {
     background: var(--mitaka-teal);
@@ -59,6 +59,28 @@
   .status-badge-pending .badge-icon { background: #fff3cd; color: #856404; }
   .status-badge-attention .badge-icon { background: #f8d7da; color: #721c24; }
   .status-badge .badge-label { font-size: 0.875rem; color: var(--mitaka-muted); }
+  .chrono { list-style: none; margin: 0; padding: 0; }
+  .chrono-group { margin: .15rem 0 .7rem 1.9rem; font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #5c6b6b; }
+  .chrono-item { display: flex; gap: .85rem; padding-bottom: 1rem; }
+  .chrono-item:last-child { padding-bottom: 0; }
+  .chrono-rail { position: relative; width: .9rem; flex-shrink: 0; }
+  .chrono-rail::before { content: ""; position: absolute; left: 50%; top: .7rem; bottom: -1rem; width: 2px; background: #d7ecec; transform: translateX(-50%); }
+  .chrono-item:last-child .chrono-rail::before { display: none; }
+  .chrono-dot { position: relative; z-index: 1; display: block; width: .85rem; height: .85rem; margin-top: .28rem; border-radius: 50%; background: #0d6e6e; box-shadow: 0 0 0 4px #e6f3f3; }
+  .chrono-item-completed .chrono-dot, .chrono-item-ok .chrono-dot { background: #2f7d4a; }
+  .chrono-item-planned .chrono-dot, .chrono-item-draft .chrono-dot { background: #b7791f; }
+  .chrono-item-sky .chrono-dot { background: #3d7ea6; }
+  .chrono-item-cancelled .chrono-dot, .chrono-item-archived .chrono-dot { background: #8a9494; }
+  .chrono-main { min-width: 0; flex: 1; }
+  .chrono-when { display: block; font-size: .82rem; font-weight: 800; color: #5c6b6b; margin-bottom: .4rem; }
+  .chrono-card { background: #fbfaf7; border: 1px solid #e5e1d8; border-radius: 14px; padding: .9rem 1rem; }
+  .chrono-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .7rem; margin-bottom: .35rem; }
+  .chrono-title { font-weight: 800; line-height: 1.4; }
+  .chrono-text { margin: 0; line-height: 1.5; color: #5c6b6b; }
+  .chrono-meta { display: flex; flex-wrap: wrap; gap: .3rem .85rem; color: #5c6b6b; font-size: .82rem; margin-top: .45rem; }
+  .chrono-meta strong { color: #1f2a2a; font-weight: 800; }
+  .chrono-actions { margin-top: .75rem; }
+  .instrument-card { padding: 1rem 1.1rem; height: auto; }
 </style>
 {% endblock %}
 

@@ -36,36 +36,32 @@
       </div>
       <div class="card-body p-0">
         {% if student_ints %}
-        <ol class="chrono">
+        <div class="chrono">
           {% for item in student_ints %}
           {% with when=item.starts_on|default:item.created_at %}
           {% ifchanged "student" when|date:"Y-m" %}
-          <li class="chrono-group">{{ when|date:"F Y"|capfirst }}</li>
+          <div class="chrono-group">{{ when|date:"F Y"|capfirst }}</div>
           {% endifchanged %}
-          <li class="chrono-item chrono-item-{{ item.status }}">
-            <div class="chrono-when">
-              <div class="chrono-day">{{ when|date:"d" }}</div>
-              <div class="chrono-month">{{ when|date:"b" }}</div>
-              <div class="chrono-year">{{ when|date:"Y" }}</div>
-            </div>
+          <article class="chrono-item chrono-item-{{ item.status }}">
             <div class="chrono-rail" aria-hidden="true"><span class="chrono-dot"></span></div>
-            <article class="chrono-card">
-              <div class="chrono-card-head">
-                <div class="chrono-title">{{ item.student.full_name }}</div>
-                <span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span>
+            <div class="chrono-main">
+              <time class="chrono-when">{{ when|date:"d/m/Y" }}</time>
+              <div class="chrono-card">
+                <div class="chrono-card-head">
+                  <div class="chrono-title">{{ item.student.full_name }}</div>
+                  <span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span>
+                </div>
+                <p class="chrono-text">{{ item.skill.name }}</p>
+                <div class="chrono-meta">
+                  {% if item.starts_on %}<span><strong>Início</strong> {{ item.starts_on|date:"d/m/Y" }}</span>{% endif %}
+                  {% if item.ends_on %}<span><strong>Até</strong> {{ item.ends_on|date:"d/m/Y" }}</span>{% endif %}
+                </div>
               </div>
-              <p class="chrono-text mb-2">{{ item.skill.name }}</p>
-              {% if item.objective %}<p class="small text-muted mb-2">{{ item.objective|truncatewords:18 }}</p>{% endif %}
-              <div class="chrono-meta">
-                {% if item.starts_on %}<span><strong>Início</strong> {{ item.starts_on|date:"d/m/Y" }}</span>{% endif %}
-                {% if item.ends_on %}<span><strong>Término</strong> {{ item.ends_on|date:"d/m/Y" }}</span>{% endif %}
-                {% if not item.starts_on and not item.ends_on %}<span>Registrada em {{ item.created_at|date:"d/m/Y" }}</span>{% endif %}
-              </div>
-            </article>
-          </li>
+            </div>
+          </article>
           {% endwith %}
           {% endfor %}
-        </ol>
+        </div>
         {% else %}
         <div class="empty-state">
           <i class="bi bi-emoji-smile" aria-hidden="true"></i>
@@ -83,36 +79,32 @@
       </div>
       <div class="card-body p-0">
         {% if class_ints %}
-        <ol class="chrono">
+        <div class="chrono">
           {% for item in class_ints %}
           {% with when=item.starts_on|default:item.created_at %}
           {% ifchanged "class" when|date:"Y-m" %}
-          <li class="chrono-group">{{ when|date:"F Y"|capfirst }}</li>
+          <div class="chrono-group">{{ when|date:"F Y"|capfirst }}</div>
           {% endifchanged %}
-          <li class="chrono-item chrono-item-{{ item.status }}">
-            <div class="chrono-when">
-              <div class="chrono-day">{{ when|date:"d" }}</div>
-              <div class="chrono-month">{{ when|date:"b" }}</div>
-              <div class="chrono-year">{{ when|date:"Y" }}</div>
-            </div>
+          <article class="chrono-item chrono-item-{{ item.status }}">
             <div class="chrono-rail" aria-hidden="true"><span class="chrono-dot"></span></div>
-            <article class="chrono-card">
-              <div class="chrono-card-head">
-                <div class="chrono-title">{{ item.classroom.name }}</div>
-                <span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span>
+            <div class="chrono-main">
+              <time class="chrono-when">{{ when|date:"d/m/Y" }}</time>
+              <div class="chrono-card">
+                <div class="chrono-card-head">
+                  <div class="chrono-title">{{ item.classroom.name }}</div>
+                  <span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span>
+                </div>
+                <p class="chrono-text">{{ item.skill.name }}</p>
+                <div class="chrono-meta">
+                  {% if item.starts_on %}<span><strong>Início</strong> {{ item.starts_on|date:"d/m/Y" }}</span>{% endif %}
+                  {% if item.ends_on %}<span><strong>Até</strong> {{ item.ends_on|date:"d/m/Y" }}</span>{% endif %}
+                </div>
               </div>
-              <p class="chrono-text mb-2">{{ item.skill.name }}</p>
-              {% if item.objective %}<p class="small text-muted mb-2">{{ item.objective|truncatewords:18 }}</p>{% endif %}
-              <div class="chrono-meta">
-                {% if item.starts_on %}<span><strong>Início</strong> {{ item.starts_on|date:"d/m/Y" }}</span>{% endif %}
-                {% if item.ends_on %}<span><strong>Término</strong> {{ item.ends_on|date:"d/m/Y" }}</span>{% endif %}
-                {% if not item.starts_on and not item.ends_on %}<span>Registrada em {{ item.created_at|date:"d/m/Y" }}</span>{% endif %}
-              </div>
-            </article>
-          </li>
+            </div>
+          </article>
           {% endwith %}
           {% endfor %}
-        </ol>
+        </div>
         {% else %}
         <div class="empty-state">
           <i class="bi bi-easel2" aria-hidden="true"></i>

@@ -2,7 +2,28 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/admin.css' %}?v=ui5">
+<link rel="stylesheet" href="{% static 'css/admin.css' %}?v=ui6">
+<style>
+  .chrono { list-style: none; margin: 0; padding: 1rem 1.1rem; }
+  .chrono-group { margin: .15rem 0 .7rem 1.9rem; font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #5f6b6b; }
+  .chrono-item { display: flex; gap: .85rem; padding-bottom: 1rem; }
+  .chrono-item:last-child { padding-bottom: 0; }
+  .chrono-rail { position: relative; width: .9rem; flex-shrink: 0; }
+  .chrono-rail::before { content: ""; position: absolute; left: 50%; top: .7rem; bottom: -1rem; width: 2px; background: #e6f3f3; transform: translateX(-50%); }
+  .chrono-item:last-child .chrono-rail::before { display: none; }
+  .chrono-dot { position: relative; z-index: 1; display: block; width: .85rem; height: .85rem; margin-top: .28rem; border-radius: 50%; background: #0f5c5c; box-shadow: 0 0 0 4px #e6f3f3; }
+  .chrono-item-completed .chrono-dot { background: #2f7d4a; }
+  .chrono-item-planned .chrono-dot, .chrono-item-draft .chrono-dot { background: #d97706; }
+  .chrono-item-cancelled .chrono-dot, .chrono-item-archived .chrono-dot { background: #8a9494; }
+  .chrono-main { min-width: 0; flex: 1; }
+  .chrono-when { display: block; font-size: .82rem; font-weight: 800; color: #5f6b6b; margin-bottom: .4rem; }
+  .chrono-card { background: #f7faf8; border: 1px solid #e4e8e6; border-radius: 14px; padding: .9rem 1rem; }
+  .chrono-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .7rem; margin-bottom: .35rem; }
+  .chrono-title { font-weight: 800; line-height: 1.4; }
+  .chrono-text { margin: 0; line-height: 1.5; color: #5f6b6b; }
+  .chrono-meta { display: flex; flex-wrap: wrap; gap: .3rem .85rem; color: #5f6b6b; font-size: .82rem; margin-top: .45rem; }
+  .chrono-meta strong { color: #1c2424; font-weight: 800; }
+</style>
 {% block admin_extra_css %}{% endblock %}
 {% endblock %}
 
