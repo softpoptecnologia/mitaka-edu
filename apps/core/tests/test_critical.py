@@ -134,6 +134,55 @@ class PermissionTests(BaseFixtureTestCase):
         self.assertFalse(schools_for_user(self.gestor).filter(pk=self.school_b.pk).exists())
 
 
+class SidebarNavTests(BaseFixtureTestCase):
+    def _sidebar(self, username):
+        client = Client()
+        client.login(username=username, password="pass12345")
+        return client.get(reverse("management:dashboard")).content.decode()
+
+    def test_gestor_sidebar_hides_network_items(self):
+        html = self._sidebar("gestor1")
+        self.assertIn("Turmas", html)
+        self.assertIn("Equipe", html)
+        self.assertIn("Importar matrículas", html)
+        self.assertNotIn("Painel municipal", html)
+        self.assertNotIn(">Município<", html)
+        self.assertNotIn("Anos letivos", html)
+        self.assertNotIn("Comparar escolas", html)
+        self.assertNotIn("Navegação em rede", html)
+        self.assertNotIn(">Matriz<", html)
+        self.assertNotIn("Instrumentos", html)
+
+    def test_aee_sidebar_hides_cadastro_write(self):
+        self._user("aee1", Role.Code.AEE, self.school_a)
+        html = self._sidebar("aee1")
+        self.assertIn("Estudantes", html)
+        self.assertIn("Turmas", html)
+        self.assertNotIn("Importar matrículas", html)
+        self.assertNotIn("Equipe", html)
+        self.assertNotIn("Painel municipal", html)
+        self.assertNotIn("Matrículas", html)
+
+    def test_secretaria_sidebar_keeps_network_items(self):
+        self._user("sec1", Role.Code.SECRETARIA, self.school_a)
+        html = self._sidebar("sec1")
+        self.assertIn("Painel municipal", html)
+        self.assertIn("Município", html)
+        self.assertIn("Anos letivos", html)
+        self.assertIn("Matriz", html)
+        self.assertIn("Comparar escolas", html)
+
+    def test_professor_reports_hide_network_card(self):
+        client = Client()
+        client.login(username="prof1", password="pass12345")
+        html = client.get(reverse("management:reports")).content.decode()
+        self.assertIn("Relatórios", html)
+        self.assertNotIn("Painel municipal", html)
+        self.assertNotIn("Rede municipal", html)
+        self.assertNotIn("Importar matrículas", html)
+        self.assertIn("Minhas turmas", html)
+
+
 class CadastroCrudTests(BaseFixtureTestCase):
     def test_gestor_cannot_create_school(self):
         client = Client()

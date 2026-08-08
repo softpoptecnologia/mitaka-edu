@@ -59,6 +59,7 @@
       </div>
     </div>
   </div>
+  {% if nav.report_school %}
   <div class="col-md-6">
     <div class="card panel-tone-school shadow-sm h-100 report-action-card">
       <div class="card-header">
@@ -80,6 +81,8 @@
       </div>
     </div>
   </div>
+  {% endif %}
+  {% if nav.report_network %}
   <div class="col-md-6">
     <div class="card panel-tone-network shadow-sm h-100 report-action-card">
       <div class="card-header">
@@ -92,5 +95,6 @@
       </div>
     </div>
   </div>
+  {% endif %}
 </div>
 {% endblock %}
