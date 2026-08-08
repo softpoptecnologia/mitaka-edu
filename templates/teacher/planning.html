@@ -16,8 +16,11 @@
 
 <div class="row g-4">
   <div class="col-lg-8">
-    <div class="card shadow-sm">
-      <div class="card-header"><strong>Prioridades da turma</strong></div>
+    <div class="section-card section-card-attention">
+      <div class="section-card-header">
+        <span class="section-icon" aria-hidden="true"><i class="bi bi-flag"></i></span>
+        <span>Prioridades da turma</span>
+      </div>
       <div class="card-body">
         {% if insights %}
         <div class="list-group list-group-flush">
@@ -57,8 +60,11 @@
     </div>
   </div>
   <div class="col-lg-4">
-    <div class="card shadow-sm">
-      <div class="card-header"><strong>Planos ativos</strong></div>
+    <div class="section-card section-card-ok">
+      <div class="section-card-header">
+        <span class="section-icon" aria-hidden="true"><i class="bi bi-journal-check"></i></span>
+        <span>Planos ativos</span>
+      </div>
       <div class="card-body">
         {% if plans %}
         <ul class="list-unstyled mb-0">

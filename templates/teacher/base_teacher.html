@@ -1,22 +1,46 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui2">
 <style>
   .teacher-nav {
     background: var(--mitaka-teal);
-    box-shadow: 0 2px 8px rgba(13, 110, 110, 0.15);
+    box-shadow: 0 2px 12px rgba(13, 110, 110, 0.18);
   }
   .teacher-nav .navbar-brand,
   .teacher-nav .nav-link {
     color: #fff !important;
+    font-weight: 700;
+  }
+  .teacher-nav .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .teacher-nav .brand-mark {
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 10px;
+    background: #f4c95d;
+    color: #14302c;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .teacher-nav .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    opacity: 0.9;
   }
   .teacher-nav .nav-link:hover {
     color: var(--mitaka-cream) !important;
-    opacity: 0.95;
+    opacity: 1;
   }
   .teacher-nav .nav-link.active {
-    font-weight: 600;
-    border-bottom: 2px solid var(--mitaka-cream);
+    opacity: 1;
+    border-bottom: 2px solid #f4c95d;
   }
   .teacher-main {
     min-height: calc(100vh - 56px);
@@ -41,20 +65,29 @@
 {% block content %}
 <nav class="navbar navbar-expand-lg teacher-nav">
   <div class="container-fluid px-3 px-lg-4">
-    <a class="navbar-brand fw-semibold" href="{% url 'teacher:home' %}">{{ APP_NAME }}</a>
+    <a class="navbar-brand fw-semibold" href="{% url 'teacher:home' %}">
+      <span class="brand-mark" aria-hidden="true"><i class="bi bi-mortarboard-fill"></i></span>
+      {{ APP_NAME }}
+    </a>
     <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#teacherNav" aria-controls="teacherNav" aria-expanded="false" aria-label="Menu">
       <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
     </button>
     <div class="collapse navbar-collapse" id="teacherNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link{% if request.resolver_match.url_name == 'home' %} active{% endif %}" href="{% url 'teacher:home' %}">Início</a>
+          <a class="nav-link{% if request.resolver_match.url_name == 'home' %} active{% endif %}" href="{% url 'teacher:home' %}">
+            <i class="bi bi-house-heart" aria-hidden="true"></i> Início
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link{% if 'classroom' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'teacher:classrooms' %}">Minhas turmas</a>
+          <a class="nav-link{% if 'classroom' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'teacher:classrooms' %}">
+            <i class="bi bi-easel2" aria-hidden="true"></i> Minhas turmas
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'logout' %}">Sair</a>
+          <a class="nav-link" href="{% url 'logout' %}">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Sair
+          </a>
         </li>
       </ul>
     </div>

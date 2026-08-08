@@ -1,24 +1,28 @@
 {% extends "admin_panel/base_admin.html" %}
 
 {% block page_title %}Relatórios{% endblock %}
+{% block page_subtitle %}<span class="text-muted small">Mesmo recorte na tela, na impressão e no PDF</span>{% endblock %}
 
 {% block admin_content %}
-<p class="text-muted mb-4">Mesmo padrão visual para tela, impressão e PDF. Os números vêm dos dados pedagógicos reais.</p>
-
-<form method="get" class="row g-2 align-items-end mb-4">
-  <div class="col-md-6">
-    <label class="form-label small mb-1" for="q">Buscar estudante</label>
-    <input class="form-control" id="q" name="q" value="{{ q }}" placeholder="Nome ou código">
-  </div>
-  <div class="col-md-3">
-    <button class="btn btn-outline-primary" type="submit">Filtrar lista</button>
+<form method="get" class="filter-bar">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label" for="q">Buscar estudante</label>
+      <input class="form-control form-control-sm" id="q" name="q" value="{{ q }}" placeholder="Nome ou código">
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-accent btn-sm" type="submit"><i class="bi bi-search me-1" aria-hidden="true"></i>Filtrar lista</button>
+    </div>
   </div>
 </form>
 
 <div class="row g-4">
-  <div class="col-lg-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-header"><strong>Estudante</strong></div>
+  <div class="col-md-6">
+    <div class="card panel-tone-student shadow-sm h-100 report-action-card">
+      <div class="card-header">
+        <span class="panel-icon" aria-hidden="true"><i class="bi bi-person-heart"></i></span>
+        <span>Estudante</span>
+      </div>
       <div class="card-body">
         {% if students %}
         <select class="form-select mb-3" id="studentSelect">
@@ -26,17 +30,20 @@
           <option value="{% url 'management:report_student' student.pk %}">{{ student.full_name }}</option>
           {% endfor %}
         </select>
-        <button type="button" class="btn btn-outline-primary btn-sm" onclick="location.href=document.getElementById('studentSelect').value">Abrir</button>
-        <button type="button" class="btn btn-primary btn-sm" onclick="location.href=document.getElementById('studentSelect').value + '?formato=pdf'">PDF</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href=document.getElementById('studentSelect').value">Abrir</button>
+        <button type="button" class="btn btn-accent btn-sm" onclick="location.href=document.getElementById('studentSelect').value + '?formato=pdf'">PDF</button>
         {% else %}
         <p class="text-muted mb-0">Nenhum estudante no escopo.</p>
         {% endif %}
       </div>
     </div>
   </div>
-  <div class="col-lg-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-header"><strong>Turma</strong></div>
+  <div class="col-md-6">
+    <div class="card panel-tone-class shadow-sm h-100 report-action-card">
+      <div class="card-header">
+        <span class="panel-icon" aria-hidden="true"><i class="bi bi-easel2"></i></span>
+        <span>Turma</span>
+      </div>
       <div class="card-body">
         {% if classrooms %}
         <select class="form-select mb-3" id="classroomSelect">
@@ -44,17 +51,20 @@
           <option value="{% url 'management:report_classroom' classroom.pk %}">{{ classroom.name }} — {{ classroom.school.name }}</option>
           {% endfor %}
         </select>
-        <button type="button" class="btn btn-outline-primary btn-sm" onclick="location.href=document.getElementById('classroomSelect').value">Abrir</button>
-        <button type="button" class="btn btn-primary btn-sm" onclick="location.href=document.getElementById('classroomSelect').value + '?formato=pdf'">PDF</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href=document.getElementById('classroomSelect').value">Abrir</button>
+        <button type="button" class="btn btn-accent btn-sm" onclick="location.href=document.getElementById('classroomSelect').value + '?formato=pdf'">PDF</button>
         {% else %}
         <p class="text-muted mb-0">Nenhuma turma no escopo.</p>
         {% endif %}
       </div>
     </div>
   </div>
-  <div class="col-lg-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-header"><strong>Escola</strong></div>
+  <div class="col-md-6">
+    <div class="card panel-tone-school shadow-sm h-100 report-action-card">
+      <div class="card-header">
+        <span class="panel-icon" aria-hidden="true"><i class="bi bi-building"></i></span>
+        <span>Escola</span>
+      </div>
       <div class="card-body">
         {% if schools %}
         <select class="form-select mb-3" id="schoolSelect">
@@ -62,20 +72,23 @@
           <option value="{% url 'management:report_school' school.pk %}">{{ school.name }}</option>
           {% endfor %}
         </select>
-        <button type="button" class="btn btn-outline-primary btn-sm" onclick="location.href=document.getElementById('schoolSelect').value">Abrir</button>
-        <button type="button" class="btn btn-primary btn-sm" onclick="location.href=document.getElementById('schoolSelect').value + '?formato=pdf'">PDF</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href=document.getElementById('schoolSelect').value">Abrir</button>
+        <button type="button" class="btn btn-accent btn-sm" onclick="location.href=document.getElementById('schoolSelect').value + '?formato=pdf'">PDF</button>
         {% else %}
         <p class="text-muted mb-0">Nenhuma escola no escopo.</p>
         {% endif %}
       </div>
     </div>
   </div>
-  <div class="col-lg-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-header"><strong>Rede municipal</strong></div>
+  <div class="col-md-6">
+    <div class="card panel-tone-network shadow-sm h-100 report-action-card">
+      <div class="card-header">
+        <span class="panel-icon" aria-hidden="true"><i class="bi bi-diagram-3"></i></span>
+        <span>Rede municipal</span>
+      </div>
       <div class="card-body d-flex align-items-end gap-2">
-        <a href="{% url 'management:report_network' %}" class="btn btn-outline-primary btn-sm">Relatório da rede</a>
-        <a href="{% url 'management:report_network' %}?formato=pdf" class="btn btn-primary btn-sm">PDF da rede</a>
+        <a href="{% url 'management:report_network' %}" class="btn btn-outline-secondary btn-sm">Relatório da rede</a>
+        <a href="{% url 'management:report_network' %}?formato=pdf" class="btn btn-accent btn-sm">PDF da rede</a>
       </div>
     </div>
   </div>

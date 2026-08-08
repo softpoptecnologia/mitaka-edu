@@ -60,16 +60,22 @@
 
 <div class="row g-3">
   <div class="col-lg-6">
-    <div class="panel h-100">
-      <div class="panel-header">Estudantes em atenção por escola</div>
+    <div class="panel panel-tone-attention h-100">
+      <div class="panel-header">
+        <span class="panel-icon" aria-hidden="true"><i class="bi bi-flag"></i></span>
+        <span>Estudantes em atenção por escola</span>
+      </div>
       <div class="panel-body">
         <canvas id="schoolAttentionChart" height="220" aria-label="Gráfico por escola"></canvas>
       </div>
     </div>
   </div>
   <div class="col-lg-6">
-    <div class="panel h-100">
-      <div class="panel-header">Escolas no escopo</div>
+    <div class="panel panel-tone-school h-100">
+      <div class="panel-header">
+        <span class="panel-icon" aria-hidden="true"><i class="bi bi-building"></i></span>
+        <span>Escolas no escopo</span>
+      </div>
       <div class="panel-body p-0">
         {% if school_rows %}
         <div class="table-responsive">
@@ -108,7 +114,7 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block admin_extra_js %}
 <script>
 (function () {
   const ctx = document.getElementById('schoolAttentionChart');

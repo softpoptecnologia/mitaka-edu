@@ -3,8 +3,11 @@
 {% block page_title %}{{ page_title }}{% endblock %}
 
 {% block admin_content %}
-<div class="panel" style="max-width: 40rem;">
-  <div class="panel-header">{{ page_title }}</div>
+<div class="panel panel-tone-school" style="max-width: 40rem;">
+  <div class="panel-header">
+    <span class="panel-icon" aria-hidden="true"><i class="bi bi-pencil-square"></i></span>
+    <span>{{ page_title }}</span>
+  </div>
   <div class="panel-body">
     <form method="post" novalidate>
       {% csrf_token %}

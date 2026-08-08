@@ -1,40 +1,44 @@
 {% extends "admin_panel/base_admin.html" %}
 
 {% block page_title %}Intervenções{% endblock %}
+{% block page_subtitle %}<span class="text-muted small">Acompanhamento pedagógico individual e de turma</span>{% endblock %}
 
 {% block admin_content %}
-<form method="get" class="row g-2 align-items-end mb-3">
-  <div class="col-md-5">
-    <label class="form-label small mb-1" for="q">Buscar</label>
-    <input class="form-control form-control-sm" id="q" name="q" value="{{ q }}" placeholder="Estudante ou turma">
-  </div>
-  <div class="col-md-4">
-    <label class="form-label small mb-1" for="status">Status</label>
-    <select class="form-select form-select-sm" id="status" name="status">
-      <option value="">Todos</option>
-      <option value="planned" {% if status == 'planned' %}selected{% endif %}>Planejada</option>
-      <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>Em andamento</option>
-      <option value="completed" {% if status == 'completed' %}selected{% endif %}>Concluída</option>
-    </select>
-  </div>
-  <div class="col-md-3">
-    <button class="btn btn-primary btn-sm" type="submit">Filtrar</button>
-    <a href="{% url 'management:interventions' %}" class="btn btn-outline-secondary btn-sm">Limpar</a>
+<form method="get" class="filter-bar">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-5">
+      <label class="form-label" for="q">Buscar</label>
+      <input class="form-control form-control-sm" id="q" name="q" value="{{ q }}" placeholder="Estudante ou turma">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" for="status">Status</label>
+      <select class="form-select form-select-sm" id="status" name="status">
+        <option value="">Todos</option>
+        <option value="planned" {% if status == 'planned' %}selected{% endif %}>Planejada</option>
+        <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>Em andamento</option>
+        <option value="completed" {% if status == 'completed' %}selected{% endif %}>Concluída</option>
+      </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button class="btn btn-accent btn-sm" type="submit"><i class="bi bi-search me-1" aria-hidden="true"></i>Filtrar</button>
+      <a href="{% url 'management:interventions' %}" class="btn btn-outline-secondary btn-sm">Limpar</a>
+    </div>
   </div>
 </form>
 
 <div class="row g-4">
   <div class="col-lg-6">
-    <div class="card shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>Intervenções individuais</strong>
+    <div class="card panel-tone-student shadow-sm h-100">
+      <div class="card-header">
+        <span class="panel-icon" aria-hidden="true"><i class="bi bi-person-heart"></i></span>
+        <span>Intervenções individuais</span>
         <a href="{% url 'management:intervention_templates' %}" class="btn btn-sm btn-outline-secondary">Templates</a>
       </div>
       <div class="card-body p-0">
         {% if student_ints %}
         <div class="table-responsive">
-          <table class="table table-sm table-hover mb-0 align-middle">
-            <thead class="table-light">
+          <table class="table table-clean table-hover mb-0 align-middle">
+            <thead>
               <tr>
                 <th>Estudante</th>
                 <th>Habilidade</th>
@@ -44,28 +48,39 @@
             <tbody>
               {% for item in student_ints %}
               <tr>
-                <td>{{ item.student.full_name }}</td>
-                <td>{{ item.skill.name }}</td>
-                <td><span class="badge bg-secondary">{{ item.get_status_display }}</span></td>
+                <td>
+                  <span class="entity-chip">
+                    <span class="entity-avatar entity-avatar-student" aria-hidden="true">{{ item.student.full_name|slice:":1" }}</span>
+                    {{ item.student.full_name }}
+                  </span>
+                </td>
+                <td class="cell-skill">{{ item.skill.name }}</td>
+                <td><span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span></td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
         {% else %}
-        <p class="text-muted p-4 mb-0">Nenhuma intervenção individual ativa.</p>
+        <div class="empty-state">
+          <i class="bi bi-emoji-smile" aria-hidden="true"></i>
+          Nenhuma intervenção individual ativa.
+        </div>
         {% endif %}
       </div>
     </div>
   </div>
   <div class="col-lg-6">
-    <div class="card shadow-sm">
-      <div class="card-header"><strong>Intervenções de turma</strong></div>
+    <div class="card panel-tone-class shadow-sm h-100">
+      <div class="card-header">
+        <span class="panel-icon" aria-hidden="true"><i class="bi bi-easel2"></i></span>
+        <span>Intervenções de turma</span>
+      </div>
       <div class="card-body p-0">
         {% if class_ints %}
         <div class="table-responsive">
-          <table class="table table-sm table-hover mb-0 align-middle">
-            <thead class="table-light">
+          <table class="table table-clean table-hover mb-0 align-middle">
+            <thead>
               <tr>
                 <th>Turma</th>
                 <th>Habilidade</th>
@@ -76,17 +91,25 @@
             <tbody>
               {% for item in class_ints %}
               <tr>
-                <td>{{ item.classroom.name }}</td>
-                <td>{{ item.skill.name }}</td>
-                <td><span class="badge bg-secondary">{{ item.get_status_display }}</span></td>
-                <td class="small">{{ item.objective|truncatewords:10 }}</td>
+                <td>
+                  <span class="entity-chip">
+                    <span class="entity-avatar entity-avatar-class" aria-hidden="true"><i class="bi bi-easel2"></i></span>
+                    {{ item.classroom.name }}
+                  </span>
+                </td>
+                <td class="cell-skill">{{ item.skill.name }}</td>
+                <td><span class="status-pill status-pill-{{ item.status }}">{{ item.get_status_display }}</span></td>
+                <td class="small text-muted">{{ item.objective|truncatewords:10 }}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
         {% else %}
-        <p class="text-muted p-4 mb-0">Nenhuma intervenção de turma ativa.</p>
+        <div class="empty-state">
+          <i class="bi bi-easel2" aria-hidden="true"></i>
+          Nenhuma intervenção de turma ativa.
+        </div>
         {% endif %}
       </div>
     </div>

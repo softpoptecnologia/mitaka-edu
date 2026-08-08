@@ -33,10 +33,11 @@
   </div>
 </form>
 
-<div class="panel">
-  <div class="panel-header d-flex justify-content-between">
+<div class="panel panel-tone-class">
+  <div class="panel-header">
+    <span class="panel-icon" aria-hidden="true"><i class="bi bi-easel2"></i></span>
     <span>Turmas</span>
-    <span class="text-muted small">{{ classrooms|length }}</span>
+    <span class="text-muted small ms-auto">{{ classrooms|length }}</span>
   </div>
   <div class="panel-body p-0">
     {% if classrooms %}

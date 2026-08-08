@@ -37,10 +37,11 @@
   </div>
 </form>
 
-<div class="panel">
-  <div class="panel-header d-flex justify-content-between">
+<div class="panel panel-tone-student">
+  <div class="panel-header">
+    <span class="panel-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
     <span>Estudantes</span>
-    <span class="text-muted small">{{ students|length }}</span>
+    <span class="text-muted small ms-auto">{{ students|length }}</span>
   </div>
   <div class="panel-body p-0">
     {% if students %}

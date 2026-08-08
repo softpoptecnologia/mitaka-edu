@@ -1,18 +1,21 @@
 :root {
   --brand: #0d6e6e;
   --brand-dark: #0a5555;
-  --cream: #f7f5f0;
+  --cream: #f6f3ee;
   --ink: #1f2a2a;
   --muted: #5c6b6b;
   --ok: #2f7d4a;
   --attention: #b7791f;
   --pending: #6b7280;
+  --coral: #e07a5f;
+  --sky: #3d7ea6;
+  --sun: #f4c95d;
 }
 
 body {
   color: var(--ink);
   background: var(--cream);
-  font-family: "Segoe UI", "Nunito Sans", system-ui, sans-serif;
+  font-family: Nunito, "Segoe UI", system-ui, sans-serif;
 }
 
 .btn-brand {
@@ -36,9 +39,157 @@ body {
 .teacher-card {
   background: #fff;
   border: 1px solid #e5e1d8;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 1.25rem;
   height: 100%;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #e5e1d8;
+  border-left: 4px solid var(--brand);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  height: 100%;
+  box-shadow: 0 8px 24px rgba(20, 48, 44, 0.04);
+}
+
+.stat-card .stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.stat-card .stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-top: 0.2rem;
+}
+
+.stat-card .stat-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+}
+
+.stat-card-ok { border-left-color: var(--ok); }
+.stat-card-ok .stat-icon { background: #e8f5ec; color: var(--ok); }
+.stat-card-ok .stat-value { color: var(--ok); }
+
+.stat-card-pending { border-left-color: var(--attention); }
+.stat-card-pending .stat-icon { background: #fff4e0; color: #9a5b00; }
+.stat-card-pending .stat-value { color: #9a5b00; }
+
+.stat-card-attention { border-left-color: #b42318; }
+.stat-card-attention .stat-icon { background: #fdeeee; color: #b42318; }
+.stat-card-attention .stat-value { color: #b42318; }
+
+.stat-card-access { border-left-color: #1d4ed8; }
+.stat-card-access .stat-icon { background: #eef2ff; color: #1d4ed8; }
+
+.stat-card-students { border-left-color: var(--coral); }
+.stat-card-students .stat-icon { background: #fdeee9; color: #9a3f28; }
+.stat-card-students .stat-value { color: #9a3f28; }
+
+.section-card {
+  background: #fff;
+  border: 1px solid #e5e1d8;
+  border-radius: 16px;
+  border-top: 4px solid var(--brand);
+  box-shadow: 0 8px 24px rgba(20, 48, 44, 0.04);
+  overflow: hidden;
+  height: 100%;
+}
+
+.section-card-student { border-top-color: var(--coral); }
+.section-card-class { border-top-color: var(--sky); }
+.section-card-attention { border-top-color: var(--attention); }
+.section-card-ok { border-top-color: var(--ok); }
+
+.section-card .card-header,
+.section-card-header {
+  background: #f7faf8;
+  border-bottom: 1px solid #e5e1d8;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.1rem;
+}
+
+.section-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(20, 48, 44, 0.06);
+}
+
+.section-card-student .section-icon { color: var(--coral); }
+.section-card-class .section-icon { color: var(--sky); }
+.section-card-attention .section-icon { color: #9a5b00; }
+
+.classroom-tile {
+  background: #fff;
+  border: 1px solid #e5e1d8;
+  border-radius: 16px;
+  border-left: 4px solid var(--sky);
+  padding: 1.15rem 1.2rem;
+  height: 100%;
+  box-shadow: 0 8px 24px rgba(20, 48, 44, 0.04);
+}
+
+.classroom-tile h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.status-pill::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-pill-planned { background: #fff4e0; color: #9a5b00; }
+.status-pill-in_progress { background: #e6f3f3; color: var(--brand); }
+.status-pill-completed { background: #e8f5ec; color: var(--ok); }
+.status-pill-cancelled { background: #f1f1f1; color: #5f6b6b; }
+
+.teacher-tabs .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.teacher-tabs .nav-link.active {
+  color: var(--brand);
 }
 
 .assessment-shell {
