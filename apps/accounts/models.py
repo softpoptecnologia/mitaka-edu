@@ -66,16 +66,49 @@ class User(AbstractUser):
 
     @property
     def role_code(self) -> str | None:
+        from apps.core.permissions import normalize_role_code
+
         profile = self.profile
         if not profile or not profile.role_id:
             return None
         try:
-            return profile.role.code
+            return normalize_role_code(profile.role.code)
         except Exception:
             return None
 
     def has_role(self, *codes: str) -> bool:
         return self.role_code in codes
+
+    @property
+    def is_network_role(self) -> bool:
+        return self.role_code in {"SUPERADMIN", "SECRETARIA", "TECNICO"}
+
+    @property
+    def is_school_role(self) -> bool:
+        return self.role_code in {"GESTOR", "COORDENADOR", "AEE"}
+
+    @property
+    def is_school_write_role(self) -> bool:
+        return self.role_code in {"GESTOR", "COORDENADOR"}
+
+    @property
+    def is_teacher_role(self) -> bool:
+        return self.role_code == "PROFESSOR"
+
+    @property
+    def is_aee_role(self) -> bool:
+        return self.role_code == "AEE"
+
+    @property
+    def is_management_role(self) -> bool:
+        return self.is_network_role or self.is_school_role
+
+    @property
+    def role_label(self) -> str:
+        profile = self.profile
+        if profile and profile.role_id:
+            return profile.role.name
+        return ""
 
 
 class UserProfile(TimeStampedModel):

@@ -1,5 +1,4 @@
 {% extends "admin_panel/base_admin.html" %}
-{% load nav_tags %}
 
 {% block page_title %}Relatórios{% endblock %}
 {% block page_subtitle %}<span class="text-muted small">Mesmo recorte na tela, na impressão e no PDF</span>{% endblock %}
@@ -60,7 +59,7 @@
       </div>
     </div>
   </div>
-  {% if nav|nav_on:'report_school' %}
+  {% if not request.user.role_code or request.user.is_network_role or request.user.is_school_role %}
   <div class="col-md-6">
     <div class="card panel-tone-school shadow-sm h-100 report-action-card">
       <div class="card-header">
@@ -83,7 +82,7 @@
     </div>
   </div>
   {% endif %}
-  {% if nav|nav_on:'report_network' %}
+  {% if not request.user.role_code or request.user.is_network_role %}
   <div class="col-md-6">
     <div class="card panel-tone-network shadow-sm h-100 report-action-card">
       <div class="card-header">

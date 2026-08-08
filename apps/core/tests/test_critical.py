@@ -199,9 +199,10 @@ class SidebarNavTests(BaseFixtureTestCase):
 
     def test_gestor_topbar_shows_role_and_menu(self):
         html = self._sidebar("gestor1")
-        self.assertIn("Gestor", html)
+        self.assertIn("Gestor Escolar", html)
         self.assertIn("Dashboard", html)
         self.assertIn("Sala de aula", html)
+        self.assertIn("Turmas", html)
 
 
 class CsrfProductionTests(TestCase):
