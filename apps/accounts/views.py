@@ -71,8 +71,8 @@ def login_view(request):
         "registration/login.html",
         {
             "error": error,
-            "demo_profiles": DEMO_PROFILES if settings.DEBUG else [],
-            "show_demo_profiles": settings.DEBUG,
+            "demo_profiles": DEMO_PROFILES if settings.SHOW_DEMO_PROFILES else [],
+            "show_demo_profiles": settings.SHOW_DEMO_PROFILES,
         },
     )
 

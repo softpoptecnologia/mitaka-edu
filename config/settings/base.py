@@ -8,6 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 env = environ.Env(
     DJANGO_DEBUG=(bool, False),
     DJANGO_ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
+    DJANGO_SHOW_DEMO_PROFILES=(bool, True),
 )
 
 environ.Env.read_env(BASE_DIR / ".env")
@@ -15,6 +16,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="insecure-dev-key-change-me")
 DEBUG = env("DJANGO_DEBUG")
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
+SHOW_DEMO_PROFILES = env("DJANGO_SHOW_DEMO_PROFILES")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
