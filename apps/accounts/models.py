@@ -59,14 +59,20 @@ class User(AbstractUser):
 
     @property
     def profile(self):
-        return getattr(self, "userprofile", None)
+        try:
+            return self.userprofile
+        except Exception:
+            return None
 
     @property
     def role_code(self) -> str | None:
         profile = self.profile
-        if profile and profile.role_id:
+        if not profile or not profile.role_id:
+            return None
+        try:
             return profile.role.code
-        return None
+        except Exception:
+            return None
 
     def has_role(self, *codes: str) -> bool:
         return self.role_code in codes

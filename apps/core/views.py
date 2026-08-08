@@ -1,3 +1,10 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def csrf_failure(request, reason=""):
+    return render(
+        request,
+        "registration/csrf_failure.html",
+        {"reason": reason},
+        status=403,
+    )

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static nav_tags %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/admin.css' %}?v=ui2">
@@ -15,102 +15,102 @@
       <span class="brand-text">{{ APP_NAME }}</span>
     </div>
     <nav aria-label="Menu principal">
-      {% if nav.teacher_portal %}
+      {% if nav|nav_on:'teacher_portal' %}
       <div class="nav-section">Sala</div>
       <a class="nav-link" href="{% url 'teacher:home' %}" title="Sala de aula">
         <i class="bi bi-easel2" aria-hidden="true"></i><span>{% if nav.role == 'PROFESSOR' or nav.role == 'AEE' %}Minhas turmas{% else %}Sala de aula{% endif %}</span>
       </a>
       {% endif %}
 
-      {% if nav.section_gestao %}
+      {% if nav|nav_on:'section_gestao' %}
       <div class="nav-section">Gestão</div>
-      {% if nav.dashboard %}
+      {% if nav|nav_on:'dashboard' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.namespace == 'management' %} active{% endif %}" href="{% url 'management:dashboard' %}" title="Dashboard">
         <i class="bi bi-speedometer2" aria-hidden="true"></i><span>Dashboard</span>
       </a>
       {% endif %}
-      {% if nav.municipality %}
+      {% if nav|nav_on:'municipality' %}
       <a class="nav-link{% if 'municipalit' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'management:municipalities' %}" title="Município">
         <i class="bi bi-geo-alt" aria-hidden="true"></i><span>Município</span>
       </a>
       {% endif %}
-      {% if nav.schools %}
+      {% if nav|nav_on:'schools' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'schools' %} active{% endif %}" href="{% url 'management:schools' %}" title="Escolas">
         <i class="bi bi-building" aria-hidden="true"></i><span>Escolas</span>
       </a>
       {% endif %}
-      {% if nav.classrooms %}
+      {% if nav|nav_on:'classrooms' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'classrooms' %} active{% endif %}" href="{% url 'management:classrooms' %}" title="Turmas">
         <i class="bi bi-easel2" aria-hidden="true"></i><span>Turmas</span>
       </a>
       {% endif %}
-      {% if nav.students %}
+      {% if nav|nav_on:'students' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'students' %} active{% endif %}" href="{% url 'management:students' %}" title="Estudantes">
         <i class="bi bi-people" aria-hidden="true"></i><span>Estudantes</span>
       </a>
       {% endif %}
-      {% if nav.enrollments %}
+      {% if nav|nav_on:'enrollments' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'enrollments' %} active{% endif %}" href="{% url 'management:enrollments' %}" title="Matrículas">
         <i class="bi bi-person-vcard" aria-hidden="true"></i><span>Matrículas</span>
       </a>
       {% endif %}
-      {% if nav.import_students %}
+      {% if nav|nav_on:'import_students' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'import_students' %} active{% endif %}" href="{% url 'management:import_students' %}" title="Importar matrículas">
         <i class="bi bi-upload" aria-hidden="true"></i><span>Importar matrículas</span>
       </a>
       {% endif %}
-      {% if nav.teachers %}
+      {% if nav|nav_on:'teachers' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'teachers' %} active{% endif %}" href="{% url 'management:teachers' %}" title="Equipe">
         <i class="bi bi-person-badge" aria-hidden="true"></i><span>Equipe</span>
       </a>
       {% endif %}
-      {% if nav.school_years %}
+      {% if nav|nav_on:'school_years' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'new_year' %} active{% endif %}" href="{% url 'management:new_year' %}" title="Anos letivos">
         <i class="bi bi-calendar3" aria-hidden="true"></i><span>Anos letivos</span>
       </a>
       {% endif %}
       {% endif %}
 
-      {% if nav.section_curriculo %}
+      {% if nav|nav_on:'section_curriculo' %}
       <div class="nav-section">Currículo</div>
-      {% if nav.matrix %}
+      {% if nav|nav_on:'matrix' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'matrix' %} active{% endif %}" href="{% url 'management:matrix' %}" title="Matriz">
         <i class="bi bi-diagram-3" aria-hidden="true"></i><span>Matriz</span>
       </a>
       {% endif %}
-      {% if nav.dimensions %}
+      {% if nav|nav_on:'dimensions' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'dimensions' %} active{% endif %}" href="{% url 'management:dimensions' %}" title="Dimensões">
         <i class="bi bi-layers" aria-hidden="true"></i><span>Dimensões</span>
       </a>
       {% endif %}
-      {% if nav.alignment %}
+      {% if nav|nav_on:'alignment' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'curriculum_alignment' %} active{% endif %}" href="{% url 'management:curriculum_alignment' %}" title="Alinhamento PE">
         <i class="bi bi-intersect" aria-hidden="true"></i><span>Alinhamento PE</span>
       </a>
       {% endif %}
-      {% if nav.instruments %}
+      {% if nav|nav_on:'instruments' %}
       <a class="nav-link{% if 'instrument' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'management:instruments' %}" title="Instrumentos">
         <i class="bi bi-clipboard-check" aria-hidden="true"></i><span>Instrumentos</span>
       </a>
       {% endif %}
-      {% if nav.templates %}
+      {% if nav|nav_on:'templates' %}
       <a class="nav-link{% if 'intervention_template' in request.resolver_match.url_name or request.resolver_match.url_name == 'intervention_templates' %} active{% endif %}" href="{% url 'management:intervention_templates' %}" title="Templates">
         <i class="bi bi-journal-richtext" aria-hidden="true"></i><span>Templates</span>
       </a>
       {% endif %}
-      {% if nav.indicators %}
+      {% if nav|nav_on:'indicators' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'indicators' %} active{% endif %}" href="{% url 'management:indicators' %}" title="Indicadores">
         <i class="bi bi-bar-chart" aria-hidden="true"></i><span>Indicadores</span>
       </a>
       {% endif %}
-      {% if nav.interventions %}
+      {% if nav|nav_on:'interventions' %}
       <a class="nav-link{% if request.resolver_match.url_name == 'interventions' %} active{% endif %}" href="{% url 'management:interventions' %}" title="Intervenções">
         <i class="bi bi-lightbulb" aria-hidden="true"></i><span>Intervenções</span>
       </a>
       {% endif %}
       {% endif %}
 
-      {% if nav.section_secretaria %}
+      {% if nav|nav_on:'section_secretaria' %}
       <div class="nav-section">Secretaria</div>
       <a class="nav-link{% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.namespace == 'secretaria' %} active{% endif %}" href="{% url 'secretaria:dashboard' %}" title="Painel municipal">
         <i class="bi bi-map" aria-hidden="true"></i><span>Painel municipal</span>
@@ -129,7 +129,7 @@
       </a>
       {% endif %}
 
-      {% if nav.section_relatorios %}
+      {% if nav|nav_on:'section_relatorios' %}
       <div class="nav-section">Relatórios</div>
       <a class="nav-link{% if 'report' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'management:reports' %}" title="Relatórios">
         <i class="bi bi-file-earmark-text" aria-hidden="true"></i><span>Relatórios</span>

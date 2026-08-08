@@ -182,6 +182,53 @@ class SidebarNavTests(BaseFixtureTestCase):
         self.assertNotIn("Importar matrículas", html)
         self.assertIn("Minhas turmas", html)
 
+    def test_missing_role_does_not_empty_sidebar(self):
+        from apps.core.permissions import nav_flags
+        from apps.core.templatetags.nav_tags import nav_on
+
+        user = self._user("norole", Role.Code.GESTOR, self.school_a)
+        user.userprofile.role = None
+        user.userprofile.save()
+        flags = nav_flags(user)
+        self.assertTrue(flags["section_gestao"])
+        self.assertTrue(flags["schools"])
+        self.assertTrue(nav_on({}, "section_gestao"))
+        self.assertTrue(nav_on({"ready": False}, "section_gestao"))
+        self.assertFalse(nav_on({"ready": True, "section_gestao": False}, "section_gestao"))
+
+
+class CsrfProductionTests(TestCase):
+    def test_csrf_origins_include_www(self):
+        from config.settings.base import csrf_origins_from_hosts
+
+        origins = csrf_origins_from_hosts(["edu.innomove.com.br"])
+        self.assertIn("https://edu.innomove.com.br", origins)
+        self.assertIn("https://www.edu.innomove.com.br", origins)
+
+    def test_cpanel_https_header(self):
+        from django.http import HttpResponse
+        from django.test import RequestFactory
+
+        from apps.core.middleware import CpanelHttpsMiddleware
+
+        factory = RequestFactory()
+        request = factory.get("/login/")
+        request.META["HTTPS"] = "on"
+        captured = {}
+
+        def inner(req):
+            captured["proto"] = req.META.get("HTTP_X_FORWARDED_PROTO")
+            return HttpResponse("ok")
+
+        CpanelHttpsMiddleware(inner)(request)
+        self.assertEqual(captured["proto"], "https")
+
+    def test_csrf_failure_page(self):
+        client = Client(enforce_csrf_checks=True)
+        response = client.post(reverse("login"), {"username": "x", "password": "y"})
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, "Sessão expirada", status_code=403)
+
 
 class CadastroCrudTests(BaseFixtureTestCase):
     def test_gestor_cannot_create_school(self):

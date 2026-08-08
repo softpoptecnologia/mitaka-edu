@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Sessão expirada — {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
+  <div class="container" style="max-width: 32rem;">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4 text-center">
+        <h1 class="h4 mb-2">Sessão expirada</h1>
+        <p class="text-muted mb-4">
+          A verificação de segurança falhou. Isso é comum depois de uma atualização
+          ou se a página ficou aberta por muito tempo. Atualize com
+          <strong>Ctrl + F5</strong> e entre de novo.
+        </p>
+        <a href="{% url 'login' %}" class="btn btn-primary">Voltar ao login</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

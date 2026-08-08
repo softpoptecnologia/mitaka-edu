@@ -61,9 +61,44 @@ ROLE_NAV_LABELS = {
 }
 
 
+def _nav_all_visible(**extra) -> dict:
+    flags = {
+        "dashboard": True,
+        "municipality": True,
+        "schools": True,
+        "classrooms": True,
+        "students": True,
+        "enrollments": True,
+        "import_students": True,
+        "teachers": True,
+        "school_years": True,
+        "matrix": True,
+        "dimensions": True,
+        "alignment": True,
+        "instruments": True,
+        "templates": True,
+        "indicators": True,
+        "interventions": True,
+        "secretaria": True,
+        "reports": True,
+        "report_school": True,
+        "report_network": True,
+        "teacher_portal": True,
+        "section_gestao": True,
+        "section_curriculo": True,
+        "section_secretaria": True,
+        "section_relatorios": True,
+    }
+    flags.update(extra)
+    return flags
+
+
 def nav_flags(user) -> dict:
     """Which admin-sidebar items each role should see."""
     code = user_role_code(user)
+    if not code:
+        return _nav_all_visible(role=None, role_label="")
+
     network = code in NETWORK_ROLES
     school_write = code in SCHOOL_WRITE_ROLES
     school_scope = code in SCHOOL_ROLES

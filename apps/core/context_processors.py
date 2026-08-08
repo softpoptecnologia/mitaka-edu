@@ -11,7 +11,13 @@ def branding(request):
 
 
 def navigation(request):
-    user = getattr(request, "user", None)
-    if not user or not getattr(user, "is_authenticated", False):
-        return {"nav": {}}
-    return {"nav": nav_flags(user)}
+    try:
+        user = getattr(request, "user", None)
+        authenticated = bool(user and getattr(user, "is_authenticated", False))
+        if not authenticated:
+            return {"nav": {"ready": True}}
+        flags = nav_flags(user)
+        flags["ready"] = True
+        return {"nav": flags}
+    except Exception:
+        return {"nav": {"ready": False}}

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "apps.core.middleware.CpanelHttpsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -86,6 +87,36 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = "accounts.User"
+CSRF_FAILURE_VIEW = "apps.core.views.csrf_failure"
+
+
+def csrf_origins_from_hosts(hosts):
+    origins = []
+    seen = set()
+    for raw in hosts:
+        host = str(raw).strip().rstrip("/")
+        if not host or host in {"*", "testserver"} or host.startswith("."):
+            continue
+        candidates = [host] if "://" in host else []
+        if not candidates:
+            schemes = ("https", "http") if DEBUG or host in {"localhost", "127.0.0.1"} else ("https",)
+            names = [host]
+            if host.startswith("www."):
+                names.append(host[4:])
+            else:
+                names.append(f"www.{host}")
+            for scheme in schemes:
+                for name in names:
+                    candidates.append(f"{scheme}://{name}")
+        for origin in candidates:
+            if origin not in seen:
+                seen.add(origin)
+                origins.append(origin)
+    return origins
+
+
+_env_csrf_origins = env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[])
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(_env_csrf_origins + csrf_origins_from_hosts(ALLOWED_HOSTS)))
 
 LANGUAGE_CODE = "pt-BR"
 TIME_ZONE = "America/Recife"
