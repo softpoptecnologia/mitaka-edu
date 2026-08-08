@@ -49,51 +49,57 @@
   </div>
 </div>
 
-<form method="get" class="row g-2 align-items-end mb-3" role="search">
-  <div class="col-md-4">
-    <label class="form-label small mb-1" for="q">Buscar estudante</label>
-    <input class="form-control form-control-sm" id="q" name="q" value="{{ q }}" placeholder="Nome ou código">
-  </div>
-  <div class="col-md-8 d-flex flex-wrap gap-2">
+<form method="get" class="filter-strip" role="search">
+  <div class="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
     <input type="hidden" name="filtro" value="{{ filter }}">
+    <input class="form-control form-control-sm" style="max-width: 16rem;" id="q" name="q" value="{{ q }}" placeholder="Buscar estudante" aria-label="Buscar estudante">
     <button class="btn btn-sm btn-primary" type="submit">Filtrar</button>
-    <a href="?filtro={{ filter }}" class="btn btn-sm btn-outline-secondary">Limpar busca</a>
+    <a href="?filtro={{ filter }}" class="btn btn-sm btn-outline-secondary">Limpar</a>
+  </div>
+  <div class="student-chips" role="group" aria-label="Filtros rápidos">
+    <a href="?filtro=todos{% if q %}&q={{ q }}{% endif %}" class="profile-nav-item{% if filter == 'todos' %} active{% endif %}">Todos</a>
+    <a href="?filtro=pendentes{% if q %}&q={{ q }}{% endif %}" class="profile-nav-item{% if filter == 'pendentes' %} active{% endif %}">Pendentes</a>
+    <a href="?filtro=acompanhamento{% if q %}&q={{ q }}{% endif %}" class="profile-nav-item{% if filter == 'acompanhamento' %} active{% endif %}">Regular</a>
+    <a href="?filtro=atencao{% if q %}&q={{ q }}{% endif %}" class="profile-nav-item{% if filter == 'atencao' %} active{% endif %}">Atenção</a>
+    <a href="?filtro={{ filter }}&apoio=1{% if q %}&q={{ q }}{% endif %}" class="profile-nav-item{% if apoio %} active{% endif %}">Acesso</a>
   </div>
 </form>
 
-<div class="btn-group mb-3 flex-wrap" role="group" aria-label="Filtros rápidos">
-  <a href="?filtro=todos{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if filter == 'todos' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Todos</a>
-  <a href="?filtro=pendentes{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if filter == 'pendentes' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Pendentes</a>
-  <a href="?filtro=acompanhamento{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if filter == 'acompanhamento' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Acompanhamento</a>
-  <a href="?filtro=atencao{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if filter == 'atencao' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Atenção</a>
-  <a href="?filtro={{ filter }}&apoio=1{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if apoio %}btn-primary{% else %}btn-outline-secondary{% endif %}">Com recurso de acesso</a>
-</div>
-
 {% if rows %}
-<div class="card shadow-sm">
-  <ul class="list-group list-group-flush">
-    {% for row in rows %}
-    <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
-      <div class="d-flex align-items-center gap-3">
-        {% include "components/status_badge.html" with badge=row.badge label=row.label %}
-        <div>
-          <a href="{% url 'teacher:student' row.student.pk %}" class="fw-medium text-decoration-none">{{ row.student.full_name }}</a>
-          {% if row.student.external_code %}
-          <div class="small text-muted">Cód. {{ row.student.external_code }}</div>
-          {% endif %}
-          {% if row.resources %}
-          <div class="small text-muted">Recursos: {{ row.resources|join:", " }}</div>
-          {% endif %}
+<div class="section-card section-card-student">
+  <div class="section-card-header">
+    <span class="section-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+    <span>Estudantes da turma</span>
+  </div>
+  <div class="card-body p-0">
+    <ul class="list-unstyled mb-0">
+      {% for row in rows %}
+      <li class="d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-3" style="border-bottom: 1px solid #eee8df;">
+        <div class="d-flex align-items-center gap-3">
+          <span class="student-avatar" style="width:2.4rem;height:2.4rem;font-size:1rem;border-radius:12px;" aria-hidden="true">{{ row.student.full_name|slice:":1" }}</span>
+          <div>
+            <a href="{% url 'teacher:student' row.student.pk %}" class="skill-name text-decoration-none">{{ row.student.full_name }}</a>
+            <div class="student-chips mt-1">
+              {% include "components/status_badge.html" with badge=row.badge label=row.label %}
+              {% if row.student.external_code %}<span class="small text-muted">Cód. {{ row.student.external_code }}</span>{% endif %}
+            </div>
+            {% if row.resources %}
+            <div class="small text-muted mt-1">{{ row.resources|join:", " }}</div>
+            {% endif %}
+          </div>
         </div>
-      </div>
-      <a href="{% url 'teacher:student' row.student.pk %}" class="btn btn-sm btn-outline-primary">Ver perfil</a>
-    </li>
-    {% endfor %}
-  </ul>
+        <a href="{% url 'teacher:student' row.student.pk %}" class="btn btn-sm btn-outline-primary">Abrir perfil</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
 {% else %}
-<div class="alert alert-light border text-center py-4">
-  <p class="mb-0">Nenhum estudante encontrado para este filtro.</p>
+<div class="section-card">
+  <div class="empty-note mb-0">
+    <i class="bi bi-people" aria-hidden="true"></i>
+    Nenhum estudante encontrado para este filtro.
+  </div>
 </div>
 {% endif %}
 {% endblock %}

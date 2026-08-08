@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui2">
+<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui3">
 <style>
   .teacher-nav {
     background: var(--mitaka-teal);
@@ -94,7 +94,7 @@
   </div>
 </nav>
 <main class="teacher-main py-4">
-  <div class="container-fluid px-3 px-lg-4">
+  <div class="teacher-shell px-3 px-lg-4">
     {% block teacher_content %}{% endblock %}
   </div>
 </main>

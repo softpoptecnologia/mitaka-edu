@@ -179,6 +179,11 @@ body {
 .status-pill-completed { background: #e8f5ec; color: var(--ok); }
 .status-pill-cancelled { background: #f1f1f1; color: #5f6b6b; }
 
+.teacher-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
 .teacher-tabs .nav-link {
   display: inline-flex;
   align-items: center;
@@ -190,6 +195,248 @@ body {
 
 .teacher-tabs .nav-link.active {
   color: var(--brand);
+}
+
+.student-hero {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid #e5e1d8;
+  border-radius: 20px;
+  padding: 1.15rem 1.25rem;
+  margin-bottom: 1.15rem;
+  box-shadow: 0 8px 24px rgba(20, 48, 44, 0.04);
+  border-left: 6px solid var(--coral);
+}
+
+.student-hero-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.student-avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 18px;
+  background: #fdeee9;
+  color: #9a3f28;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.student-hero h1 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin: 0 0 0.2rem;
+}
+
+.student-hero .breadcrumb {
+  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.student-meta {
+  color: var(--muted);
+  margin-bottom: 0.55rem;
+}
+
+.student-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.student-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: flex-start;
+}
+
+.profile-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1.15rem;
+}
+
+.profile-nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #e5e1d8;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.88rem;
+}
+
+.profile-nav-item:hover {
+  color: var(--brand);
+  border-color: #cfe3e3;
+  background: #f3fafa;
+}
+
+.profile-nav-item.active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.profile-nav-item.active:hover {
+  color: #fff;
+}
+
+.filter-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px dashed #d7d0c4;
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #eee8df;
+}
+
+.skill-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.skill-row:first-child {
+  padding-top: 0;
+}
+
+.skill-row.is-attention {
+  background: linear-gradient(90deg, #fff7f2 0%, transparent 70%);
+  margin: 0 -1.1rem;
+  padding-left: 1.1rem;
+  padding-right: 1.1rem;
+}
+
+.skill-name {
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.action-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid #e5e1d8;
+  text-decoration: none;
+  color: var(--ink);
+  background: #fff;
+}
+
+.action-tile:hover {
+  border-color: #cfe3e3;
+  background: #f7fbfb;
+  color: var(--ink);
+}
+
+.action-tile i {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e6f3f3;
+  color: var(--brand);
+}
+
+.intervention-card,
+.evidence-card,
+.instrument-card {
+  background: #fff;
+  border: 1px solid #e5e1d8;
+  border-radius: 16px;
+  padding: 1rem 1.05rem;
+  height: 100%;
+  box-shadow: 0 8px 24px rgba(20, 48, 44, 0.04);
+}
+
+.intervention-card {
+  border-left: 4px solid var(--coral);
+}
+
+.instrument-card {
+  border-left: 4px solid var(--brand);
+}
+
+.evidence-card {
+  border-left: 4px solid var(--sky);
+}
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.timeline-item {
+  position: relative;
+  padding: 0 0 1.15rem 1.4rem;
+  border-left: 2px solid #e6f3f3;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+  border-left-color: transparent;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -0.42rem;
+  top: 0.25rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--brand);
+  box-shadow: 0 0 0 4px #e6f3f3;
+}
+
+.status-pill-attention { background: #fdeeee; color: #b42318; }
+.status-pill-ok { background: #e8f5ec; color: var(--ok); }
+.status-pill-pending { background: #fff4e0; color: #9a5b00; }
+
+.empty-note {
+  text-align: center;
+  color: var(--muted);
+  padding: 2rem 1rem;
+}
+
+.empty-note i {
+  display: block;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
 }
 
 .assessment-shell {
