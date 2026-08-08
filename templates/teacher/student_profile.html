@@ -61,7 +61,7 @@
         <span class="section-icon" aria-hidden="true"><i class="bi bi-journal-text"></i></span>
         <span>Situação por habilidade</span>
       </div>
-      <div class="card-body">
+      <div class="card-body p-3">
         {% if statuses %}
           {% for status in statuses %}
           <div class="skill-row {% if status.needs_attention %}is-attention{% else %}is-ok{% endif %}">
@@ -87,7 +87,7 @@
         <span class="section-icon" aria-hidden="true"><i class="bi bi-universal-access"></i></span>
         <span>Recursos necessários</span>
       </div>
-      <div class="card-body">
+      <div class="card-body p-3">
         {% if resource_labels %}
         <div class="student-chips mb-2">
           {% for label in resource_labels %}
@@ -105,7 +105,7 @@
         <span class="section-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
         <span>Ações rápidas</span>
       </div>
-      <div class="card-body d-grid gap-2">
+      <div class="card-body p-3 d-grid gap-2">
         <a href="?tab=avaliacoes" class="action-tile"><i class="bi bi-clipboard-check" aria-hidden="true"></i><span>Iniciar avaliação</span></a>
         <a href="{% url 'teacher:evidence_create' student.pk %}" class="action-tile"><i class="bi bi-camera" aria-hidden="true"></i><span>Registrar evidência</span></a>
         <a href="{% url 'teacher:intervention_create' student.pk %}" class="action-tile"><i class="bi bi-lightbulb" aria-hidden="true"></i><span>Nova intervenção</span></a>
@@ -121,7 +121,7 @@
     <span class="section-icon" aria-hidden="true"><i class="bi bi-graph-up"></i></span>
     <span>Pontuação relativa por habilidade</span>
   </div>
-  <div class="card-body">
+  <div class="card-body p-3">
     {% if chart_labels %}
     <canvas id="studentSkillChart" height="180" aria-label="Gráfico de evolução"></canvas>
     {% else %}
@@ -192,7 +192,7 @@
         <span class="section-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
         <span>Instrumentos disponíveis</span>
       </div>
-      <div class="card-body">
+      <div class="card-body p-3">
         {% if enrollment and instruments %}
           {% for instrument in instruments %}
           <article class="instrument-card mb-3">
@@ -229,7 +229,7 @@
         <span class="section-icon" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
         <span>Sessões anteriores</span>
       </div>
-      <div class="card-body">
+      <div class="card-body p-3">
         <form method="get" class="filter-strip">
           <input type="hidden" name="tab" value="avaliacoes">
           <div class="d-flex flex-wrap gap-2">
@@ -403,7 +403,7 @@
         <span class="section-icon" aria-hidden="true"><i class="bi bi-universal-access"></i></span>
         <span>Recursos necessários</span>
       </div>
-      <div class="card-body">
+      <div class="card-body p-3">
         <p class="small text-muted">Informações funcionais de acesso e apoio — sem dados clínicos.</p>
         {% if can_edit_accessibility %}
         <form method="post" action="{% url 'teacher:accessibility_update' student.pk %}">
@@ -448,7 +448,7 @@
         <a href="{% url 'teacher:support_plan_create' student.pk %}" class="btn btn-sm btn-primary ms-auto">Novo plano</a>
         {% endif %}
       </div>
-      <div class="card-body">
+      <div class="card-body p-3">
         {% if support_plans %}
         {% for plan in support_plans %}
         <div class="mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
@@ -495,7 +495,7 @@
     <span class="section-icon" aria-hidden="true"><i class="bi bi-signpost-2"></i></span>
     <span>Histórico de matrículas</span>
   </div>
-  <div class="card-body">
+  <div class="card-body p-3">
     {% if trajectory %}
     <ol class="timeline">
       {% for enroll in trajectory %}

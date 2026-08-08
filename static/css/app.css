@@ -139,7 +139,11 @@ body {
 }
 
 .section-card .card-body {
-  padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
+  padding: 1.05rem 1.1rem;
+}
+
+.section-card .card-body.p-0 {
+  padding: 0;
 }
 
 .section-card-student .section-icon { color: var(--coral); }

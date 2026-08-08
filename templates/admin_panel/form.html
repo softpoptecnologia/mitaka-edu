@@ -8,7 +8,7 @@
     <span class="panel-icon" aria-hidden="true"><i class="bi bi-pencil-square"></i></span>
     <span>{{ page_title }}</span>
   </div>
-  <div class="panel-body">
+  <div class="panel-body p-3">
     <form method="post" novalidate>
       {% csrf_token %}
       {% if form.non_field_errors %}

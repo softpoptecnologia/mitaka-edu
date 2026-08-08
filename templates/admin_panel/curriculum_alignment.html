@@ -27,7 +27,7 @@
   {% for principle in principles %}
   <div class="col-md-6">
     <div class="card h-100 shadow-sm">
-      <div class="card-body">
+      <div class="card-body p-3">
         <h2 class="h6 text-primary">{{ principle.title }}</h2>
         <p class="small mb-0">{{ principle.text }}</p>
       </div>
@@ -83,7 +83,7 @@
 {% if progressions %}
 <div class="card shadow-sm mb-4">
   <div class="card-header"><strong>Progressão de competências (estrutura)</strong></div>
-  <div class="card-body">
+  <div class="card-body p-3">
     <ol class="mb-0">
       {% for link in progressions %}
       <li class="mb-2">

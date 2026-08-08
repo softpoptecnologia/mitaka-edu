@@ -23,7 +23,7 @@
         <span class="panel-icon" aria-hidden="true"><i class="bi bi-person-heart"></i></span>
         <span>Estudante</span>
       </div>
-      <div class="card-body">
+      <div class="card-body p-3">
         {% if students %}
         <select class="form-select mb-3" id="studentSelect">
           {% for student in students %}
@@ -44,7 +44,7 @@
         <span class="panel-icon" aria-hidden="true"><i class="bi bi-easel2"></i></span>
         <span>Turma</span>
       </div>
-      <div class="card-body">
+      <div class="card-body p-3">
         {% if classrooms %}
         <select class="form-select mb-3" id="classroomSelect">
           {% for classroom in classrooms %}
@@ -66,7 +66,7 @@
         <span class="panel-icon" aria-hidden="true"><i class="bi bi-building"></i></span>
         <span>Escola</span>
       </div>
-      <div class="card-body">
+      <div class="card-body p-3">
         {% if schools %}
         <select class="form-select mb-3" id="schoolSelect">
           {% for school in schools %}
@@ -89,7 +89,7 @@
         <span class="panel-icon" aria-hidden="true"><i class="bi bi-diagram-3"></i></span>
         <span>Rede municipal</span>
       </div>
-      <div class="card-body d-flex align-items-end gap-2">
+      <div class="card-body p-3 d-flex align-items-end gap-2">
         <a href="{% url 'management:report_network' %}" class="btn btn-outline-secondary btn-sm">Relatório da rede</a>
         <a href="{% url 'management:report_network' %}?formato=pdf" class="btn btn-accent btn-sm">PDF da rede</a>
       </div>
