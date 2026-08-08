@@ -1,0 +1,33 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Estratégia de apoio — {{ student.full_name }}{% endblock %}
+
+{% block teacher_content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'teacher:student' student.pk %}?tab=apoio">{{ student.full_name }}</a></li>
+    <li class="breadcrumb-item active">Nova estratégia</li>
+  </ol>
+</nav>
+
+<div class="card shadow-sm" style="max-width: 40rem;">
+  <div class="card-header"><strong>Estratégia do plano {{ plan.school_year }}</strong></div>
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+      </div>
+      {% endfor %}
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Adicionar</button>
+        <a href="{% url 'teacher:student' student.pk %}?tab=apoio" class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

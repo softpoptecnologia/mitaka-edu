@@ -1,0 +1,88 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Estudantes{% endblock %}
+
+{% block admin_content %}
+<form method="get" class="filter-bar">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label" for="q">Buscar</label>
+      <input class="form-control form-control-sm" id="q" name="q" value="{{ q }}" placeholder="Nome ou código">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="escola">Escola</label>
+      <select class="form-select form-select-sm" id="escola" name="escola">
+        <option value="">Todas</option>
+        {% for school in schools %}
+        <option value="{{ school.pk }}" {% if school_id == school.pk|stringformat:'s' %}selected{% endif %}>{{ school.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4 d-flex gap-3 align-items-center">
+      <div class="form-check mt-4">
+        <input class="form-check-input" type="checkbox" name="atencao" value="1" id="atencao" {% if atencao %}checked{% endif %}>
+        <label class="form-check-label" for="atencao">Em atenção</label>
+      </div>
+      <div class="form-check mt-4">
+        <input class="form-check-input" type="checkbox" name="inativas" value="1" id="inativas" {% if include_inactive %}checked{% endif %}>
+        <label class="form-check-label" for="inativas">Incluir desativados</label>
+      </div>
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+      <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
+      {% if can_write_school %}
+      <a href="{% url 'management:student_create' %}" class="btn btn-sm btn-accent">Novo</a>
+      {% endif %}
+    </div>
+  </div>
+</form>
+
+<div class="panel">
+  <div class="panel-header d-flex justify-content-between">
+    <span>Estudantes</span>
+    <span class="text-muted small">{{ students|length }}</span>
+  </div>
+  <div class="panel-body p-0">
+    {% if students %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Código</th>
+            <th>Nascimento</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <td class="fw-medium">{{ student.full_name }}</td>
+            <td>{{ student.external_code }}</td>
+            <td>{{ student.birth_date|date:"d/m/Y"|default:"—" }}</td>
+            <td>{% if student.is_active %}<span class="badge text-bg-success">Ativo</span>{% else %}<span class="badge text-bg-secondary">Desativado</span>{% endif %}</td>
+            <td class="text-end text-nowrap">
+              <a href="{% url 'management:report_student' student.pk %}" class="btn btn-sm btn-outline-secondary">Relatório</a>
+              {% if can_write_school %}
+              <a href="{% url 'management:student_update' student.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+              <form method="post" action="{% url 'management:student_archive' student.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-secondary" type="submit">{% if student.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+              </form>
+              {% endif %}
+              {% if can_hard_delete %}
+              <a href="{% url 'management:student_delete' student.pk %}" class="btn btn-sm btn-outline-danger">Excluir</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0 text-center">Nenhum estudante cadastrado.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

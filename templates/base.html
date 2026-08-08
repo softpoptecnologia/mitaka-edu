@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d6e6e">
+  <link rel="manifest" href="/static/pwa/manifest.json">
+  <link rel="apple-touch-icon" href="/static/pwa/icon-192.png">
+  <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+  <style>
+    :root {
+      --mitaka-teal: #0d6e6e;
+      --mitaka-teal-dark: #095555;
+      --mitaka-teal-light: #149494;
+      --mitaka-cream: #faf8f5;
+      --mitaka-cream-dark: #f0ebe3;
+      --mitaka-cream-accent: #e8dfd4;
+      --mitaka-text: #2c3333;
+      --mitaka-muted: #6b7575;
+    }
+    body {
+      background-color: var(--mitaka-cream);
+      color: var(--mitaka-text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    .btn-primary {
+      --bs-btn-bg: var(--mitaka-teal);
+      --bs-btn-border-color: var(--mitaka-teal);
+      --bs-btn-hover-bg: var(--mitaka-teal-dark);
+      --bs-btn-hover-border-color: var(--mitaka-teal-dark);
+      --bs-btn-active-bg: var(--mitaka-teal-dark);
+      --bs-btn-active-border-color: var(--mitaka-teal-dark);
+    }
+    .text-primary { color: var(--mitaka-teal) !important; }
+    .bg-primary { background-color: var(--mitaka-teal) !important; }
+    .border-primary { border-color: var(--mitaka-teal) !important; }
+    a { color: var(--mitaka-teal); }
+    a:hover { color: var(--mitaka-teal-dark); }
+    .card {
+      border-color: var(--mitaka-cream-accent);
+      background: #fff;
+    }
+    .card-header {
+      background-color: var(--mitaka-cream);
+      border-bottom-color: var(--mitaka-cream-accent);
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#conteudo-principal">Ir para o conteúdo</a>
+  {% if messages %}
+  <div class="container-fluid px-3 pt-3" role="status" aria-live="polite">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div id="conteudo-principal">
+  {% block content %}{% endblock %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/static/pwa/sw.js').catch(function () {});
+      });
+    }
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

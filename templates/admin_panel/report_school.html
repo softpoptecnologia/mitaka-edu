@@ -1,0 +1,150 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Relatório da escola{% endblock %}
+{% block page_subtitle %}<span class="text-muted small ms-2">{{ scope_label }}</span>{% endblock %}
+
+{% block admin_content %}
+<form method="get" class="filter-bar no-print" aria-label="Filtros do relatório escolar">
+  <div class="row g-2 align-items-end">
+    <div class="col-6 col-lg-3">
+      <label class="form-label" for="ano">Ano letivo</label>
+      <select class="form-select form-select-sm" id="ano" name="ano">
+        {% for y in years %}
+        <option value="{{ y.pk }}" {% if year and y.pk == year.pk %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-3">
+      <label class="form-label" for="turma">Turma</label>
+      <select class="form-select form-select-sm" id="turma" name="turma">
+        <option value="">Todas</option>
+        {% for room in classrooms %}
+        <option value="{{ room.pk }}" {% if classroom and room.pk == classroom.pk %}selected{% endif %}>{{ room.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-4">
+      <label class="form-label" for="habilidade">Habilidade</label>
+      <select class="form-select form-select-sm" id="habilidade" name="habilidade">
+        <option value="">Todas</option>
+        {% for item in skills %}
+        <option value="{{ item.pk }}" {% if skill and item.pk == skill.pk %}selected{% endif %}>{{ item.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-2 d-flex gap-2">
+      <button type="submit" class="btn btn-sm btn-accent">Aplicar</button>
+      <a href="?" class="btn btn-sm btn-outline-secondary">Limpar</a>
+    </div>
+  </div>
+  <div class="d-flex justify-content-end mt-3">
+    <a href="?{{ filter_qs }}{% if filter_qs %}&amp;{% endif %}formato=pdf" class="btn btn-sm btn-outline-dark">Baixar PDF deste recorte</a>
+  </div>
+</form>
+
+<header class="mb-3">
+  <h1 class="h4 mb-1">Relatório escolar</h1>
+  <h2 class="h5 mb-1">{{ school.name }}</h2>
+  <p class="scope-chip mb-0">{{ school.code }} · {{ scope_label }} · Gerado em {% now "d/m/Y H:i" %}</p>
+</header>
+
+<div class="kpi-row">
+  <div class="kpi kpi-context">
+    <div class="kpi-body">
+      <div class="label">Turmas</div>
+      <div class="value">{{ classrooms_count }}</div>
+      <div class="hint">no recorte</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-grid-3x3-gap"></i></div>
+  </div>
+  <div class="kpi kpi-context">
+    <div class="kpi-body">
+      <div class="label">Estudantes</div>
+      <div class="value">{{ students_count }}</div>
+      <div class="hint">matrículas distintas</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-people"></i></div>
+  </div>
+  <div class="kpi kpi-attention">
+    <div class="kpi-body">
+      <div class="label">Em atenção</div>
+      <div class="value">{{ attention_students }}</div>
+      <div class="hint">prioridade de acompanhamento</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-flag"></i></div>
+  </div>
+  <div class="kpi kpi-coverage">
+    <div class="kpi-body">
+      <div class="label">Cobertura</div>
+      <div class="value">{{ coverage }}%</div>
+      <div class="hint">com sondagem concluída</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-check2-circle"></i></div>
+  </div>
+</div>
+
+{% if school_indicators %}
+<div class="panel mb-3">
+  <div class="panel-header">Escola — % em atenção por habilidade</div>
+  <div class="panel-body p-0">
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Habilidade</th>
+            <th>Código</th>
+            <th>% em atenção</th>
+            <th>Amostra</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for indicator in school_indicators %}
+          <tr>
+            <td>{{ indicator.skill.name }}</td>
+            <td class="text-muted">{{ indicator.skill.bncc_code|default:indicator.skill.code }}</td>
+            <td>{{ indicator.metric_value }}%</td>
+            <td>{{ indicator.sample_size }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="panel-header">Turmas — % em atenção por habilidade</div>
+  <div class="panel-body p-0">
+    {% if classroom_indicators %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Turma</th>
+            <th>Habilidade</th>
+            <th>% em atenção</th>
+            <th>Amostra</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for indicator in classroom_indicators %}
+          <tr>
+            <td>{{ indicator.classroom.name }}</td>
+            <td>
+              {{ indicator.skill.name }}
+              {% if indicator.skill.bncc_code %}<div class="small text-muted">{{ indicator.skill.bncc_code }}</div>{% endif %}
+            </td>
+            <td>{{ indicator.metric_value }}%</td>
+            <td>{{ indicator.sample_size }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0">Nenhum indicador de turma neste recorte.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Matrículas{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="text-muted mb-0">Matrículas ativas e históricas no escopo.</p>
+  <div class="d-flex gap-2">
+    {% if can_write_school %}
+    <a href="{% url 'management:enrollment_create' %}" class="btn btn-sm btn-accent">Nova matrícula</a>
+    {% endif %}
+    <a href="{% url 'management:import_students' %}" class="btn btn-sm btn-outline-secondary">Importar CSV</a>
+  </div>
+</div>
+<form method="get" class="filter-bar">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label" for="q">Estudante</label>
+      <input class="form-control form-control-sm" id="q" name="q" value="{{ q }}" placeholder="Nome">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label" for="ano">Ano letivo</label>
+      <select class="form-select form-select-sm" id="ano" name="ano">
+        <option value="">Todos</option>
+        {% for year in years %}
+        <option value="{{ year.pk }}" {% if year_id == year.pk|stringformat:'s' %}selected{% endif %}>{{ year }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label" for="status">Status</label>
+      <select class="form-select form-select-sm" id="status" name="status">
+        <option value="">Todos</option>
+        {% for code, label in status_choices %}
+        <option value="{{ code }}" {% if status == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div class="form-check mt-4">
+        <input class="form-check-input" type="checkbox" name="inativas" value="1" id="inativas" {% if include_inactive %}checked{% endif %}>
+        <label class="form-check-label" for="inativas">Incluir desativadas</label>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
+    </div>
+  </div>
+</form>
+<div class="panel">
+  <div class="panel-body p-0">
+    {% if enrollments %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Estudante</th>
+            <th>Turma</th>
+            <th>Ano letivo</th>
+            <th>Status</th>
+            <th>Matriculado em</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enrollment in enrollments %}
+          <tr>
+            <td class="fw-medium">{{ enrollment.student.full_name }}</td>
+            <td>{{ enrollment.classroom.name }}</td>
+            <td>{{ enrollment.school_year }}</td>
+            <td><span class="badge text-bg-secondary">{{ enrollment.get_status_display }}</span></td>
+            <td>{{ enrollment.enrolled_at|date:"d/m/Y"|default:"—" }}</td>
+            <td class="text-end text-nowrap">
+              {% if can_write_school %}
+              <a href="{% url 'management:enrollment_update' enrollment.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+              <form method="post" action="{% url 'management:enrollment_archive' enrollment.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-secondary" type="submit">{% if enrollment.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+              </form>
+              {% endif %}
+              {% if can_hard_delete %}
+              <a href="{% url 'management:enrollment_delete' enrollment.pk %}" class="btn btn-sm btn-outline-danger">Excluir</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0 text-center">Nenhuma matrícula encontrada.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}{% if year %}<span class="text-muted small ms-2">{{ year }}</span>{% endif %}{% endblock %}
+
+{% block admin_content %}
+<div class="kpi-row">
+  <div class="kpi kpi-context">
+    <div class="kpi-body">
+      <div class="label">Escolas</div>
+      <div class="value">{{ schools_count }}</div>
+      <div class="hint">no escopo</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-building"></i></div>
+  </div>
+  <div class="kpi kpi-context">
+    <div class="kpi-body">
+      <div class="label">Turmas</div>
+      <div class="value">{{ classrooms_count }}</div>
+      <div class="hint">ativas no ano</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-grid-3x3-gap"></i></div>
+  </div>
+  <div class="kpi kpi-context">
+    <div class="kpi-body">
+      <div class="label">Estudantes</div>
+      <div class="value">{{ students_count }}</div>
+      <div class="hint">matrículas distintas</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-people"></i></div>
+  </div>
+  <div class="kpi kpi-coverage">
+    <div class="kpi-body">
+      <div class="label">Cobertura</div>
+      <div class="value">{{ coverage }}%</div>
+      <div class="hint">com sondagem concluída</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-check2-circle"></i></div>
+  </div>
+</div>
+
+<div class="kpi-row kpi-row-2">
+  <div class="kpi kpi-attention">
+    <div class="kpi-body">
+      <div class="label">Em atenção</div>
+      <div class="value">{{ attention_students }}</div>
+      <div class="hint">prioridade de acompanhamento</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-flag"></i></div>
+  </div>
+  <div class="kpi kpi-attention">
+    <div class="kpi-body">
+      <div class="label">Habilidades em atenção</div>
+      <div class="value">{{ attention_skills }}</div>
+      <div class="hint">focos pedagógicos distintos</div>
+    </div>
+    <div class="kpi-icon" aria-hidden="true"><i class="bi bi-journal-text"></i></div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="panel h-100">
+      <div class="panel-header">Estudantes em atenção por escola</div>
+      <div class="panel-body">
+        <canvas id="schoolAttentionChart" height="220" aria-label="Gráfico por escola"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="panel h-100">
+      <div class="panel-header">Escolas no escopo</div>
+      <div class="panel-body p-0">
+        {% if school_rows %}
+        <div class="table-responsive">
+          <table class="table table-clean table-hover mb-0 align-middle">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Código</th>
+                <th>Estudantes</th>
+                <th>Atenção</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in school_rows %}
+              <tr>
+                <td>{{ row.school.name }}</td>
+                <td>{{ row.school.code }}</td>
+                <td>{{ row.students }}</td>
+                <td>{{ row.attention }}</td>
+                <td class="text-end">
+                  <a href="{% url 'management:report_school' row.school.pk %}" class="btn btn-sm btn-outline-secondary">Relatório</a>
+                  <a href="{% url 'management:report_school' row.school.pk %}?formato=pdf" class="btn btn-sm btn-accent">PDF</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted p-4 mb-0">Nenhuma escola no escopo.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const ctx = document.getElementById('schoolAttentionChart');
+  if (!ctx) return;
+  const labels = [{% for l in chart_school_labels %}"{{ l|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const values = [{% for v in chart_school_attention %}{{ v }}{% if not forloop.last %},{% endif %}{% endfor %}];
+  if (!labels.length) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: '#0f5c5c', borderWidth: 0, barPercentage: 0.6 }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#5f6b6b' } },
+        y: { beginAtZero: true, grid: { color: '#eef1f1' }, ticks: { color: '#5f6b6b' } }
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}

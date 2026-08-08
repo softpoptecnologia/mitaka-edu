@@ -1,0 +1,103 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Equipe{% endblock %}
+
+{% block admin_content %}
+{% if can_write_school %}
+<div class="d-flex justify-content-end gap-2 mb-3">
+  <a href="{% url 'management:teacher_create' %}" class="btn btn-sm btn-accent">Novo usuário</a>
+  <a href="{% url 'management:teacher_link_create' %}" class="btn btn-sm btn-outline-secondary">Vincular à turma</a>
+</div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="panel">
+      <div class="panel-header">Usuários da escola / rede</div>
+      <div class="panel-body p-0">
+        {% if teachers %}
+        <div class="table-responsive">
+          <table class="table table-clean table-hover mb-0 align-middle">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Usuário</th>
+                <th>Papel</th>
+                <th>Escola</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for teacher in teachers %}
+              <tr>
+                <td class="fw-medium">{{ teacher.get_full_name|default:teacher.username }}</td>
+                <td>{{ teacher.username }}</td>
+                <td>{{ teacher.userprofile.role.name|default:"—" }}</td>
+                <td>{{ teacher.userprofile.school.name|default:"—" }}</td>
+                <td>{% if teacher.is_active %}<span class="badge text-bg-success">Ativo</span>{% else %}<span class="badge text-bg-secondary">Inativo</span>{% endif %}</td>
+                <td class="text-end text-nowrap">
+                  {% if can_write_school %}
+                  <a href="{% url 'management:teacher_update' teacher.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                  <form method="post" action="{% url 'management:teacher_archive' teacher.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">{% if teacher.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+                  </form>
+                  {% endif %}
+                  {% if can_hard_delete %}
+                  <a href="{% url 'management:teacher_delete' teacher.pk %}" class="btn btn-sm btn-outline-danger">Excluir</a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted p-4 mb-0">Nenhum usuário cadastrado.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="panel">
+      <div class="panel-header">Vínculos professor-turma</div>
+      <div class="panel-body p-0">
+        {% if links %}
+        <div class="table-responsive">
+          <table class="table table-clean table-hover mb-0 align-middle">
+            <thead>
+              <tr>
+                <th>Professor</th>
+                <th>Turma</th>
+                <th>Principal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for link in links %}
+              <tr>
+                <td>{{ link.teacher.get_full_name|default:link.teacher.username }}</td>
+                <td>{{ link.classroom.name }}</td>
+                <td>{% if link.is_primary %}Sim{% else %}—{% endif %}</td>
+                <td class="text-end">
+                  {% if can_write_school %}
+                  <form method="post" action="{% url 'management:teacher_link_delete' link.pk %}" class="d-inline" onsubmit="return confirm('Remover este vínculo?');">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Remover</button>
+                  </form>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted p-4 mb-0">Nenhum vínculo registrado.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Nova evidência — {{ student.full_name }}{% endblock %}
+
+{% block teacher_content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{% url 'teacher:student' student.pk %}">{{ student.full_name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Nova evidência</li>
+    </ol>
+  </nav>
+  <h1 class="h3 mb-1">Registrar evidência</h1>
+  <p class="text-muted mb-0">Anexe uma foto, áudio ou descreva uma observação sobre o aprendizado.</p>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <div class="mb-3">
+            <label for="{{ form.skill.id_for_label }}" class="form-label">Habilidade (opcional)</label>
+            {{ form.skill }}
+            {% if form.skill.errors %}<div class="text-danger small">{{ form.skill.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Observação</label>
+            {{ form.description }}
+            {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-4">
+            <label for="{{ form.file.id_for_label }}" class="form-label">Arquivo (foto, áudio ou vídeo)</label>
+            {{ form.file }}
+            {% if form.file.errors %}<div class="text-danger small">{{ form.file.errors }}</div>{% endif %}
+            <div class="form-text">Máximo 8 MB.</div>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Salvar evidência</button>
+            <a href="{% url 'teacher:student' student.pk %}?tab=evidencias" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

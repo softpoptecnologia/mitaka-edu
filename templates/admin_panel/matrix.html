@@ -1,0 +1,77 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Matriz pedagógica{% endblock %}
+
+{% block admin_content %}
+{% if can_write_network %}
+<div class="d-flex justify-content-end gap-2 mb-3">
+  <a href="{% url 'management:matrix_create' %}" class="btn btn-sm btn-accent">Nova matriz</a>
+  <a href="{% url 'management:matrix_version_create' %}" class="btn btn-sm btn-outline-secondary">Nova versão</a>
+</div>
+{% endif %}
+
+<div class="card shadow-sm">
+  <div class="card-header"><strong>Matrizes e versões</strong></div>
+  <div class="card-body">
+    {% if matrices %}
+    {% for matrix in matrices %}
+    <div class="mb-4 pb-4 {% if not forloop.last %}border-bottom{% endif %}">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+        <div>
+          <h2 class="h5 mb-1">{{ matrix.name }}</h2>
+          {% if matrix.description %}<p class="text-muted small mb-0">{{ matrix.description }}</p>{% endif %}
+        </div>
+        {% if can_write_network %}
+        <a href="{% url 'management:matrix_update' matrix.pk %}" class="btn btn-sm btn-outline-secondary">Editar matriz</a>
+        {% endif %}
+      </div>
+      {% if matrix.versions.all %}
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Versão</th>
+              <th>Publicada</th>
+              <th>Notas</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for version in matrix.versions.all %}
+            <tr>
+              <td><code>{{ version.version_label }}</code></td>
+              <td>
+                {% if version.is_published %}
+                <span class="badge bg-success">Sim</span>
+                {% else %}
+                <span class="badge bg-secondary">Não</span>
+                {% endif %}
+              </td>
+              <td>{{ version.notes|truncatewords:15|default:"—" }}</td>
+              <td class="text-end">
+                {% if can_write_network %}
+                <a href="{% url 'management:matrix_version_create' %}?matriz={{ matrix.pk }}" class="btn btn-sm btn-outline-secondary">Nova versão</a>
+                <form method="post" action="{% url 'management:matrix_version_publish' version.pk %}" class="d-inline">
+                  {% csrf_token %}
+                  <button class="btn btn-sm {% if version.is_published %}btn-outline-secondary{% else %}btn-accent{% endif %}" type="submit">
+                    {% if version.is_published %}Despublicar{% else %}Publicar{% endif %}
+                  </button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted small mb-0">Sem versões cadastradas.</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted mb-0">Nenhuma matriz cadastrada. A secretaria ou o técnico pedagógico precisam criar a matriz da rede.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

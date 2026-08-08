@@ -1,0 +1,47 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Município{% endblock %}
+
+{% block admin_content %}
+{% if can_write_network %}
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'management:municipality_create' %}" class="btn btn-sm btn-accent">Novo município</a>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="panel-header">Rede municipal</div>
+  <div class="panel-body p-0">
+    {% if municipalities %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>UF</th>
+            <th>Slug</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in municipalities %}
+          <tr>
+            <td class="fw-medium">{{ item.name }}</td>
+            <td>{{ item.state }}</td>
+            <td><code>{{ item.slug }}</code></td>
+            <td class="text-end">
+              {% if can_write_network %}
+              <a href="{% url 'management:municipality_update' item.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0">Nenhum município cadastrado. A secretaria precisa criar o município antes das escolas.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

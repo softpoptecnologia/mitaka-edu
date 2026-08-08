@@ -1,0 +1,63 @@
+:root {
+  --brand: #0d6e6e;
+  --brand-dark: #0a5555;
+  --cream: #f7f5f0;
+  --ink: #1f2a2a;
+  --muted: #5c6b6b;
+  --ok: #2f7d4a;
+  --attention: #b7791f;
+  --pending: #6b7280;
+}
+
+body {
+  color: var(--ink);
+  background: var(--cream);
+  font-family: "Segoe UI", "Nunito Sans", system-ui, sans-serif;
+}
+
+.btn-brand {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+.btn-brand:hover {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+  color: #fff;
+}
+
+.text-brand { color: var(--brand); }
+.bg-brand { background: var(--brand); color: #fff; }
+
+.status-ok { color: var(--ok); }
+.status-attention { color: var(--attention); }
+.status-pending { color: var(--pending); }
+
+.teacher-card {
+  background: #fff;
+  border: 1px solid #e5e1d8;
+  border-radius: 12px;
+  padding: 1.25rem;
+  height: 100%;
+}
+
+.assessment-shell {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #e8f4f4 0%, #f7f5f0 40%, #fff 100%);
+}
+
+.assessment-option {
+  min-height: 72px;
+  font-size: 1.25rem;
+  border-radius: 16px;
+}
+
+.progress-slim {
+  height: 8px;
+  border-radius: 999px;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+}

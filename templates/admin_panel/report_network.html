@@ -1,0 +1,64 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Relatório da rede{% endblock %}
+
+{% block admin_extra_css %}
+<style>
+  @media print {
+    .report-header { border-bottom: 2px solid #0d6e6e; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+    table { font-size: 11pt; }
+  }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<div class="report-document">
+  <div class="d-flex justify-content-end gap-2 mb-4 no-print">
+    <button type="button" class="btn btn-outline-primary btn-sm" onclick="window.print()">Imprimir</button>
+    <a href="?formato=pdf{% if year %}&ano={{ year.pk }}{% endif %}" class="btn btn-primary btn-sm">Baixar PDF</a>
+  </div>
+
+  <header class="report-header mb-4">
+    <h1 class="h4 mb-1">{{ APP_NAME }} — Relatório da rede municipal</h1>
+    <h2 class="h5 text-primary mb-2">{% if municipality %}{{ municipality.name }}/{{ municipality.state }}{% else %}Rede{% endif %}</h2>
+    <p class="text-muted small mb-0">{% if year %}Ano letivo {{ year }} · {% endif %}Gerado em {% now "d/m/Y H:i" %}</p>
+  </header>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card"><div class="card-body py-3"><div class="small text-muted">Escolas</div><div class="fs-4 fw-semibold">{{ schools_count }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body py-3"><div class="small text-muted">Estudantes</div><div class="fs-4 fw-semibold">{{ students_count }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body py-3"><div class="small text-muted">Cobertura</div><div class="fs-4 fw-semibold">{{ coverage }}%</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body py-3"><div class="small text-muted">Sessões com acesso</div><div class="fs-4 fw-semibold">{{ a11y_stats.sessions_with_accessibility }}</div></div></div></div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header"><strong>Indicadores consolidados da rede</strong></div>
+    <div class="card-body p-0">
+      {% if indicators %}
+      <table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Habilidade</th>
+            <th>Métrica</th>
+            <th>Valor</th>
+            <th>Amostra</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for indicator in indicators %}
+          <tr>
+            <td>{{ indicator.skill.name|default:"—" }}</td>
+            <td>{{ indicator.metric_label }}</td>
+            <td>{{ indicator.metric_value }}</td>
+            <td>{{ indicator.sample_size }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="text-muted p-3 mb-0">Nenhum indicador de rede disponível.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

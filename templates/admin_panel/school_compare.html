@@ -1,0 +1,44 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Comparar escolas{% endblock %}
+{% block page_subtitle %}<span class="text-muted small ms-2">{{ scope_label }}</span>{% endblock %}
+
+{% block admin_content %}
+{% include "admin_panel/_secretaria_filters.html" %}
+<p class="scope-chip">{{ recorte_label }}</p>
+
+<div class="panel">
+  <div class="panel-header">{{ ranking_title }}</div>
+  <div class="panel-body p-0">
+    {% if ranking %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Item</th>
+            <th>Indicador</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in ranking %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+              <div class="fw-medium">{{ row.label }}</div>
+              {% if row.detail %}<div class="small text-muted">{{ row.detail }}</div>{% endif %}
+            </td>
+            <td>{{ row.value }}</td>
+            <td>{{ row.pct }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0">Sem dados para comparação neste recorte.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

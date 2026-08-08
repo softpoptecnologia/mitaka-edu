@@ -1,0 +1,108 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Preparar avaliação — {{ student.full_name }}{% endblock %}
+
+{% block teacher_content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Início</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teacher:student' student.pk %}?tab=avaliacoes">{{ student.full_name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Preparar avaliação</li>
+    </ol>
+  </nav>
+  <h1 class="h3 mb-1">Versão preparada para o estudante</h1>
+  <p class="text-muted mb-0">{{ instrument.title }} · {{ student.full_name }}</p>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-header"><strong>Montagem automática</strong></div>
+      <div class="card-body">
+        <p class="mb-3">
+          A avaliação original possui <strong>{{ summary.total_items }}</strong> itens.
+          O sistema consultou o perfil de acessibilidade e as variantes disponíveis.
+        </p>
+        <ul class="list-unstyled mb-0">
+          <li class="mb-2">{{ summary.standard }} itens padrão compatíveis</li>
+          <li class="mb-2">{{ summary.equivalent }} variantes equivalentes</li>
+          <li class="mb-2">{{ summary.alternative }} itens alternativos</li>
+          {% if summary.blocked %}
+          <li class="mb-2 text-warning">{{ summary.blocked }} itens requerem instrumento alternativo (não serão marcados como erro)</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card shadow-sm h-100">
+      <div class="card-header"><strong>Recursos necessários</strong></div>
+      <div class="card-body">
+        {% if feature_names %}
+        <ul class="mb-0">
+          {% for name in feature_names %}
+          <li>{{ name }}</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">Nenhum recurso de acessibilidade ativo neste perfil.</p>
+        {% endif %}
+        <p class="small text-muted mt-3 mb-0">Acomodações de acesso não reduzem automaticamente a expectativa de aprendizagem.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-header"><strong>Itens</strong></div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Item</th>
+          <th>Resolução</th>
+          <th>Detalhe</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for resolved in plan.items %}
+        <tr>
+          <td>{{ resolved.item.order }}</td>
+          <td>{{ resolved.item.prompt|truncatewords:12 }}</td>
+          <td>
+            {% if resolved.equivalence == 'STANDARD' %}
+            <span class="badge bg-secondary">Padrão</span>
+            {% elif resolved.equivalence == 'EQUIVALENT' %}
+            <span class="badge bg-success">Equivalente</span>
+            {% elif resolved.equivalence == 'ALTERNATIVE' %}
+            <span class="badge bg-info text-dark">Alternativo</span>
+            {% else %}
+            <span class="badge bg-warning text-dark">Requer alternativa</span>
+            {% endif %}
+          </td>
+          <td class="small">
+            {% if resolved.variant %}{{ resolved.variant.name }} v{{ resolved.variant.version }}{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="d-flex flex-wrap gap-2">
+  <form method="post" action="{% url 'assessment:start' enrollment.pk instrument.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Iniciar</button>
+  </form>
+  <a href="{% url 'assessment:print' enrollment.pk instrument.pk %}" class="btn btn-outline-secondary" target="_blank" rel="noopener">Versão para impressão</a>
+  <form method="post" action="{% url 'assessment:start' enrollment.pk instrument.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="observational" value="1">
+    <button type="submit" class="btn btn-outline-primary">Aplicar avaliação observacional</button>
+  </form>
+  <a href="{% url 'teacher:student' student.pk %}?tab=avaliacoes" class="btn btn-link">Cancelar</a>
+</div>
+{% endblock %}

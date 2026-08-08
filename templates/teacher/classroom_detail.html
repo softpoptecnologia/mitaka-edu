@@ -1,0 +1,87 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}{{ classroom.name }} — {{ APP_NAME }}{% endblock %}
+
+{% block teacher_content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-2">
+        <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Início</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'teacher:classrooms' %}">Turmas</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ classroom.name }}</li>
+      </ol>
+    </nav>
+    <h1 class="h3 mb-1">{{ classroom.name }}</h1>
+    <p class="text-muted mb-0">{{ classroom.grade_label }} · {{ classroom.school.name }} · {{ total }} estudante{{ total|pluralize }}</p>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'teacher:planning' classroom.pk %}" class="btn btn-outline-primary btn-sm">Planejamento</a>
+    <a href="{% url 'management:report_classroom' classroom.pk %}" class="btn btn-outline-secondary btn-sm">Relatório</a>
+    <a href="{% url 'management:report_classroom' classroom.pk %}?formato=pdf" class="btn btn-primary btn-sm">PDF</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body py-3">
+    <div class="small text-muted">Regular</div><div class="fs-4 fw-semibold">{{ summary.ok }}</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body py-3">
+    <div class="small text-muted">Pendentes</div><div class="fs-4 fw-semibold">{{ summary.pending }}</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body py-3">
+    <div class="small text-muted">Atenção</div><div class="fs-4 fw-semibold text-danger">{{ summary.attention }}</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body py-3">
+    <div class="small text-muted">Com recurso de acesso</div><div class="fs-4 fw-semibold">{{ summary.apoio }}</div>
+  </div></div></div>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3" role="search">
+  <div class="col-md-4">
+    <label class="form-label small mb-1" for="q">Buscar estudante</label>
+    <input class="form-control form-control-sm" id="q" name="q" value="{{ q }}" placeholder="Nome ou código">
+  </div>
+  <div class="col-md-8 d-flex flex-wrap gap-2">
+    <input type="hidden" name="filtro" value="{{ filter }}">
+    <button class="btn btn-sm btn-primary" type="submit">Filtrar</button>
+    <a href="?filtro={{ filter }}" class="btn btn-sm btn-outline-secondary">Limpar busca</a>
+  </div>
+</form>
+
+<div class="btn-group mb-3 flex-wrap" role="group" aria-label="Filtros rápidos">
+  <a href="?filtro=todos{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if filter == 'todos' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Todos</a>
+  <a href="?filtro=pendentes{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if filter == 'pendentes' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Pendentes</a>
+  <a href="?filtro=acompanhamento{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if filter == 'acompanhamento' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Acompanhamento</a>
+  <a href="?filtro=atencao{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if filter == 'atencao' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Atenção</a>
+  <a href="?filtro={{ filter }}&apoio=1{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if apoio %}btn-primary{% else %}btn-outline-secondary{% endif %}">Com recurso de acesso</a>
+</div>
+
+{% if rows %}
+<div class="card shadow-sm">
+  <ul class="list-group list-group-flush">
+    {% for row in rows %}
+    <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
+      <div class="d-flex align-items-center gap-3">
+        {% include "components/status_badge.html" with badge=row.badge label=row.label %}
+        <div>
+          <a href="{% url 'teacher:student' row.student.pk %}" class="fw-medium text-decoration-none">{{ row.student.full_name }}</a>
+          {% if row.student.external_code %}
+          <div class="small text-muted">Cód. {{ row.student.external_code }}</div>
+          {% endif %}
+          {% if row.resources %}
+          <div class="small text-muted">Recursos: {{ row.resources|join:", " }}</div>
+          {% endif %}
+        </div>
+      </div>
+      <a href="{% url 'teacher:student' row.student.pk %}" class="btn btn-sm btn-outline-primary">Ver perfil</a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% else %}
+<div class="alert alert-light border text-center py-4">
+  <p class="mb-0">Nenhum estudante encontrado para este filtro.</p>
+</div>
+{% endif %}
+{% endblock %}

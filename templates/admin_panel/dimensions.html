@@ -1,0 +1,84 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Dimensões e habilidades{% endblock %}
+
+{% block admin_content %}
+{% if version %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+  <p class="text-muted mb-0">
+    Versão publicada: <strong>{{ version.matrix.name }} — {{ version.version_label }}</strong>
+    {% if version.framework_reference %}
+    <br><span class="small">{{ version.framework_reference }}</span>
+    {% endif %}
+  </p>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'management:curriculum_alignment' %}" class="btn btn-sm btn-outline-primary">Ver alinhamento ao Currículo PE</a>
+    {% if can_write_network %}
+    <a href="{% url 'management:dimension_create' %}?versao={{ version.pk }}" class="btn btn-sm btn-accent">Nova dimensão</a>
+    <a href="{% url 'management:skill_create' %}" class="btn btn-sm btn-outline-secondary">Nova habilidade</a>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="alert alert-warning">Nenhuma versão de matriz publicada. Publique uma versão em Matriz para cadastrar dimensões.</div>
+{% endif %}
+
+{% if dimensions %}
+{% for dimension in dimensions %}
+<div class="card shadow-sm mb-3">
+  <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <strong>{{ dimension.name }}</strong>
+      {% if dimension.practice_axis %}
+      <span class="badge bg-primary-subtle text-primary ms-2">{{ dimension.practice_axis }}</span>
+      {% endif %}
+      <span class="badge bg-light text-dark ms-2">{{ dimension.code }}</span>
+    </div>
+    {% if can_write_network %}
+    <div class="d-flex gap-2">
+      <a href="{% url 'management:dimension_update' dimension.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+      <a href="{% url 'management:skill_create' %}?dimensao={{ dimension.pk }}" class="btn btn-sm btn-outline-secondary">Nova habilidade</a>
+    </div>
+    {% endif %}
+  </div>
+  <div class="card-body">
+    {% if dimension.description %}<p class="small text-muted">{{ dimension.description }}</p>{% endif %}
+    {% if dimension.skills.all %}
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Código PE</th>
+            <th>Habilidade</th>
+            <th>Objeto de conhecimento</th>
+            <th>Descrição</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for skill in dimension.skills.all %}
+          <tr>
+            <td><code>{{ skill.bncc_code|default:skill.code }}</code></td>
+            <td>{{ skill.name }}</td>
+            <td class="small">{{ skill.knowledge_object|default:"—" }}</td>
+            <td class="small text-muted">{{ skill.description|truncatewords:18|default:"—" }}</td>
+            <td class="text-end">
+              {% if can_write_network %}
+              <a href="{% url 'management:skill_update' skill.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted small mb-0">Sem habilidades nesta dimensão.</p>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+{% elif version %}
+<p class="text-muted">Nenhuma dimensão cadastrada nesta versão.</p>
+{% endif %}
+{% endblock %}

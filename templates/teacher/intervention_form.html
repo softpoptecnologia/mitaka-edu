@@ -1,0 +1,73 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Nova intervenção — {{ student.full_name }}{% endblock %}
+
+{% block teacher_content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{% url 'teacher:student' student.pk %}">{{ student.full_name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Nova intervenção</li>
+    </ol>
+  </nav>
+  <h1 class="h3 mb-1">Registrar intervenção</h1>
+  <p class="text-muted mb-0">Planeje ações pedagógicas para fortalecer habilidades específicas.</p>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% if template_id %}<input type="hidden" name="template_id" value="{{ template_id }}">{% endif %}
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <div class="mb-3">
+            <label for="{{ form.skill.id_for_label }}" class="form-label">Habilidade</label>
+            {{ form.skill }}
+            {% if form.skill.errors %}<div class="text-danger small">{{ form.skill.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.objective.id_for_label }}" class="form-label">Objetivo</label>
+            {{ form.objective }}
+            {% if form.objective.errors %}<div class="text-danger small">{{ form.objective.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.activities.id_for_label }}" class="form-label">Atividades</label>
+            {{ form.activities }}
+            {% if form.activities.errors %}<div class="text-danger small">{{ form.activities.errors }}</div>{% endif %}
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.starts_on.id_for_label }}" class="form-label">Início</label>
+              {{ form.starts_on }}
+              {% if form.starts_on.errors %}<div class="text-danger small">{{ form.starts_on.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.ends_on.id_for_label }}" class="form-label">Término</label>
+              {{ form.ends_on }}
+              {% if form.ends_on.errors %}<div class="text-danger small">{{ form.ends_on.errors }}</div>{% endif %}
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.status.id_for_label }}" class="form-label">Situação</label>
+            {{ form.status }}
+            {% if form.status.errors %}<div class="text-danger small">{{ form.status.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-4">
+            <label for="{{ form.observation.id_for_label }}" class="form-label">Observações</label>
+            {{ form.observation }}
+            {% if form.observation.errors %}<div class="text-danger small">{{ form.observation.errors }}</div>{% endif %}
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Salvar intervenção</button>
+            <a href="{% url 'teacher:student' student.pk %}?tab=intervencoes" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

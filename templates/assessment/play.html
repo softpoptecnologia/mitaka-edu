@@ -1,0 +1,262 @@
+{% extends "assessment/base.html" %}
+
+{% block title %}{{ session.instrument.title }} — {{ APP_NAME }}{% endblock %}
+{% block body_class %}{{ a11y_classes }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .play-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .play-header {
+    flex-shrink: 0;
+    text-align: center;
+    padding-bottom: 0.5rem;
+  }
+  .play-student {
+    font-size: 0.95rem;
+    color: #6b7575;
+  }
+  .play-progress {
+    height: 14px;
+    border-radius: 999px;
+    background: rgba(13, 110, 110, 0.15);
+    overflow: hidden;
+    margin: 0.75rem auto;
+    max-width: 480px;
+  }
+  .play-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--play-teal), var(--play-teal-light));
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+  .play-counter {
+    font-size: 0.875rem;
+    color: #6b7575;
+  }
+  .play-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    margin-top: 0.35rem;
+    color: #095555;
+  }
+  .play-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .play-prompt {
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    font-weight: 600;
+    color: #2c3333;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+  }
+  .play-prompt-image {
+    max-height: 220px;
+    max-width: 100%;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .play-options {
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+  }
+  .play-option-btn {
+    display: block;
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-align: center;
+    border: 3px solid var(--play-teal);
+    border-radius: 16px;
+    background: #fff;
+    color: var(--play-teal);
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s, color 0.15s;
+    min-height: 64px;
+  }
+  .play-option-btn:hover,
+  .play-option-btn:focus-visible {
+    background: var(--play-teal);
+    color: #fff;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .play-option-btn:hover,
+    .play-option-btn:focus-visible {
+      transform: scale(1.02);
+    }
+  }
+  .play-option-image {
+    max-height: 100px;
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+  }
+  .play-help {
+    font-size: 0.9rem;
+    color: #6b7575;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .play-steps {
+    text-align: left;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid var(--play-teal);
+    background: rgba(13, 110, 110, 0.06);
+  }
+  .play-observation textarea {
+    font-size: 1.1rem;
+    border-radius: 12px;
+    border: 2px solid rgba(13, 110, 110, 0.3);
+    padding: 1rem;
+    min-height: 120px;
+  }
+  .play-footer {
+    flex-shrink: 0;
+    text-align: center;
+    padding-top: 1rem;
+  }
+  .play-skip {
+    font-size: 0.85rem;
+    color: #6b7575;
+  }
+  .form-error {
+    color: #842029;
+    background: #f8d7da;
+    border: 1px solid #f5c2c7;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="play-shell {{ a11y_classes }}">
+  <header class="play-header">
+    <div class="play-student">{{ student.full_name }}</div>
+    <div class="play-progress" role="progressbar" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso da avaliação">
+      <div class="play-progress-bar" style="width: {{ progress }}%;"></div>
+    </div>
+    <div class="play-counter">Questão {{ answered|add:1 }} de {{ total }}</div>
+    {% if variant %}
+    <div class="play-badge" aria-label="Versão acessível em uso">Versão acessível{% if equivalence == 'EQUIVALENT' %} (equivalente){% elif equivalence == 'ALTERNATIVE' %} (alternativa){% endif %}</div>
+    {% endif %}
+  </header>
+
+  <main class="play-main" id="conteudo-principal">
+    {% if prompt_image %}
+    <img src="{{ prompt_image.url }}" alt="{{ prompt_image_alt|default:prompt }}" class="play-prompt-image">
+    {% endif %}
+
+    {% if prompt_audio %}
+    <audio controls class="mb-3 w-100" aria-label="Áudio da instrução">
+      <source src="{{ prompt_audio.url }}">
+      Seu navegador não suporta áudio. A instrução também está disponível em texto abaixo.
+    </audio>
+    {% endif %}
+
+    {% if step_by_step %}
+    <div class="play-steps" role="region" aria-label="Instruções passo a passo">
+      <ol class="mb-0 ps-3">
+        <li>Leia ou ouça a pergunta com atenção.</li>
+        <li>Observe as alternativas.</li>
+        <li>Escolha a resposta e confirme.</li>
+      </ol>
+    </div>
+    {% endif %}
+
+    <h1 class="play-prompt">{{ prompt }}</h1>
+
+    {% if item.help_text %}
+    <p class="play-help">{{ item.help_text }}</p>
+    {% endif %}
+
+    {% if allow_repeat %}
+    <p class="play-help">
+      <button type="button" class="btn btn-link" id="btn-repeat-instruction" aria-describedby="repeat-hint">
+        Ouvir / reler a instrução
+      </button>
+      <span id="repeat-hint" class="visually-hidden">Repetir a instrução não reduz a pontuação.</span>
+    </p>
+    {% endif %}
+
+    {% if is_observational %}
+    <form method="post" action="{% url 'assessment:answer' session.id %}" class="w-100 play-observation" aria-label="Registro observacional">
+      {% csrf_token %}
+      <input type="hidden" name="item_id" value="{{ item.id }}">
+      <input type="hidden" name="instruction_repeats" id="instruction_repeats" value="0">
+      <label for="obs-text" class="form-label">Observação / evidência</label>
+      <textarea id="obs-text" name="text_value" class="form-control mb-3" placeholder="Descreva sua observação..." required aria-required="true"></textarea>
+      <button type="submit" class="play-option-btn">Registrar observação</button>
+    </form>
+    {% else %}
+    <div class="play-options" role="group" aria-label="Alternativas">
+      {% for option in options %}
+      <form method="post" action="{% url 'assessment:answer' session.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="item_id" value="{{ item.id }}">
+        <input type="hidden" name="option_id" value="{{ option.id }}">
+        <input type="hidden" name="instruction_repeats" class="instruction_repeats" value="0">
+        <button type="submit" class="play-option-btn">
+          {% if option.image %}
+          <img src="{{ option.image.url }}" alt="{{ option.image_alt|default:option.label }}" class="play-option-image d-block mx-auto">
+          {% endif %}
+          {{ option.label }}
+        </button>
+      </form>
+      {% empty %}
+      <p class="form-error" role="alert">Nenhuma opção disponível para esta questão.</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </main>
+
+  <footer class="play-footer no-print">
+    <form method="post" action="{% url 'assessment:finish' session.id %}" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-link play-skip text-decoration-none">Encerrar avaliação</button>
+    </form>
+  </footer>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    var repeats = 0;
+    var btn = document.getElementById('btn-repeat-instruction');
+    var fields = document.querySelectorAll('#instruction_repeats, .instruction_repeats');
+    function sync() {
+      fields.forEach(function (el) { el.value = String(repeats); });
+    }
+    if (btn) {
+      btn.addEventListener('click', function () {
+        repeats += 1;
+        sync();
+        var prompt = document.querySelector('.play-prompt');
+        if (prompt) { prompt.focus({ preventScroll: false }); }
+        var audio = document.querySelector('audio');
+        if (audio) { audio.currentTime = 0; audio.play().catch(function () {}); }
+      });
+    }
+  })();
+</script>
+{% endblock %}

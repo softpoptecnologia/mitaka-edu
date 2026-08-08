@@ -1,0 +1,135 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Resultado — {{ student.full_name }} — {{ APP_NAME }}{% endblock %}
+
+{% block teacher_content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Início</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'teacher:student' student.pk %}">{{ student.full_name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Resultado da sessão</li>
+    </ol>
+  </nav>
+  <h1 class="h3 mb-1">Resultado da avaliação</h1>
+  <p class="text-muted mb-0">{{ session.instrument.title }} · {{ session.started_at|date:"d/m/Y H:i" }}</p>
+</div>
+
+{% if session.active_features or session.adaptation_summary %}
+<div class="alert alert-light border mb-4" role="status">
+  <strong>Versão acessível utilizada</strong>
+  {% if session.application_mode == 'adapted' %}
+  <span class="badge bg-success ms-1">Adaptada</span>
+  {% endif %}
+  {% if session.active_features %}
+  <div class="small mt-2">Recursos: {{ session.active_features|join:", " }}</div>
+  {% endif %}
+  {% if session.adaptation_summary %}
+  <div class="small text-muted mt-1">
+    Padrão: {{ session.adaptation_summary.standard|default:0 }} ·
+    Equivalente: {{ session.adaptation_summary.equivalent|default:0 }} ·
+    Alternativo: {{ session.adaptation_summary.alternative|default:0 }}
+    {% if session.adaptation_summary.blocked %}
+    · Requer alternativa: {{ session.adaptation_summary.blocked }}
+    {% endif %}
+  </div>
+  {% endif %}
+  <p class="small mb-0 mt-2">Acomodações de acesso não reduzem automaticamente a pontuação.</p>
+</div>
+{% endif %}
+
+<div class="card shadow-sm mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong>Situação por habilidade</strong>
+    <span class="badge bg-secondary">{{ session.get_status_display }}</span>
+  </div>
+  <div class="card-body">
+    {% if results %}
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Habilidade</th>
+            <th>Resultado</th>
+            <th>Pontuação</th>
+            <th>Intervenção sugerida</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in results %}
+          <tr>
+            <td>
+              {{ result.skill.name }}
+              {% if result.accessibility_note %}
+              <div class="small text-muted">{{ result.accessibility_note }}</div>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {% if result.needs_attention %}bg-danger{% else %}bg-success{% endif %}">
+                {{ result.status_label }}
+              </span>
+            </td>
+            <td>{{ result.raw_score }}/{{ result.max_score }}</td>
+            <td>
+              {% if result.recommended_template %}
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="small">{{ result.recommended_template.title }}</span>
+                <form method="post" action="{% url 'teacher:intervention_accept' student.pk result.recommended_template.pk %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-primary">Aceitar intervenção</button>
+                </form>
+              </div>
+              {% else %}
+              <span class="text-muted small">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">Nenhum resultado calculado para esta sessão.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if responses %}
+<div class="card shadow-sm mb-4">
+  <div class="card-header"><strong>Registro de adaptações por item</strong></div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Forma</th>
+          <th>Variante</th>
+          <th>Conta no desempenho</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for response in responses %}
+        <tr>
+          <td class="small">{{ response.item.prompt|truncatewords:10 }}</td>
+          <td><span class="badge bg-light text-dark">{{ response.get_equivalence_applied_display }}</span></td>
+          <td class="small">
+            {% if response.variant_name_snapshot %}
+            {{ response.variant_name_snapshot }}{% if response.variant_version %} v{{ response.variant_version }}{% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td>{% if response.counts_toward_score %}Sim{% else %}Não{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="d-flex gap-2">
+  <a href="{% url 'teacher:student' student.pk %}?tab=avaliacoes" class="btn btn-primary">Voltar ao perfil</a>
+  {% if session.enrollment.classroom %}
+  <a href="{% url 'teacher:classroom' session.enrollment.classroom.pk %}" class="btn btn-outline-secondary">Ver turma</a>
+  {% endif %}
+</div>
+{% endblock %}

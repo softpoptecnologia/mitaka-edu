@@ -1,0 +1,98 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Anos letivos{% endblock %}
+
+{% block admin_content %}
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header"><strong>Criar ano letivo</strong></div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="create_year">
+          <div class="mb-3">
+            <label for="year" class="form-label">Ano</label>
+            <input type="number" name="year" id="year" class="form-control" min="2000" max="2100" required>
+          </div>
+          <div class="form-check mb-3">
+            <input type="checkbox" name="activate" id="activate" class="form-check-input" value="1">
+            <label for="activate" class="form-check-label">Ativar imediatamente</label>
+          </div>
+          <button type="submit" class="btn btn-primary">Criar ano</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header"><strong>Anos cadastrados</strong></div>
+      <div class="card-body p-0">
+        {% if years %}
+        <div class="table-responsive">
+          <table class="table table-sm mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Ano</th>
+                <th>Rótulo</th>
+                <th>Ativo</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for y in years %}
+              <tr>
+                <td>{{ y.year }}</td>
+                <td>{{ y.label }}</td>
+                <td>{% if y.is_active %}<span class="badge text-bg-success">Ativo</span>{% else %}—{% endif %}</td>
+                <td class="text-end text-nowrap">
+                  {% if can_write_network %}
+                  <a href="{% url 'management:school_year_update' y.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                  {% if not y.is_active %}
+                  <form method="post" action="{% url 'management:school_year_activate' y.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Ativar</button>
+                  </form>
+                  {% endif %}
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted p-3 mb-0">Nenhum ano cadastrado.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header"><strong>Nova matrícula (preservando histórico)</strong></div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="enroll">
+          <div class="mb-3">
+            <label for="student_id" class="form-label">Estudante</label>
+            <select name="student_id" id="student_id" class="form-select" required>
+              {% for student in students %}
+              <option value="{{ student.pk }}">{{ student.full_name }} ({{ student.external_code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="classroom_id" class="form-label">Turma</label>
+            <select name="classroom_id" id="classroom_id" class="form-select" required>
+              {% for classroom in classrooms %}
+              <option value="{{ classroom.pk }}">{{ classroom.name }} — {{ classroom.school.name }} ({{ classroom.school_year }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-outline-primary">Matricular</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

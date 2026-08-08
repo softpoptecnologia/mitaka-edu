@@ -1,0 +1,46 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Minhas turmas — {{ APP_NAME }}{% endblock %}
+
+{% block teacher_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-1">Minhas turmas</h1>
+    <p class="text-muted mb-0">Turmas vinculadas ao seu perfil no ano letivo ativo.</p>
+  </div>
+  <a href="{% url 'teacher:home' %}" class="btn btn-outline-secondary btn-sm">Voltar ao início</a>
+</div>
+
+{% if classrooms %}
+<div class="table-responsive card shadow-sm">
+  <table class="table table-hover mb-0 align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Turma</th>
+        <th>Série</th>
+        <th>Escola</th>
+        <th>Ano letivo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for classroom in classrooms %}
+      <tr>
+        <td class="fw-medium">{{ classroom.name }}</td>
+        <td>{{ classroom.grade_label }}</td>
+        <td>{{ classroom.school.name }}</td>
+        <td>{{ classroom.school_year }}</td>
+        <td class="text-end">
+          <a href="{% url 'teacher:classroom' classroom.pk %}" class="btn btn-primary btn-sm">Abrir turma</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-light border text-center py-5">
+  <p class="mb-0">Nenhuma turma encontrada.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% comment %}
+  Usage: {% include "components/status_badge.html" with badge="ok" label="Acompanhamento regular" %}
+  badge values: ok, pending, attention
+{% endcomment %}
+<span class="status-badge status-badge-{{ badge }} d-inline-flex align-items-center gap-1">
+  {% if badge == "ok" %}
+    <span class="badge-icon" aria-hidden="true">✓</span>
+  {% elif badge == "attention" %}
+    <span class="badge-icon" aria-hidden="true">⚠</span>
+  {% else %}
+    <span class="badge-icon" aria-hidden="true">○</span>
+  {% endif %}
+  <span class="badge-label">{{ label }}</span>
+</span>

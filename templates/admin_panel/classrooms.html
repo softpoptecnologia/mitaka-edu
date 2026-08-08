@@ -1,0 +1,88 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Turmas{% endblock %}
+
+{% block admin_content %}
+<form method="get" class="filter-bar">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label" for="q">Buscar turma</label>
+      <input class="form-control form-control-sm" id="q" name="q" value="{{ q }}" placeholder="Nome da turma">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="escola">Escola</label>
+      <select class="form-select form-select-sm" id="escola" name="escola">
+        <option value="">Todas</option>
+        {% for school in schools %}
+        <option value="{{ school.pk }}" {% if school_id == school.pk|stringformat:'s' %}selected{% endif %}>{{ school.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div class="form-check mt-4">
+        <input class="form-check-input" type="checkbox" name="inativas" value="1" id="inativas" {% if include_inactive %}checked{% endif %}>
+        <label class="form-check-label" for="inativas">Incluir desativadas</label>
+      </div>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
+      {% if can_write_school %}
+      <a href="{% url 'management:classroom_create' %}" class="btn btn-sm btn-accent ms-auto">Nova turma</a>
+      {% endif %}
+    </div>
+  </div>
+</form>
+
+<div class="panel">
+  <div class="panel-header d-flex justify-content-between">
+    <span>Turmas</span>
+    <span class="text-muted small">{{ classrooms|length }}</span>
+  </div>
+  <div class="panel-body p-0">
+    {% if classrooms %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Turma</th>
+            <th>Série</th>
+            <th>Escola</th>
+            <th>Ano letivo</th>
+            <th>Turno</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for classroom in classrooms %}
+          <tr>
+            <td class="fw-medium">{{ classroom.name }}</td>
+            <td>{{ classroom.grade_label }}</td>
+            <td>{{ classroom.school.name }}</td>
+            <td>{{ classroom.school_year }}</td>
+            <td>{{ classroom.shift|default:"—" }}</td>
+            <td>{% if classroom.is_active %}<span class="badge text-bg-success">Ativa</span>{% else %}<span class="badge text-bg-secondary">Desativada</span>{% endif %}</td>
+            <td class="text-end text-nowrap">
+              <a href="{% url 'management:report_classroom' classroom.pk %}" class="btn btn-sm btn-outline-secondary">Relatório</a>
+              {% if can_write_school %}
+              <a href="{% url 'management:classroom_update' classroom.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+              <form method="post" action="{% url 'management:classroom_archive' classroom.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-secondary" type="submit">{% if classroom.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+              </form>
+              {% endif %}
+              {% if can_hard_delete %}
+              <a href="{% url 'management:classroom_delete' classroom.pk %}" class="btn btn-sm btn-outline-danger">Excluir</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0 text-center">Nenhuma turma cadastrada.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+/* Transversal accessibility — Mitaka Edu */
+
+:focus-visible {
+  outline: 3px solid var(--mitaka-teal, #0d6e6e);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  color: var(--mitaka-teal, #0d6e6e);
+  font-weight: 600;
+  border: 2px solid var(--mitaka-teal, #0d6e6e);
+}
+
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+.a11y-large-text {
+  font-size: 125%;
+  line-height: 1.6;
+}
+
+.a11y-large-text .play-prompt,
+.a11y-large-text .play-option-btn {
+  font-size: 1.35em;
+}
+
+.a11y-high-contrast {
+  --play-teal: #003d3d;
+  --play-cream: #fff;
+  --mitaka-text: #000;
+  --mitaka-muted: #222;
+  background: #fff !important;
+  color: #000 !important;
+}
+
+.a11y-high-contrast .play-option-btn {
+  border-width: 4px;
+  border-color: #000;
+  color: #000;
+  background: #fff;
+}
+
+.a11y-high-contrast .play-option-btn:hover,
+.a11y-high-contrast .play-option-btn:focus {
+  background: #000;
+  color: #fff;
+}
+
+.a11y-large-target .play-option-btn,
+.a11y-large-target .btn,
+.a11y-large-target button {
+  min-height: 72px;
+  min-width: 72px;
+  padding: 1.25rem 1.5rem;
+}
+
+.a11y-reduced-stimulus .play-shell,
+.a11y-reduced-stimulus body {
+  background: #fff !important;
+}
+
+.a11y-reduced-stimulus .play-progress-bar,
+.a11y-reduced-stimulus .play-prompt-image {
+  box-shadow: none !important;
+}
+
+.a11y-reduced-stimulus .play-option-btn {
+  transition: none !important;
+}
+
+.a11y-reduced-stimulus .play-option-btn:hover,
+.a11y-reduced-stimulus .play-option-btn:focus {
+  transform: none !important;
+}
+
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .play-progress-bar,
+  .play-option-btn {
+    transition: none !important;
+  }
+
+  .play-option-btn:hover,
+  .play-option-btn:focus,
+  .play-option-btn:active {
+    transform: none !important;
+  }
+}
+
+/* Print-friendly accessible version */
+@media print {
+  .no-print,
+  .play-footer,
+  nav,
+  .btn-close {
+    display: none !important;
+  }
+
+  body,
+  .play-shell {
+    background: #fff !important;
+    color: #000 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .play-option-btn {
+    border: 2px solid #000;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+
+  .print-accessible .play-prompt {
+    font-size: 18pt;
+    line-height: 1.6;
+  }
+
+  .print-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #ccc;
+  }
+}

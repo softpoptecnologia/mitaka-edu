@@ -1,0 +1,53 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Templates de intervenção{% endblock %}
+
+{% block admin_content %}
+{% if can_write_template %}
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'management:intervention_template_create' %}" class="btn btn-sm btn-accent">Novo template</a>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="panel-header">Catálogo pedagógico</div>
+  <div class="panel-body p-0">
+    {% if templates %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Habilidade</th>
+            <th>Título</th>
+            <th>Duração sugerida</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in templates %}
+          <tr>
+            <td>{{ item.skill.name }}</td>
+            <td class="fw-medium">{{ item.title }}</td>
+            <td>{{ item.suggested_duration_days }} dias</td>
+            <td>{% if item.is_active %}<span class="badge text-bg-success">Ativo</span>{% else %}<span class="badge text-bg-secondary">Inativo</span>{% endif %}</td>
+            <td class="text-end text-nowrap">
+              {% if can_write_template %}
+              <a href="{% url 'management:intervention_template_update' item.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+              <form method="post" action="{% url 'management:intervention_template_archive' item.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-secondary" type="submit">{% if item.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0">Nenhum template cadastrado. Secretaria, técnico ou coordenação podem criar o catálogo usado pelos professores.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

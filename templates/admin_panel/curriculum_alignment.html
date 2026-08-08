@@ -1,0 +1,105 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block title %}Alinhamento curricular — {{ APP_NAME }}{% endblock %}
+
+{% block admin_content %}
+<div class="mb-4">
+  <h1 class="h3 mb-1">Alinhamento ao Currículo de Pernambuco</h1>
+  <p class="text-muted mb-0">
+    Referência: Currículo de Pernambuco / BNCC — Língua Portuguesa (Anos Iniciais),
+    na perspectiva de <strong>alfabetizar letrando</strong>.
+  </p>
+</div>
+
+{% if version %}
+<div class="alert alert-light border mb-4">
+  <div class="fw-semibold">{{ version.matrix.name }} — {{ version.version_label }}</div>
+  {% if version.framework_reference %}
+  <div class="small text-muted">{{ version.framework_reference }}</div>
+  {% endif %}
+  {% if version.notes %}
+  <p class="small mb-0 mt-2">{{ version.notes }}</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  {% for principle in principles %}
+  <div class="col-md-6">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 text-primary">{{ principle.title }}</h2>
+        <p class="small mb-0">{{ principle.text }}</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-header"><strong>Dimensões e habilidades com códigos PE</strong></div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Dimensão</th>
+            <th>Prática de linguagem</th>
+            <th>Código PE</th>
+            <th>Habilidade</th>
+            <th>Objeto de conhecimento</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for dim in dimensions %}
+            {% for skill in dim.skills.all %}
+            <tr>
+              <td>{{ dim.name }}</td>
+              <td class="small">{{ dim.practice_axis|default:"—" }}</td>
+              <td><code>{{ skill.bncc_code|default:skill.code }}</code></td>
+              <td>
+                <div>{{ skill.name }}</div>
+                {% if skill.curriculum_notes %}
+                <div class="small text-muted">{{ skill.curriculum_notes|truncatewords:28 }}</div>
+                {% endif %}
+              </td>
+              <td class="small">{{ skill.knowledge_object|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td>{{ dim.name }}</td>
+              <td colspan="4" class="text-muted small">Sem habilidades cadastradas</td>
+            </tr>
+            {% endfor %}
+          {% empty %}
+          <tr><td colspan="5" class="text-muted p-3">Nenhuma matriz publicada.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% if progressions %}
+<div class="card shadow-sm mb-4">
+  <div class="card-header"><strong>Progressão de competências (estrutura)</strong></div>
+  <div class="card-body">
+    <ol class="mb-0">
+      {% for link in progressions %}
+      <li class="mb-2">
+        <strong>{{ link.from_skill.name }}</strong>
+        → <strong>{{ link.to_skill.name }}</strong>
+        {% if link.notes %}<span class="text-muted small"> — {{ link.notes }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>
+{% endif %}
+
+<div class="alert alert-warning small mb-0">
+  As sondagens e intervenções deste MVP são <strong>demonstrativas</strong> para apoio pedagógico.
+  Não substituem avaliações oficiais da rede nem instrumentos clínicos.
+  Decisões de formação continuada devem ser tomadas pela equipe pedagógica com base nas evidências.
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Necessidades pedagógicas{% endblock %}
+{% block page_subtitle %}<span class="text-muted small ms-2">{{ scope_label }}</span>{% endblock %}
+
+{% block admin_content %}
+{% include "admin_panel/_secretaria_filters.html" %}
+
+<p class="scope-chip">
+  Prioridades sugeridas a partir do recorte selecionado. O sistema não automatiza decisões pedagógicas.
+</p>
+
+<div class="panel">
+  <div class="panel-header">Mapa de necessidades por habilidade</div>
+  <div class="panel-body p-0">
+    {% if skill_rows %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Habilidade</th>
+            <th>% atenção</th>
+            <th>Amostra</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in skill_rows %}
+          <tr>
+            <td>
+              <div class="fw-medium">{{ row.name }}</div>
+              {% if row.bncc_code %}<div class="small text-muted">{{ row.bncc_code }}</div>{% endif %}
+            </td>
+            <td>{{ row.pct }}%</td>
+            <td>{{ row.sample }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0">Nenhuma necessidade identificada neste recorte.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Navegação em rede{% endblock %}
+{% block page_subtitle %}<span class="text-muted small ms-2">{{ scope_label }}</span>{% endblock %}
+
+{% block admin_content %}
+{% include "admin_panel/_secretaria_filters.html" %}
+
+<nav aria-label="Nível de navegação" class="mb-3">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'secretaria:drilldown' %}">Rede</a></li>
+    {% if level == 'escola' %}
+    <li class="breadcrumb-item active" aria-current="page">{{ school.name }}</li>
+    {% elif level == 'turma' %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'secretaria:drilldown' %}?escola={{ classroom.school.pk }}{% if year %}&ano={{ year.pk }}{% endif %}">{{ classroom.school.name }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">{{ classroom.name }}</li>
+    {% endif %}
+  </ol>
+</nav>
+
+{% if level == 'rede' %}
+<div class="panel">
+  <div class="panel-header">Escolas da rede</div>
+  <div class="panel-body p-0">
+    {% if drill_schools %}
+    <ul class="list-group list-group-flush">
+      {% for school in drill_schools %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>{{ school.name }}</span>
+        <a href="?escola={{ school.pk }}{% if year %}&ano={{ year.pk }}{% endif %}" class="btn btn-sm btn-outline-secondary">Ver turmas</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted p-4 mb-0">Nenhuma escola ativa.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% elif level == 'escola' %}
+<div class="panel">
+  <div class="panel-header">Turmas — {{ school.name }}</div>
+  <div class="panel-body p-0">
+    {% if classrooms %}
+    <ul class="list-group list-group-flush">
+      {% for classroom in classrooms %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ classroom.name }}</strong>
+          <div class="small text-muted">{{ classroom.grade_label }}</div>
+        </div>
+        <a href="?turma={{ classroom.pk }}{% if year %}&ano={{ year.pk }}{% endif %}" class="btn btn-sm btn-outline-secondary">Ver estudantes</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted p-4 mb-0">Nenhuma turma nesta escola.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% elif level == 'turma' %}
+<div class="panel">
+  <div class="panel-header">Estudantes — {{ classroom.name }}</div>
+  <div class="panel-body p-0">
+    {% if enrollments %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Código</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enrollment in enrollments %}
+          <tr>
+            <td>{{ enrollment.student.full_name }}</td>
+            <td>{{ enrollment.student.external_code }}</td>
+            <td>{{ enrollment.get_status_display }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0">Nenhum estudante matriculado.</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

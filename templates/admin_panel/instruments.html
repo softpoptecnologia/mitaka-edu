@@ -1,0 +1,57 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Instrumentos de avaliação{% endblock %}
+
+{% block admin_content %}
+{% if can_write_network %}
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'management:instrument_create' %}" class="btn btn-sm btn-accent">Novo instrumento</a>
+</div>
+{% endif %}
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    {% if instruments %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Título</th>
+            <th>Habilidade</th>
+            <th>Tipo</th>
+            <th>Duração</th>
+            <th>Publicado</th>
+            <th>Ativo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for instrument in instruments %}
+          <tr>
+            <td class="fw-medium">{{ instrument.title }}</td>
+            <td>{{ instrument.skill.name }}</td>
+            <td>{{ instrument.get_instrument_type_display }}</td>
+            <td>~{{ instrument.estimated_minutes }} min</td>
+            <td>{% if instrument.is_published %}<span class="badge bg-success">Sim</span>{% else %}<span class="badge bg-secondary">Não</span>{% endif %}</td>
+            <td>{% if instrument.is_active %}<span class="badge bg-success">Sim</span>{% else %}<span class="badge bg-secondary">Não</span>{% endif %}</td>
+            <td class="text-end text-nowrap">
+              <a href="{% url 'management:instrument_items' instrument.pk %}" class="btn btn-sm btn-outline-secondary">Itens</a>
+              {% if can_write_network %}
+              <a href="{% url 'management:instrument_update' instrument.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+              <form method="post" action="{% url 'management:instrument_archive' instrument.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-secondary" type="submit">{% if instrument.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0 text-center">Nenhum instrumento cadastrado. Secretaria ou técnico podem criar os instrumentos da rede.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

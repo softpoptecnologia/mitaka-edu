@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+{% block admin_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+  <aside class="admin-sidebar no-print">
+    <div class="brand">{{ APP_NAME }}</div>
+    <nav>
+      <div class="nav-section">Gestão</div>
+      <a class="nav-link{% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.namespace == 'management' %} active{% endif %}" href="{% url 'management:dashboard' %}">Dashboard</a>
+      <a class="nav-link{% if 'municipalit' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'management:municipalities' %}">Município</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'schools' %} active{% endif %}" href="{% url 'management:schools' %}">Escolas</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'classrooms' %} active{% endif %}" href="{% url 'management:classrooms' %}">Turmas</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'students' %} active{% endif %}" href="{% url 'management:students' %}">Estudantes</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'enrollments' %} active{% endif %}" href="{% url 'management:enrollments' %}">Matrículas</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'import_students' %} active{% endif %}" href="{% url 'management:import_students' %}">Importar matrículas</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'teachers' %} active{% endif %}" href="{% url 'management:teachers' %}">Equipe</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'new_year' %} active{% endif %}" href="{% url 'management:new_year' %}">Anos letivos</a>
+
+      <div class="nav-section">Currículo</div>
+      <a class="nav-link{% if request.resolver_match.url_name == 'matrix' %} active{% endif %}" href="{% url 'management:matrix' %}">Matriz</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'dimensions' %} active{% endif %}" href="{% url 'management:dimensions' %}">Dimensões</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'curriculum_alignment' %} active{% endif %}" href="{% url 'management:curriculum_alignment' %}">Alinhamento PE</a>
+      <a class="nav-link{% if 'instrument' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'management:instruments' %}">Instrumentos</a>
+      <a class="nav-link{% if 'intervention_template' in request.resolver_match.url_name or request.resolver_match.url_name == 'intervention_templates' %} active{% endif %}" href="{% url 'management:intervention_templates' %}">Templates</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'indicators' %} active{% endif %}" href="{% url 'management:indicators' %}">Indicadores</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'interventions' %} active{% endif %}" href="{% url 'management:interventions' %}">Intervenções</a>
+
+      <div class="nav-section">Secretaria</div>
+      <a class="nav-link{% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.namespace == 'secretaria' %} active{% endif %}" href="{% url 'secretaria:dashboard' %}">Painel municipal</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'compare' %} active{% endif %}" href="{% url 'secretaria:compare' %}">Comparar escolas</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'needs' %} active{% endif %}" href="{% url 'secretaria:needs' %}">Necessidades pedagógicas</a>
+      <a class="nav-link{% if request.resolver_match.namespace == 'secretaria' and request.resolver_match.url_name == 'curriculum_alignment' %} active{% endif %}" href="{% url 'secretaria:curriculum_alignment' %}">Currículo PE</a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'drilldown' %} active{% endif %}" href="{% url 'secretaria:drilldown' %}">Navegação em rede</a>
+
+      <div class="nav-section">Relatórios</div>
+      <a class="nav-link{% if 'report' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'management:reports' %}">Relatórios</a>
+
+      <div class="nav-section mt-2"></div>
+      <a class="nav-link" href="{% url 'logout' %}">Sair</a>
+    </nav>
+  </aside>
+  <div class="admin-content">
+    <header class="admin-topbar no-print">
+      <div>
+        <strong>{% block page_title %}Gestão{% endblock %}</strong>
+        {% block page_subtitle %}{% endblock %}
+      </div>
+      <div class="text-muted small">{{ request.user.get_full_name|default:request.user.username }}</div>
+    </header>
+    <main class="admin-main">
+      {% block admin_content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endblock %}

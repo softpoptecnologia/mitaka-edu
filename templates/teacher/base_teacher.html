@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+  .teacher-nav {
+    background: var(--mitaka-teal);
+    box-shadow: 0 2px 8px rgba(13, 110, 110, 0.15);
+  }
+  .teacher-nav .navbar-brand,
+  .teacher-nav .nav-link {
+    color: #fff !important;
+  }
+  .teacher-nav .nav-link:hover {
+    color: var(--mitaka-cream) !important;
+    opacity: 0.95;
+  }
+  .teacher-nav .nav-link.active {
+    font-weight: 600;
+    border-bottom: 2px solid var(--mitaka-cream);
+  }
+  .teacher-main {
+    min-height: calc(100vh - 56px);
+  }
+  .status-badge .badge-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .status-badge-ok .badge-icon { background: #d4edda; color: #155724; }
+  .status-badge-pending .badge-icon { background: #fff3cd; color: #856404; }
+  .status-badge-attention .badge-icon { background: #f8d7da; color: #721c24; }
+  .status-badge .badge-label { font-size: 0.875rem; color: var(--mitaka-muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg teacher-nav">
+  <div class="container-fluid px-3 px-lg-4">
+    <a class="navbar-brand fw-semibold" href="{% url 'teacher:home' %}">{{ APP_NAME }}</a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#teacherNav" aria-controls="teacherNav" aria-expanded="false" aria-label="Menu">
+      <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="teacherNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link{% if request.resolver_match.url_name == 'home' %} active{% endif %}" href="{% url 'teacher:home' %}">Início</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link{% if 'classroom' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'teacher:classrooms' %}">Minhas turmas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">Sair</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<main class="teacher-main py-4">
+  <div class="container-fluid px-3 px-lg-4">
+    {% block teacher_content %}{% endblock %}
+  </div>
+</main>
+{% endblock %}
