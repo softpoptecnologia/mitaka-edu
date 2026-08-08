@@ -10,11 +10,61 @@ SCHOOL_WRITE_ROLES = ("GESTOR", "COORDENADOR")
 AEE_ROLES = ("AEE", "COORDENADOR", "GESTOR", "SUPERADMIN", "SECRETARIA", "TECNICO")
 HARD_DELETE_ROLES = ("SUPERADMIN", "SECRETARIA")
 
+ROLE_NAV_LABELS = {
+    "SUPERADMIN": "Superadmin",
+    "SECRETARIA": "Secretaria",
+    "TECNICO": "Técnico",
+    "GESTOR": "Gestor",
+    "COORDENADOR": "Coordenador",
+    "PROFESSOR": "Professor",
+    "AEE": "AEE",
+}
+
+ROLE_ALIASES = {
+    "GESTOR ESCOLAR": "GESTOR",
+    "GESTORA": "GESTOR",
+    "DIRETOR": "GESTOR",
+    "DIRETORA": "GESTOR",
+    "COORDENADOR PEDAGOGICO": "COORDENADOR",
+    "COORDENADORA": "COORDENADOR",
+    "PROFESSORA": "PROFESSOR",
+    "TECNICO PEDAGOGICO": "TECNICO",
+    "TECNICA": "TECNICO",
+}
+
+
+def is_authenticated_user(user) -> bool:
+    if user is None:
+        return False
+    value = getattr(user, "is_authenticated", False)
+    if callable(value):
+        value = value()
+    return bool(value)
+
+
+def normalize_role_code(code) -> str | None:
+    if not code:
+        return None
+    raw = str(code).strip().upper()
+    collapsed = " ".join(raw.replace("-", " ").replace("_", " ").split())
+    underscored = collapsed.replace(" ", "_")
+    known = set(ROLE_NAV_LABELS) | set(NETWORK_ROLES) | set(MANAGEMENT_ROLES) | {"PROFESSOR"}
+    if underscored in known:
+        return underscored
+    return ROLE_ALIASES.get(collapsed) or ROLE_ALIASES.get(raw)
+
 
 def user_role_code(user) -> str | None:
-    if not user or not user.is_authenticated:
+    if not is_authenticated_user(user):
         return None
-    return user.role_code
+    code = getattr(user, "role_code", None)
+    normalized = normalize_role_code(code)
+    if normalized:
+        return normalized
+    profile = getattr(user, "profile", None)
+    if profile and getattr(profile, "school_id", None):
+        return "GESTOR"
+    return None
 
 
 def require_roles(user, *codes: str):
@@ -48,17 +98,6 @@ def cadastro_flags(user, school=None) -> dict:
         "can_write_school": can_write_school(user, school),
         "can_hard_delete": can_hard_delete(user),
     }
-
-
-ROLE_NAV_LABELS = {
-    "SUPERADMIN": "Superadmin",
-    "SECRETARIA": "Secretaria",
-    "TECNICO": "Técnico",
-    "GESTOR": "Gestor",
-    "COORDENADOR": "Coordenador",
-    "PROFESSOR": "Professor",
-    "AEE": "AEE",
-}
 
 
 def _nav_all_visible(**extra) -> dict:

@@ -15,6 +15,7 @@
       <span class="brand-text">{{ APP_NAME }}</span>
     </div>
     <nav aria-label="Menu principal">
+      {% get_sidebar_nav as nav %}
       {% if nav|nav_on:'teacher_portal' %}
       <div class="nav-section">Sala</div>
       <a class="nav-link" href="{% url 'teacher:home' %}" title="Sala de aula">

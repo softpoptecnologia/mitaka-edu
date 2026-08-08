@@ -11,11 +11,12 @@ def branding(request):
 
 
 def navigation(request):
+    from apps.core.permissions import is_authenticated_user
+
     try:
         user = getattr(request, "user", None)
-        authenticated = bool(user and getattr(user, "is_authenticated", False))
-        if not authenticated:
-            return {"nav": {"ready": True}}
+        if not is_authenticated_user(user):
+            return {"nav": {"ready": False}}
         flags = nav_flags(user)
         flags["ready"] = True
         return {"nav": flags}

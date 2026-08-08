@@ -194,7 +194,14 @@ class SidebarNavTests(BaseFixtureTestCase):
         self.assertTrue(flags["schools"])
         self.assertTrue(nav_on({}, "section_gestao"))
         self.assertTrue(nav_on({"ready": False}, "section_gestao"))
-        self.assertFalse(nav_on({"ready": True, "section_gestao": False}, "section_gestao"))
+        self.assertTrue(nav_on({"ready": True}, "section_gestao"))
+        self.assertFalse(nav_on({"ready": True, "section_gestao": False, "dashboard": False}, "section_gestao"))
+
+    def test_gestor_topbar_shows_role_and_menu(self):
+        html = self._sidebar("gestor1")
+        self.assertIn("Gestor", html)
+        self.assertIn("Dashboard", html)
+        self.assertIn("Sala de aula", html)
 
 
 class CsrfProductionTests(TestCase):
