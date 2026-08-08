@@ -1,9 +1,5 @@
-const CACHE = "mitaka-static-v1";
-const ASSETS = [
-  "/",
-  "/static/css/app.css",
-  "/static/pwa/manifest.json"
-];
+const CACHE = "mitaka-static-v2";
+const ASSETS = ["/static/pwa/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS).catch(() => undefined)));
@@ -22,7 +18,12 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
-  event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req).catch(() => cached))
-  );
+  const url = new URL(req.url);
+  const isNavigate = req.mode === "navigate";
+  const isStyleOrScript = url.pathname.startsWith("/static/css/") || url.pathname.startsWith("/static/js/");
+  if (isNavigate || isStyleOrScript) {
+    event.respondWith(fetch(req).catch(() => caches.match(req)));
+    return;
+  }
+  event.respondWith(caches.match(req).then((cached) => cached || fetch(req).catch(() => cached)));
 });

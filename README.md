@@ -68,6 +68,26 @@ Veja `.env.example` (local) e `.env.production.example` (cPanel / produção):
 
 **Nunca versione o arquivo `.env` com segredos reais.** No servidor, copie `.env.production.example` para `.env` na raiz do app.
 
+## Publicar no cPanel (produção)
+
+Atualizar o GitHub **não** atualiza o site sozinho. No servidor:
+
+1. **Git Version Control** → *Pull or Deploy* (ou *Update from Remote* + *Deploy*).
+2. No **Terminal** do cPanel, na pasta do app Python:
+
+```bash
+source ~/virtualenv/edu.innomove.com.br/3.11/bin/activate
+cd ~/edu.innomove.com.br
+git pull
+bash scripts/cpanel_deploy.sh
+```
+
+O script roda `migrate`, `collectstatic` e `touch tmp/restart.txt` (recarrega o Passenger). Sem isso o WhiteNoise continua servindo o CSS antigo.
+
+3. No navegador: `Ctrl + F5` (o PWA pode guardar cache velho).
+
+Se o Git do cPanel estiver em `~/repositories/` e o app em outra pasta, o *Deploy* precisa copiar/atualizar a pasta do Python App — não só o repositório.
+
 ## Migrations e superusuário
 
 ```bash
