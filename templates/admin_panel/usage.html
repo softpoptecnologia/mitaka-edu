@@ -1,0 +1,54 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Monitoramento de uso{% endblock %}
+{% block page_subtitle %}<span class="text-muted small ms-2">Acompanhamento da implantação na rede</span>{% endblock %}
+
+{% block admin_content %}
+<p class="text-muted">Indicadores de adoção — para a SME saber se a rotina digital está acontecendo, não para ranquear escolas.</p>
+
+<div class="kpi-row mb-3">
+  <div class="kpi kpi-context">
+    <div class="kpi-body">
+      <div class="label">Professoras</div>
+      <div class="value">{{ snapshot.teacher_count }}</div>
+      <div class="hint">{{ snapshot.teachers_active_30d }} ativas em 30 d ({{ snapshot.teachers_active_pct }}%)</div>
+    </div>
+  </div>
+  <div class="kpi kpi-coverage">
+    <div class="kpi-body">
+      <div class="label">Turmas com sondagem</div>
+      <div class="value">{{ snapshot.classrooms_with_session }}/{{ snapshot.classroom_count }}</div>
+      <div class="hint">{{ snapshot.classroom_coverage_pct }}% de cobertura</div>
+    </div>
+  </div>
+  <div class="kpi kpi-access">
+    <div class="kpi-body">
+      <div class="label">Sessões concluídas</div>
+      <div class="value">{{ snapshot.completed_sessions }}</div>
+    </div>
+  </div>
+</div>
+<div class="kpi-row kpi-row-3 mb-4">
+  <div class="kpi kpi-context">
+    <div class="kpi-body">
+      <div class="label">Evidências</div>
+      <div class="value">{{ snapshot.evidences }}</div>
+      <div class="hint">{{ snapshot.evidences_shared_family }} com a família</div>
+    </div>
+  </div>
+  <div class="kpi kpi-attention">
+    <div class="kpi-body">
+      <div class="label">Planos / intervenções</div>
+      <div class="value">{{ snapshot.plans }}/{{ snapshot.interventions }}</div>
+    </div>
+  </div>
+  <div class="kpi kpi-capability">
+    <div class="kpi-body">
+      <div class="label">Famílias / formações</div>
+      <div class="value">{{ snapshot.family_links }}/{{ snapshot.formation_count }}</div>
+    </div>
+  </div>
+</div>
+
+<p class="small text-muted mb-0">Use estes números para planejar formação e suporte, não para punir escolas. A qualidade pedagógica continua na conversa da coordenação com a professora.</p>
+{% endblock %}

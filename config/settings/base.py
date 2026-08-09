@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "apps.planning",
     "apps.analytics",
     "apps.reports",
+    "apps.adoption",
     "apps.ai",
 ]
 

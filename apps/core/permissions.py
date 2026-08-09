@@ -18,6 +18,7 @@ ROLE_NAV_LABELS = {
     "COORDENADOR": "Coordenador",
     "PROFESSOR": "Professor",
     "AEE": "AEE",
+    "FAMILIA": "Família",
 }
 
 ROLE_ALIASES = {
@@ -48,7 +49,7 @@ def normalize_role_code(code) -> str | None:
     raw = str(code).strip().upper()
     collapsed = " ".join(raw.replace("-", " ").replace("_", " ").split())
     underscored = collapsed.replace(" ", "_")
-    known = set(ROLE_NAV_LABELS) | set(NETWORK_ROLES) | set(MANAGEMENT_ROLES) | {"PROFESSOR"}
+    known = set(ROLE_NAV_LABELS) | set(NETWORK_ROLES) | set(MANAGEMENT_ROLES) | {"PROFESSOR", "FAMILIA"}
     if underscored in known:
         return underscored
     return ROLE_ALIASES.get(collapsed) or ROLE_ALIASES.get(raw)
@@ -123,6 +124,9 @@ def _nav_all_visible(**extra) -> dict:
         "report_school": True,
         "report_network": True,
         "teacher_portal": True,
+        "implantation": True,
+        "formations": True,
+        "usage": True,
         "section_gestao": True,
         "section_curriculo": True,
         "section_secretaria": True,
@@ -165,6 +169,9 @@ def nav_flags(user) -> dict:
     report_school = network or school_scope
     report_network = network
     teacher_portal = professor or aee or school_write
+    implantation = network
+    formations = network or school_scope
+    usage = network
     dashboard = management
 
     section_gestao = any(
@@ -208,6 +215,9 @@ def nav_flags(user) -> dict:
         "report_school": report_school,
         "report_network": report_network,
         "teacher_portal": teacher_portal,
+        "implantation": implantation,
+        "formations": formations,
+        "usage": usage,
         "section_gestao": section_gestao,
         "section_curriculo": section_curriculo,
         "section_secretaria": secretaria,
@@ -239,3 +249,7 @@ class AEERequiredMixin(RoleRequiredMixin):
 
 class NetworkRequiredMixin(RoleRequiredMixin):
     allowed_roles = NETWORK_ROLES
+
+
+class FamilyRequiredMixin(RoleRequiredMixin):
+    allowed_roles = ("FAMILIA",)

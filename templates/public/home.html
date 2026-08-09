@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Mitaka Edu — habilidades precursoras da leitura e escrita{% endblock %}
+
+{% block extra_css %}
+<style>
+  .pub { color: #1f2a2a; }
+  .pub-hero { padding: 2.5rem 0 2rem; }
+  .pub-mark {
+    width: 3rem; height: 3rem; border-radius: 14px;
+    background: #f4c95d; color: #14302c;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem;
+  }
+  .pub-kicker { font-size: .8rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #0d6e6e; }
+  .pub-card {
+    background: #fff; border: 1px solid #e5e1d8; border-radius: 18px; padding: 1.15rem 1.2rem; height: 100%;
+  }
+  .pub-num {
+    width: 2rem; height: 2rem; border-radius: 10px; background: #e6f3f3; color: #0a5555;
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 800; margin-right: .5rem;
+  }
+  .pub-cycle {
+    display: flex; flex-wrap: wrap; gap: .5rem;
+  }
+  .pub-cycle span {
+    background: #fff; border: 1px solid #e5e1d8; border-radius: 999px; padding: .4rem .8rem; font-weight: 700; font-size: .9rem;
+  }
+  .pub-audience { background: #e6f3f3; color: #0a5555; border-radius: 999px; padding: .35rem .75rem; font-weight: 700; font-size: .85rem; display: inline-block; margin: .2rem; }
+  .pub-footer { padding: 2rem 0; color: #5c6b6b; font-size: .9rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pub">
+  <nav class="navbar navbar-expand-lg bg-white border-bottom">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-primary" href="{% url 'home' %}">
+        <span class="pub-mark" aria-hidden="true"><i class="bi bi-mortarboard-fill"></i></span>
+        {{ APP_NAME }}
+      </a>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary" href="#solucao">A solução</a>
+        <a class="btn btn-primary" href="{% url 'login' %}">Entrar</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="pub-hero">
+    <div class="container">
+      <p class="pub-kicker mb-2">Desafio de inovação aberta · {{ MUNICIPALITY_NAME }}</p>
+      <h1 class="display-6 fw-bold mb-3" style="max-width: 38rem;">Acompanhar as habilidades precursoras da leitura e escrita em um ciclo contínuo.</h1>
+      <p class="lead text-muted mb-4" style="max-width: 42rem;">
+        Do diagnóstico lúdico ao planejamento, à prática, às evidências e às decisões da Secretaria —
+        em computadores, tablets ou celulares, com segurança e sem retrabalho.
+      </p>
+      <div class="pub-cycle mb-4">
+        <span>Diagnosticar</span><span>Planejar</span><span>Praticar</span><span>Registrar evidências</span>
+        <span>Acompanhar</span><span>Intervir</span><span>Formar</span><span>Reavaliar</span>
+      </div>
+      <a class="btn btn-primary btn-lg me-2" href="{% url 'login' %}">Ver demonstração</a>
+      <a class="btn btn-outline-primary btn-lg" href="#requisitos">Os 8 pontos do edital</a>
+    </div>
+  </section>
+
+  <section class="pb-5" id="publico">
+    <div class="container">
+      <h2 class="h4 fw-bold mb-3">Público-alvo</h2>
+      <p class="text-muted mb-3">Cada perfil entra no mesmo ciclo, com a tela certa e sem dados clínicos.</p>
+      <div>
+        <span class="pub-audience">Crianças (EI → 1º ano)</span>
+        <span class="pub-audience">Professoras e professores</span>
+        <span class="pub-audience">Coordenação pedagógica</span>
+        <span class="pub-audience">Gestão escolar</span>
+        <span class="pub-audience">Equipe técnica da SME</span>
+        <span class="pub-audience">Famílias da rede</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-5" id="solucao">
+    <div class="container">
+      <h2 class="h4 fw-bold mb-3">O que a Prefeitura busca — e o que o Mitaka entrega</h2>
+      <p class="text-muted mb-4" style="max-width: 46rem;">
+        Solução digital, metodológica e escalável para organizar o ciclo de diagnóstico, planejamento,
+        prática, evidências, acompanhamento e intervenção — hoje fragmentado ou manual.
+      </p>
+      <div class="row g-3" id="requisitos">
+        <div class="col-md-6">
+          <div class="pub-card">
+            <div class="d-flex align-items-start mb-2"><span class="pub-num">1</span><strong>Sondagem lúdica digital</strong></div>
+            <p class="mb-0 text-muted">Instrumentos e app Flutter com áudio, imagem e toque (sem arrastar, sem cronômetro), adequados à faixa etária. Web + tablet + celular.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pub-card">
+            <div class="d-flex align-items-start mb-2"><span class="pub-num">2</span><strong>Planejamento pedagógico</strong></div>
+            <p class="mb-0 text-muted">Matriz alinhada ao Currículo PE / BNCC. A professora vê necessidades da turma e monta o plano com atividades sugeridas.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pub-card">
+            <div class="d-flex align-items-start mb-2"><span class="pub-num">3</span><strong>Evidências de aprendizagem</strong></div>
+            <p class="mb-0 text-muted">Foto, áudio, vídeo ou observação textual por criança e habilidade. Pode ser compartilhada com a família, sem nota.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pub-card">
+            <div class="d-flex align-items-start mb-2"><span class="pub-num">4</span><strong>Painéis e relatórios</strong></div>
+            <p class="mb-0 text-muted">Indicadores por estudante, turma, escola e rede. Secretaria compara recortes e imprime relatórios pedagógicos.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pub-card">
+            <div class="d-flex align-items-start mb-2"><span class="pub-num">5</span><strong>Intervenção e formação</strong></div>
+            <p class="mb-0 text-muted">Templates de intervenção + catálogo de formação continuada para professor, coordenação, gestão, SME e famílias.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pub-card">
+            <div class="d-flex align-items-start mb-2"><span class="pub-num">6</span><strong>Menos retrabalho</strong></div>
+            <p class="mb-0 text-muted">Importação de matrículas, sondagem que já alimenta o painel, intervenção sugerida, status automático. A equipe decide; o sistema organiza.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pub-card">
+            <div class="d-flex align-items-start mb-2"><span class="pub-num">7</span><strong>Vários dispositivos</strong></div>
+            <p class="mb-0 text-muted">Computador na SME, tablet na sala, celular da família. PWA + app Flutter. Cores sólidas, alvos grandes, uso possível com internet instável.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pub-card">
+            <div class="d-flex align-items-start mb-2"><span class="pub-num">8</span><strong>Implantação e suporte</strong></div>
+            <p class="mb-0 text-muted">Roteiro em fases, formação, suporte técnico e monitoramento de uso (logins, cobertura de sondagem, evidências, famílias ativas).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-5">
+    <div class="container">
+      <h2 class="h4 fw-bold mb-3">Viabilidade e continuidade</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="pub-card">
+            <strong>Técnica</strong>
+            <p class="mb-0 mt-2 text-muted">Django + PostgreSQL/SQLite, PWA e Flutter. Roda em cPanel municipal ou Docker. Código próprio da rede.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="pub-card">
+            <strong>Econômica e de adaptação</strong>
+            <p class="mb-0 mt-2 text-muted">Matriz versionada (Currículo PE). Sem licença por aluno. Escala escola a escola, com piloto antes da rede toda.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="pub-card">
+            <strong>Segurança e LGPD</strong>
+            <p class="mb-0 mt-2 text-muted">Papéis (RBAC), auditoria, dados pedagógicos — sem CID. Família vê só o que a professora compartilha. Sem ranking de crianças.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-5">
+    <div class="container">
+      <div class="pub-card p-4">
+        <h2 class="h4 fw-bold mb-2">Como experimentar</h2>
+        <p class="text-muted mb-3">Senha de todos os perfis demo: <code>demo1234</code></p>
+        <div class="row g-2 small">
+          <div class="col-sm-6 col-lg-4"><strong>secretaria</strong> — painel da rede, implantação e uso</div>
+          <div class="col-sm-6 col-lg-4"><strong>professora</strong> — turmas, sondagem lúdica, evidências</div>
+          <div class="col-sm-6 col-lg-4"><strong>familia</strong> — acompanhamento da Luna, sem notas</div>
+          <div class="col-sm-6 col-lg-4"><strong>coordenador</strong> — escola, intervenções, formação</div>
+          <div class="col-sm-6 col-lg-4"><strong>gestor</strong> — gestão escolar</div>
+          <div class="col-sm-6 col-lg-4"><strong>tecnico</strong> — matriz e indicadores</div>
+        </div>
+        <a class="btn btn-primary mt-3" href="{% url 'login' %}">Entrar na demonstração</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="pub-footer border-top bg-white">
+    <div class="container">
+      Mitaka Edu · MVP para o desafio de inovação aberta da SME de {{ MUNICIPALITY_NAME }}.
+      Sondagens demonstrativas, não clínicas.
+    </div>
+  </footer>
+</div>
+{% endblock %}

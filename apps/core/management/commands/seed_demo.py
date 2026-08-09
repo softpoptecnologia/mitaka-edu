@@ -47,7 +47,8 @@ from apps.interventions.models import (
 )
 from apps.planning.models import PedagogicalPlan, PlanActivity
 from apps.schools.models import Classroom, Municipality, School, SchoolYear, TeacherClassroom
-from apps.students.models import Enrollment, Student
+from apps.adoption.services import ensure_formation_catalog
+from apps.students.models import Enrollment, FamilyLink, Student
 
 
 DEMO_PASSWORD = "demo1234"
@@ -72,6 +73,8 @@ class Command(BaseCommand):
         self._accessibility(users, students, year_2026, instruments)
         self.stdout.write("Criando respostas simuladas...")
         self._sessions(users["professor"], users["professor2"], students, classrooms, instruments, skills)
+        self.stdout.write("Vinculando família e formações da rede...")
+        self._family_and_adoption(users, students)
         rebuild_attention_indicators(year_2026)
         self.stdout.write(self.style.SUCCESS("seed_demo concluído."))
         self.stdout.write("Usuários demo (senha: demo1234):")
@@ -116,6 +119,7 @@ class Command(BaseCommand):
             "aee": make("aee", "Marina AEE", Role.Code.AEE),
             "professor": make("professora", "Ana Professora", Role.Code.PROFESSOR),
             "professor2": make("professor2", "Bruno Professor", Role.Code.PROFESSOR),
+            "familia": make("familia", "Lúcia Responsável", Role.Code.FAMILIA),
         }
         users["superadmin"].is_staff = True
         users["superadmin"].is_superuser = True
@@ -895,7 +899,11 @@ class Command(BaseCommand):
                 enrollment=enrollment,
                 recorded_by=teacher,
                 description=description,
-                defaults={"skill": skill, "file_type": Evidence.FileType.TEXT},
+                defaults={
+                    "skill": skill,
+                    "file_type": Evidence.FileType.TEXT,
+                    "visible_to_family": student == students[0],
+                },
             )
             if template:
                 StudentIntervention.objects.update_or_create(
@@ -958,6 +966,16 @@ class Command(BaseCommand):
                     "is_active": True,
                 },
             )
+
+    def _family_and_adoption(self, users, students):
+        luna = students[0]
+        FamilyLink.objects.update_or_create(
+            user=users["familia"],
+            student=luna,
+            defaults={"kinship": FamilyLink.Kinship.MOTHER, "is_active": True},
+        )
+        Evidence.objects.filter(student=luna, is_active=True).update(visible_to_family=True)
+        ensure_formation_catalog()
 
     def _complete_with_score(self, teacher, enrollment, instrument, correct: int):
         AssessmentSession.objects.filter(

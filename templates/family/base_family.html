@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui8">
+<style>
+  .family-nav { background: #0d6e6e; }
+  .family-nav .navbar-brand, .family-nav .nav-link { color: #fff !important; font-weight: 700; }
+  .family-nav .brand-mark {
+    width: 1.85rem; height: 1.85rem; border-radius: 10px; background: #f4c95d; color: #14302c;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .family-main { min-height: calc(100vh - 56px); }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg family-nav">
+  <div class="container-fluid px-3 px-lg-4">
+    <a class="navbar-brand d-inline-flex align-items-center gap-2" href="{% url 'family:home' %}">
+      <span class="brand-mark" aria-hidden="true"><i class="bi bi-house-heart-fill"></i></span>
+      {{ APP_NAME }} · Família
+    </a>
+    <a class="nav-link ms-auto" href="{% url 'logout' %}">Sair</a>
+  </div>
+</nav>
+<main class="family-main py-4">
+  <div class="container" style="max-width: 820px;">
+    {% block family_content %}{% endblock %}
+  </div>
+</main>
+{% endblock %}

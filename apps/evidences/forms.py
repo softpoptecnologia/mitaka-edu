@@ -10,16 +10,18 @@ from apps.evidences.models import Evidence
 class EvidenceForm(MitakaModelForm):
     class Meta:
         model = Evidence
-        fields = ("skill", "description", "file")
+        fields = ("skill", "description", "file", "visible_to_family")
         labels = {
             "skill": "Habilidade",
             "description": "Observação",
             "file": "Arquivo",
+            "visible_to_family": "Compartilhar com a família",
         }
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3, "class": "form-control", "placeholder": "Descreva a observação"}),
             "skill": forms.Select(attrs={"class": "form-select"}),
             "file": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "visible_to_family": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
     def __init__(self, *args, student=None, **kwargs):

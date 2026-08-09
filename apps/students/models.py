@@ -1,4 +1,5 @@
 """Students and enrollments — longitudinal identity separated from yearly context."""
+from django.conf import settings
 from django.db import models
 
 from apps.core.models import SoftDeleteModel, TimeStampedModel
@@ -52,6 +53,34 @@ class Enrollment(TimeStampedModel, SoftDeleteModel):
     @property
     def school(self):
         return self.classroom.school
+
+
+class FamilyLink(TimeStampedModel, SoftDeleteModel):
+    """Responsible adult linked to a child — pedagogical accompaniment only."""
+
+    class Kinship(models.TextChoices):
+        MOTHER = "mae", "Mãe"
+        FATHER = "pai", "Pai"
+        GRANDPARENT = "avo", "Avó/Avô"
+        GUARDIAN = "responsavel", "Responsável"
+        OTHER = "outro", "Outro"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="family_links",
+    )
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="family_links")
+    kinship = models.CharField(max_length=20, choices=Kinship.choices, default=Kinship.GUARDIAN)
+
+    class Meta:
+        unique_together = [("user", "student")]
+        ordering = ["student__full_name"]
+        verbose_name = "Vínculo familiar"
+        verbose_name_plural = "Vínculos familiares"
+
+    def __str__(self) -> str:
+        return f"{self.user} → {self.student}"
 
 
 class ImportJob(TimeStampedModel):

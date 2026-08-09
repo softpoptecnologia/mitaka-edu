@@ -21,6 +21,12 @@ DEMO_PROFILES = [
         "description": "Turmas e sondagens",
     },
     {
+        "username": "familia",
+        "password": "demo1234",
+        "label": "Família",
+        "description": "Acompanha a criança",
+    },
+    {
         "username": "gestor",
         "password": "demo1234",
         "label": "Gestor",
@@ -87,6 +93,8 @@ class HomeRedirectView(View):
         if not request.user.is_authenticated:
             return redirect("login")
         code = user_role_code(request.user)
+        if code == Role.Code.FAMILIA:
+            return redirect("family:home")
         if code in (Role.Code.PROFESSOR, Role.Code.AEE):
             return redirect("teacher:home")
         if code in (Role.Code.SECRETARIA, Role.Code.TECNICO, Role.Code.SUPERADMIN):

@@ -40,6 +40,12 @@ def classrooms_for_user(user, *, include_inactive: bool = False) -> QuerySet[Cla
 
 
 def students_for_user(user, *, include_inactive: bool = False) -> QuerySet[Student]:
+    code = user_role_code(user)
+    if code == Role.Code.FAMILIA:
+        qs = Student.objects.filter(family_links__user=user, family_links__is_active=True)
+        if not include_inactive:
+            qs = qs.filter(is_active=True, family_links__is_active=True)
+        return qs.distinct().order_by("full_name")
     classroom_ids = classrooms_for_user(user, include_inactive=include_inactive).values_list("id", flat=True)
     qs = Student.objects.filter(enrollments__classroom_id__in=classroom_ids)
     if not include_inactive:

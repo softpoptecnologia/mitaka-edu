@@ -39,6 +39,10 @@ class Evidence(TimeStampedModel, SoftDeleteModel):
     file = models.FileField(upload_to="evidences/%Y/%m/", blank=True, null=True)
     file_type = models.CharField(max_length=20, choices=FileType.choices, default=FileType.NONE)
     recorded_at = models.DateTimeField(auto_now_add=True)
+    visible_to_family = models.BooleanField(
+        default=False,
+        help_text="Se marcado, a família pode ver esta evidência no portal (sem dados clínicos).",
+    )
 
     class Meta:
         ordering = ["-recorded_at"]

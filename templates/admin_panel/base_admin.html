@@ -109,6 +109,9 @@
       <a class="nav-link{% if request.resolver_match.url_name == 'interventions' %} active{% endif %}" href="{% url 'management:interventions' %}" title="Intervenções">
         <i class="bi bi-lightbulb" aria-hidden="true"></i><span>Intervenções</span>
       </a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'formations' %} active{% endif %}" href="{% url 'adoption:formations' %}" title="Formação continuada">
+        <i class="bi bi-mortarboard" aria-hidden="true"></i><span>Formação continuada</span>
+      </a>
       {% endif %}
 
       {% if not request.user.role_code or request.user.is_network_role %}
@@ -127,6 +130,12 @@
       </a>
       <a class="nav-link{% if request.resolver_match.url_name == 'drilldown' %} active{% endif %}" href="{% url 'secretaria:drilldown' %}" title="Navegação em rede">
         <i class="bi bi-diagram-2" aria-hidden="true"></i><span>Navegação em rede</span>
+      </a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'implantation' %} active{% endif %}" href="{% url 'adoption:implantation' %}" title="Implantação">
+        <i class="bi bi-signpost-2" aria-hidden="true"></i><span>Implantação</span>
+      </a>
+      <a class="nav-link{% if request.resolver_match.url_name == 'usage' %} active{% endif %}" href="{% url 'adoption:usage' %}" title="Uso da rede">
+        <i class="bi bi-activity" aria-hidden="true"></i><span>Uso da rede</span>
       </a>
       {% endif %}
 

@@ -33,11 +33,16 @@
             {{ form.description }}
             {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors }}</div>{% endif %}
           </div>
-          <div class="mb-4">
+          <div class="mb-3">
             <label for="{{ form.file.id_for_label }}" class="form-label">Arquivo (foto, áudio ou vídeo)</label>
             {{ form.file }}
             {% if form.file.errors %}<div class="text-danger small">{{ form.file.errors }}</div>{% endif %}
             <div class="form-text">Máximo 8 MB.</div>
+          </div>
+          <div class="form-check mb-4">
+            {{ form.visible_to_family }}
+            <label class="form-check-label" for="{{ form.visible_to_family.id_for_label }}">Compartilhar com a família no portal</label>
+            <div class="form-text">A família vê a observação em linguagem pedagógica, sem nota e sem comparação.</div>
           </div>
           <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">Salvar evidência</button>

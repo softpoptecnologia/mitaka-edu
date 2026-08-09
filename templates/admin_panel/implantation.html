@@ -1,0 +1,69 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Implantação na rede{% endblock %}
+{% block page_subtitle %}<span class="text-muted small ms-2">Estratégia, formação e suporte</span>{% endblock %}
+
+{% block admin_content %}
+<p class="text-muted" style="max-width: 46rem;">
+  Roteiro para a SME implantar o acompanhamento das habilidades precursoras da leitura e escrita
+  com viabilidade técnica, formação continuada e monitoramento de uso.
+</p>
+
+<div class="kpi-row mb-4">
+  <div class="kpi kpi-coverage">
+    <div class="kpi-body"><div class="label">Professores ativos (30 d)</div><div class="value">{{ snapshot.teachers_active_pct }}%</div></div>
+  </div>
+  <div class="kpi kpi-context">
+    <div class="kpi-body"><div class="label">Turmas com sondagem</div><div class="value">{{ snapshot.classroom_coverage_pct }}%</div></div>
+  </div>
+  <div class="kpi kpi-access">
+    <div class="kpi-body"><div class="label">Evidências</div><div class="value">{{ snapshot.evidences }}</div></div>
+  </div>
+  <div class="kpi kpi-capability">
+    <div class="kpi-body"><div class="label">Famílias vinculadas</div><div class="value">{{ snapshot.family_links }}</div></div>
+  </div>
+</div>
+
+<div class="panel mb-4">
+  <div class="panel-header"><span class="panel-icon"><i class="bi bi-signpost-2"></i></span><span>Fases</span></div>
+  <div class="panel-body">
+    <ol class="mb-0 ps-3">
+      <li class="mb-3"><strong>Pactuação (2–4 semanas).</strong> Diagnóstico de infraestrutura, escolha do piloto (1–2 escolas), alinhamento da matriz ao Currículo PE, termos de uso e LGPD.</li>
+      <li class="mb-3"><strong>Piloto e formação inicial.</strong> Formar professoras, coordenação e gestão. Aplicar sondagens lúdicas, registrar evidências, abrir o portal da família.</li>
+      <li class="mb-3"><strong>Expansão municipal.</strong> Escola a escola, com suporte técnico (WhatsApp/SME + plantão) e acompanhamento de uso no painel.</li>
+      <li class="mb-0"><strong>Rotina contínua.</strong> Formação em serviço a partir das necessidades da rede. Continuidade após o projeto inicial: código e dados ficam no município.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="panel h-100">
+      <div class="panel-header"><span class="panel-icon"><i class="bi bi-people"></i></span><span>Quem forma quem</span></div>
+      <div class="panel-body">
+        <ul class="mb-0">
+          <li>SME / técnico → gestores e coordenadores</li>
+          <li>Coordenação → professoras (HT e formação em serviço)</li>
+          <li>Professoras → famílias (portal + rodas)</li>
+          <li>Suporte técnico → dispositivos, PWA e app Flutter</li>
+        </ul>
+        <a class="btn btn-sm btn-outline-primary mt-3" href="{% url 'adoption:formations' %}">Ver catálogo de formações</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="panel h-100">
+      <div class="panel-header"><span class="panel-icon"><i class="bi bi-shield-check"></i></span><span>Segurança e continuidade</span></div>
+      <div class="panel-body">
+        <ul class="mb-0">
+          <li>RBAC por papel; família só vê o filho vinculado</li>
+          <li>Auditoria de acessos e alterações</li>
+          <li>Sem CID, sem ranking público de crianças</li>
+          <li>Hospedagem municipal (cPanel/Docker) sem mensalidade por aluno</li>
+        </ul>
+        <a class="btn btn-sm btn-outline-primary mt-3" href="{% url 'adoption:usage' %}">Monitorar uso</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

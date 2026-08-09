@@ -8,15 +8,20 @@ Transformar o ciclo pedagógico fragmentado em uma rotina digital integrada:
 
 **Diagnosticar → Analisar → Planejar → Intervir → Registrar evidências → Acompanhar → Reavaliar**
 
-A complexidade pedagógica fica no sistema (matriz, critérios, instrumentos). O professor encontra automaticamente turmas, pendências, resultados e intervenções sugeridas.
+A complexidade pedagógica fica no sistema (matriz, critérios, instrumentos). O professor encontra automaticamente turmas, pendências, resultados e intervenções sugeridas. A Secretaria monitora a rede; a família acompanha a criança sem notas nem rótulos clínicos.
+
+**Alinhamento ao edital (8 pontos):** sondagem lúdica · planejamento · evidências · painéis (estudante/turma/escola/rede) · intervenção e formação continuada · menos retrabalho · multi-dispositivo (web, PWA, Flutter) · implantação, suporte e monitoramento de uso.
+
+Página pública: `/` (deslogado). Demo família: `familia` / `demo1234`.
 
 ## Arquitetura
 
 - **Backend:** Python, Django, Django REST Framework (API parcial)
 - **Banco:** SQLite (local) ou PostgreSQL (Docker)
 - **Front gestão:** Django Templates + Bootstrap 5 (layout AdminLTE-like)
-- **Front professor:** Templates + Bootstrap 5 + HTMX
-- **Avaliação:** interface tela cheia lúdica
+- **Front professor (web):** Templates + Bootstrap 5 + HTMX
+- **App professor (Flutter):** `teacher_app/` — atividades lúdicas gamificadas (áudio, imagem, acessibilidade), sem degradês
+- **Avaliação web:** interface tela cheia lúdica
 - **Infra:** Docker Compose, Nginx, Gunicorn, Redis, Celery preparado
 - **PWA:** manifest + service worker básico
 
@@ -119,6 +124,7 @@ Senha de todos: `demo1234`
 | `aee` | Atendimento Educacional Especializado |
 | `professora` | Professora (turmas Infantil V A/B) |
 | `professor2` | Professor |
+| `familia` | Família / responsável (Luna Ferreira) |
 
 ## Acessibilidade e educação inclusiva
 
@@ -165,19 +171,18 @@ Cobertura crítica: RBAC, longitudinalidade, freeze de matriz, scoring, CSV, **r
 - `planning` — planejamento assistido
 - `analytics` — indicadores e dashboards da secretaria
 - `reports` — relatórios HTML
+- `adoption` — implantação, formação continuada, monitoramento de uso, portal da família
 - `ai` — stubs preparados (MVP sem IA externa; IA não publica adaptações)
 - `core` — audit log, mixins, seed
 
 ## Fluxo principal (pitch)
 
-1. Login como `secretaria` → dashboard municipal (inclui indicadores de acessibilidade agregados)  
-2. Comparar escolas / necessidades pedagógicas  
-3. Login como `professora` → Minhas turmas  
-4. Abrir turma → estudante → **Preparar** sondagem (adaptação automática)  
-5. Concluir → ver status pedagógico + registro de variantes + intervenção sugerida  
-6. Login como `aee` → editar recursos / plano de apoio  
-7. Aceitar intervenção → turma atualiza acompanhamento  
-8. Voltar à Secretaria → indicadores incorporam o novo dado  
+1. Abrir `/` (página pública alinhada ao edital) → Entrar  
+2. Login `secretaria` → painel municipal → **Implantação** / **Uso da rede** / **Formação continuada**  
+3. Login `professora` → turma → Luna → **Preparar** sondagem → evidência compartilhada com a família  
+4. Login `familia` → ver Luna em linguagem simples + dicas para casa (sem nota)  
+5. Login `coordenador` → intervenções e formação  
+6. Voltar à Secretaria → indicadores e cobertura de uso  
 
 ## Alinhamento curricular
 
@@ -195,6 +200,18 @@ As sondagens são **demonstrativas** e não clínicas.
 - Celery/Redis preparados, não obrigatórios no fluxo síncrono
 - Instrumentos são **demonstrativos**, não clínicos/validados
 - Sem integração real com sistemas municipais ou IA externa
+
+## App Flutter do professor (`teacher_app/`)
+
+Atividades lúdicas para tablet/celular, alinhadas à matriz PE/BNCC:
+
+```bash
+cd teacher_app
+flutter pub get
+flutter run
+```
+
+Login demo: `professora` / `demo1234`. Ver `teacher_app/README.md`.
 
 ## Próximos passos
 

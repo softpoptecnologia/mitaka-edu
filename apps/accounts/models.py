@@ -14,6 +14,7 @@ class Role(models.Model):
         COORDENADOR = "COORDENADOR", "Coordenador Pedagógico"
         PROFESSOR = "PROFESSOR", "Professor"
         AEE = "AEE", "Atendimento Educacional Especializado"
+        FAMILIA = "FAMILIA", "Família / responsável"
 
     code = models.CharField(max_length=32, choices=Code.choices, unique=True)
     name = models.CharField(max_length=100)
@@ -98,6 +99,10 @@ class User(AbstractUser):
     @property
     def is_aee_role(self) -> bool:
         return self.role_code == "AEE"
+
+    @property
+    def is_family_role(self) -> bool:
+        return self.role_code == "FAMILIA"
 
     @property
     def is_management_role(self) -> bool:

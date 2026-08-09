@@ -1,0 +1,59 @@
+{% extends "family/base_family.html" %}
+
+{% block title %}{{ student.full_name }} — Família{% endblock %}
+
+{% block family_content %}
+<nav aria-label="breadcrumb" class="mb-2">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'family:home' %}">Início</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ student.full_name }}</li>
+  </ol>
+</nav>
+
+<h1 class="h3 mb-1">{{ student.full_name }}</h1>
+<p class="text-muted mb-3">
+  {% if card.classroom %}{{ card.classroom.name }} · {{ card.classroom.school.name }}{% endif %}
+</p>
+<div class="teacher-card mb-4">
+  <p class="mb-0">{{ card.headline }}</p>
+</div>
+
+<h2 class="h5">O que a escola está trabalhando</h2>
+<p class="small text-muted">Linguagem simples, sem pontuação. A professora decide o ritmo.</p>
+{% if card.statuses %}
+<ul class="list-group mb-4">
+  {% for status in card.statuses %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>{{ status.skill.name }}</span>
+    <span class="small {% if status.needs_attention %}text-warning{% else %}text-success{% endif %}">
+      {% if status.needs_attention %}Com mais apoio da professora{% else %}Em desenvolvimento{% endif %}
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">Ainda sem sondagem registrada.</p>
+{% endif %}
+
+<h2 class="h5">Em casa, vocês podem</h2>
+<ul class="mb-4">
+  {% for tip in home_tips %}
+  <li class="mb-2">{{ tip }}</li>
+  {% endfor %}
+</ul>
+
+<h2 class="h5">Recados da professora</h2>
+{% if evidences %}
+<ul class="list-group mb-4">
+  {% for evidence in evidences %}
+  <li class="list-group-item">
+    <div class="small text-muted">{{ evidence.recorded_at|date:"d/m/Y" }}{% if evidence.skill %} · {{ evidence.skill.name }}{% endif %}</div>
+    {% if evidence.description %}<p class="mb-0 mt-1">{{ evidence.description }}</p>{% endif %}
+    {% if evidence.file %}<a class="small" href="{{ evidence.file.url }}" target="_blank" rel="noopener">Ver anexo</a>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">Ainda não há recados compartilhados. Quando a professora marcar “compartilhar com a família”, eles aparecem aqui.</p>
+{% endif %}
+{% endblock %}

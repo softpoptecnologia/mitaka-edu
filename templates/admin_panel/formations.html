@@ -1,0 +1,44 @@
+{% extends "admin_panel/base_admin.html" %}
+
+{% block page_title %}Formação continuada{% endblock %}
+{% block page_subtitle %}<span class="text-muted small ms-2">Apoio a professoras, coordenação, gestão, SME e famílias</span>{% endblock %}
+
+{% block admin_content %}
+<p class="text-muted">Catálogo da rede para formar equipes e famílias no ciclo de leitura e escrita. Não substitui o HT da escola — organiza e reduz retrabalho.</p>
+
+<form class="mb-3" method="get">
+  <label class="form-label small fw-bold" for="publico">Público</label>
+  <div class="d-flex gap-2 flex-wrap">
+    <select class="form-select w-auto" id="publico" name="publico" onchange="this.form.submit()">
+      <option value="">Todos</option>
+      {% for code, label in audiences %}
+      <option value="{{ code }}" {% if audience == code %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+<div class="row g-3">
+  {% for program in programs %}
+  <div class="col-lg-6">
+    <div class="panel h-100">
+      <div class="panel-header">
+        <span class="panel-icon"><i class="bi bi-mortarboard"></i></span>
+        <span>{{ program.title }}</span>
+      </div>
+      <div class="panel-body">
+        <p class="small text-muted mb-2">{{ program.get_audience_display }} · {{ program.duration_hours }} h · {{ program.get_modality_display }}</p>
+        <p>{{ program.objective }}</p>
+        <ul class="mb-0 small">
+          {% for item in program.agenda_list %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-muted">Nenhuma formação cadastrada.</p>
+  {% endfor %}
+</div>
+{% endblock %}
