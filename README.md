@@ -8,9 +8,9 @@ Plataforma educacional de acompanhamento contínuo das habilidades precursoras e
 
 Transformar o ciclo pedagógico fragmentado em uma rotina digital integrada:
 
-**Diagnosticar → Analisar → Planejar → Intervir → Registrar evidências → Acompanhar → Reavaliar**
+**Sondagem lúdica → Dados → Intervir → Registrar evidências → Acompanhar → Reavaliar**
 
-A complexidade pedagógica fica no sistema (matriz, critérios, instrumentos). O professor encontra automaticamente turmas, pendências, resultados e intervenções sugeridas. A Secretaria monitora a rede; a família acompanha a criança sem notas nem rótulos clínicos.
+A complexidade pedagógica fica no sistema (matriz, critérios, instrumentos). O professor aplica atividades lúdicas para gerar dados e, a partir deles, intervir. Planejamento de aula existe como apoio opcional, não como o centro do problema. A Secretaria monitora a rede; a família acompanha a criança sem notas nem rótulos clínicos.
 
 **Alinhamento ao edital (8 pontos):** sondagem lúdica · planejamento · evidências · painéis (estudante/turma/escola/rede) · intervenção e formação continuada · menos retrabalho · multi-dispositivo (web, PWA, Flutter) · implantação, suporte e monitoramento de uso.
 
@@ -138,7 +138,7 @@ A plataforma prioriza **necessidades funcionais de acesso** (não diagnósticos)
 - professor vê “recursos necessários”; AEE/coordenação edita perfil e plano de apoio;
 - indicadores da secretaria são agregados (sem rotulagem discriminatória).
 
-**Demo / pitch inclusivo:** login `professora` → turma → Luna (ou estudante com recursos) → aba Avaliações → **Preparar** → ver montagem automática → Iniciar → resultado registra variantes sem reduzir pontuação por acomodação.
+**Demo / pitch inclusivo:** login `professora` → Hoje → **Iniciar sondagem** → Luna (ou estudante com recursos) → ver montagem automática → jogar → resultado registra variantes sem reduzir pontuação por acomodação.
 
 ## Relatórios PDF
 
@@ -181,7 +181,7 @@ Cobertura crítica: RBAC, longitudinalidade, freeze de matriz, scoring, CSV, **r
 
 1. Abrir `/` (página pública alinhada ao edital) → Entrar  
 2. Login `secretaria` → painel municipal → **Implantação** / **Uso da rede** / **Formação continuada**  
-3. Login `professora` → turma → Luna → **Preparar** sondagem → evidência compartilhada com a família  
+3. Login `professora` → Hoje → **Iniciar sondagem** com Luna → evidência compartilhada com a família  
 4. Login `familia` → ver Luna em linguagem simples + dicas para casa (sem nota)  
 5. Login `coordenador` → intervenções e formação  
 6. Voltar à Secretaria → indicadores e cobertura de uso  

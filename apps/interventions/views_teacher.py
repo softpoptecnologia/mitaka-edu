@@ -12,6 +12,7 @@ from apps.curriculum.models import Skill
 from apps.interventions.models import ClassroomIntervention, FollowupResult, StudentIntervention
 from apps.interventions.services.apply_group import apply_suggested_group
 from apps.interventions.services.grouping import suggest_group_for_skill
+from apps.interventions.services.labels import skill_label
 from apps.interventions.services.quick_followup import (
     followup_targets_for_classroom_intervention,
     record_batch_followup,
@@ -42,6 +43,17 @@ class SuggestedGroupView(TeacherRequiredMixin, View):
                 return redirect("teacher:classroom", pk=classroom.pk)
             group.skill = group.skill or skill
         classmates = [r.student for r in snapshot.records]
+        instruments = snapshot.instruments_by_skill_id.get(skill_id) or []
+        instrument = instruments[0] if instruments else None
+        play_rows = []
+        if instrument and group:
+            for enrollment in group.enrollments:
+                play_rows.append(
+                    {
+                        "student": enrollment.student,
+                        "preview_url": reverse("assessment:preview", args=[enrollment.pk, instrument.pk]),
+                    }
+                )
         return render(
             request,
             "teacher/suggested_group.html",
@@ -49,6 +61,9 @@ class SuggestedGroupView(TeacherRequiredMixin, View):
                 "classroom": classroom,
                 "group": group,
                 "classmates": classmates,
+                "instrument": instrument,
+                "play_rows": play_rows,
+                "start_url": play_rows[0]["preview_url"] if play_rows else "",
                 "why": request.GET.get("porque") == "1",
             },
         )
@@ -88,10 +103,44 @@ class SuggestedGroupView(TeacherRequiredMixin, View):
             template=group.template if group else None,
         )
         if result.created:
-            messages.success(request, "Atividade aplicada com o grupo.")
+            messages.success(request, "Intervenção registrada. Agora você pode acompanhar como foi a atividade.")
         else:
-            messages.info(request, "Esta atividade já estava registrada para hoje. Você pode acompanhar o grupo.")
+            messages.info(request, "Esta intervenção já estava registrada. Você pode acompanhar o grupo.")
         return redirect("teacher:quick_followup", pk=result.classroom_intervention.pk)
+
+
+class PendingAssessmentsView(TeacherRequiredMixin, View):
+    def get(self, request, pk):
+        classroom = get_object_or_404(Classroom, pk=pk)
+        if not user_can_access_classroom(request.user, classroom):
+            messages.error(request, "Você não tem acesso a esta turma.")
+            return redirect("teacher:home")
+        snapshot = load_classroom_snapshot(classroom)
+        rows = []
+        for record in snapshot.records:
+            if record.has_completed_session:
+                continue
+            instrument = None
+            for skill_id, instruments in snapshot.instruments_by_skill_id.items():
+                if instruments and skill_id not in record.completed_skill_ids:
+                    instrument = instruments[0]
+                    break
+            if instrument is None:
+                continue
+            rows.append(
+                {
+                    "student": record.student,
+                    "enrollment": record.enrollment,
+                    "instrument": instrument,
+                    "skill_name": skill_label(instrument.skill),
+                    "preview_url": reverse("assessment:preview", args=[record.enrollment.pk, instrument.pk]),
+                }
+            )
+        return render(
+            request,
+            "teacher/pending_assessments.html",
+            {"classroom": classroom, "rows": rows},
+        )
 
 
 class QuickFollowupView(TeacherRequiredMixin, View):

@@ -8,7 +8,7 @@
   {% if primary_classroom %}
   <h1 class="today-title mb-2">{{ primary_classroom.name }}</h1>
   <p class="today-sub mb-0">
-    {% if action_count %}{{ action_count }} ação{{ action_count|pluralize }} recomendada{{ action_count|pluralize }} para hoje
+    {% if action_count %}O que observar hoje, com quem e por quê
     {% else %}Tudo acompanhado por enquanto.{% endif %}
   </p>
   {% else %}
@@ -34,21 +34,21 @@
         {% endif %}
       </div>
     </div>
-    <a href="{{ action.action_url }}" class="btn btn-primary today-card-btn">{{ action.recommended_action|default:"Abrir" }}</a>
+    <a href="{{ action.action_url }}" class="btn btn-primary today-card-btn">{{ action.recommended_action|default:"Iniciar" }}</a>
   </article>
   {% endfor %}
 </div>
-{% if primary_classroom %}
-<a href="{% url 'teacher:classroom' primary_classroom.pk %}" class="btn btn-primary today-cta mb-4">Começar meu dia</a>
+{% if first_action_url %}
+<a href="{{ first_action_url }}" class="btn btn-primary today-cta mb-4">Começar pela primeira sondagem</a>
 {% endif %}
 {% else %}
 <div class="section-card mb-4">
   <div class="card-body p-4 text-center">
     <p class="mb-1 fw-bold">Tudo acompanhado por enquanto.</p>
-    <p class="text-muted mb-3">Não há ações prioritárias para esta turma hoje.</p>
+    <p class="text-muted mb-3">Quando houver necessidade, o Mitaka sugere uma sondagem lúdica para gerar dados de intervenção.</p>
     <div class="d-flex flex-wrap justify-content-center gap-2">
       {% if primary_classroom %}
-      <a href="{% url 'teacher:lesson_plan' primary_classroom.pk %}" class="btn btn-primary">Aplicar atividade de consolidação</a>
+      <a href="{% url 'teacher:pending_assessments' primary_classroom.pk %}" class="btn btn-primary">Iniciar sondagem lúdica</a>
       <a href="{% url 'teacher:classroom' primary_classroom.pk %}" class="btn btn-outline-primary">Ver turma</a>
       {% else %}
       <a href="{% url 'teacher:classrooms' %}" class="btn btn-outline-primary">Ver turmas</a>
@@ -69,11 +69,11 @@
       <div class="student-chips mb-3">
         <span class="status-pill status-pill-completed">{{ card.ok }} acompanhando bem</span>
         <span class="status-pill status-pill-attention">{{ card.attention }} maior mediação</span>
-        <span class="status-pill status-pill-planned">{{ card.pending }} observação</span>
+        <span class="status-pill status-pill-planned">{{ card.pending }} aguardam sondagem</span>
       </div>
       <div class="d-grid gap-2">
         <a href="{% url 'teacher:classroom' card.classroom.pk %}" class="btn btn-primary">Abrir turma</a>
-        <a href="{% url 'teacher:lesson_plan' card.classroom.pk %}" class="btn btn-outline-primary">Planejar aula</a>
+        <a href="{% url 'teacher:pending_assessments' card.classroom.pk %}" class="btn btn-outline-primary">Sondagens</a>
       </div>
     </div>
   </div>

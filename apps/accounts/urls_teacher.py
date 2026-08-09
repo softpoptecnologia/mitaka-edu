@@ -15,6 +15,7 @@ urlpatterns = [
     path("turmas/<int:pk>/", views.TeacherClassroomDetailView.as_view(), name="classroom"),
     path("turmas/<int:pk>/planejamento/", views.ClassroomPlanningView.as_view(), name="planning"),
     path("turmas/<int:pk>/planejar-aula/", planning_views.LessonPlannerView.as_view(), name="lesson_plan"),
+    path("turmas/<int:pk>/sondagens/", journey_views.PendingAssessmentsView.as_view(), name="pending_assessments"),
     path(
         "turmas/<int:classroom_id>/grupos/<int:skill_id>/",
         journey_views.SuggestedGroupView.as_view(),

@@ -13,10 +13,10 @@
   </nav>
   <div class="d-flex flex-wrap justify-content-between gap-2">
     <div>
-      <h1 class="h3 mb-1">Planejamento pedagógico</h1>
-      <p class="text-muted mb-0">{{ classroom.grade_label }} · {{ classroom.school.name }}</p>
+      <h1 class="h3 mb-1">Intervenções da turma</h1>
+      <p class="text-muted mb-0">A partir das sondagens lúdicas · {{ classroom.grade_label }}</p>
     </div>
-    <a href="{% url 'teacher:lesson_plan' classroom.pk %}" class="btn btn-primary">Planejar minha aula</a>
+    <a href="{% url 'teacher:pending_assessments' classroom.pk %}" class="btn btn-primary">Iniciar sondagem</a>
   </div>
 </div>
 
@@ -60,7 +60,7 @@
           {% endfor %}
         </div>
         {% else %}
-        <p class="text-muted mb-0">Nenhum insight prioritário no momento. Continue acompanhando as avaliações.</p>
+        <p class="text-muted mb-0">Nenhum insight prioritário no momento. Continue acompanhando as sondagens.</p>
         {% endif %}
       </div>
     </div>
@@ -88,6 +88,7 @@
       </div>
     </div>
     <a href="{% url 'teacher:classroom' classroom.pk %}" class="btn btn-outline-secondary btn-sm mt-3">Voltar à turma</a>
+    <a href="{% url 'teacher:lesson_plan' classroom.pk %}" class="btn btn-link btn-sm mt-3 d-block">Planejamento de aula (opcional)</a>
   </div>
 </div>
 {% endblock %}

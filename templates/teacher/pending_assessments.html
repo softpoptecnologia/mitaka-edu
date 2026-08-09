@@ -1,0 +1,40 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Sondagens — {{ classroom.name }}{% endblock %}
+
+{% block teacher_content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-2">
+    <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Hoje</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'teacher:classroom' classroom.pk %}">{{ classroom.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Sondagens</li>
+  </ol>
+</nav>
+
+<h1 class="h3 mb-2">Sondagens lúdicas pendentes</h1>
+<p class="text-muted mb-4">A brincadeira gera dados para a intervenção. Não é prova, nota nem ranking.</p>
+
+{% if rows %}
+<div class="today-stack">
+  {% for row in rows %}
+  <article class="today-card today-card-medium">
+    <div class="today-card-top">
+      <div class="today-copy">
+        <p class="today-card-kicker mb-1">{{ row.skill_name }}</p>
+        <h2 class="today-card-title">{{ row.student.full_name }}</h2>
+        <p class="today-card-desc mb-0">{{ row.instrument.title }}</p>
+      </div>
+    </div>
+    <a href="{{ row.preview_url }}" class="btn btn-primary today-card-btn">Iniciar sondagem</a>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="section-card">
+  <div class="card-body p-4 text-center">
+    <p class="mb-2 fw-bold">Nenhuma sondagem pendente nesta turma.</p>
+    <a href="{% url 'teacher:classroom' classroom.pk %}" class="btn btn-outline-primary">Voltar à turma</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

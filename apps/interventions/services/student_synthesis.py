@@ -57,7 +57,7 @@ def build_student_synthesis(snapshot, student_id: int) -> StudentSynthesis:
     )
     reassess = next((item for item in suggestions_for_snapshot(snapshot) if item.student_id == student_id), None)
     if reassess:
-        synthesis.next_action = f"Nova observação de {reassess.skill_name}"
+        synthesis.next_action = f"Nova sondagem de {reassess.skill_name}"
         synthesis.next_action_kind = "reassessment"
         if reassess.instrument_id:
             synthesis.next_action_url = reverse("assessment:preview", args=[reassess.enrollment_id, reassess.instrument_id])
@@ -74,12 +74,12 @@ def build_student_synthesis(snapshot, student_id: int) -> StudentSynthesis:
             synthesis.next_action_url = reverse("teacher:quick_followup_student", args=[open_iv.pk])
         return synthesis
     if main_status:
-        synthesis.next_action = f"Trabalhar {skill_label(main_status.skill)}"
+        synthesis.next_action = f"Iniciar atividade de {skill_label(main_status.skill)}"
         synthesis.next_action_kind = "intervention"
         synthesis.next_action_url = reverse("teacher:suggested_group", args=[snapshot.classroom.pk, main_status.skill_id])
         return synthesis
     if not record.has_completed_session:
-        synthesis.next_action = "Iniciar observação"
+        synthesis.next_action = "Iniciar sondagem"
         synthesis.next_action_kind = "assessment"
         synthesis.next_action_url = reverse("teacher:student", args=[student_id]) + "?tab=avaliacoes"
         return synthesis

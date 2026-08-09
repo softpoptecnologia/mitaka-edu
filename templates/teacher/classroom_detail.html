@@ -22,8 +22,8 @@
     </p>
   </div>
   <div class="d-flex flex-wrap gap-2">
-    <a href="{% url 'teacher:lesson_plan' classroom.pk %}" class="btn btn-primary">Planejar minha aula</a>
-    <a href="{% url 'teacher:planning' classroom.pk %}" class="btn btn-outline-primary">Planejamento</a>
+    <a href="{% url 'teacher:pending_assessments' classroom.pk %}" class="btn btn-primary">Iniciar sondagem</a>
+    <a href="{% url 'teacher:planning' classroom.pk %}" class="btn btn-outline-primary">Intervenções</a>
     <a href="{% url 'management:report_classroom' classroom.pk %}?formato=pdf" class="btn btn-outline-secondary">PDF</a>
   </div>
 </div>
@@ -32,7 +32,7 @@
 <div class="section-card mb-4">
   <div class="section-card-header">
     <span class="section-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
-    <span>Necessidades da turma</span>
+    <span>Atividades lúdicas sugeridas</span>
   </div>
   <div class="card-body p-0">
     {% for need in needs %}
@@ -41,7 +41,7 @@
         <div class="fw-bold">{{ need.skill_name }}</div>
         <div class="small text-muted">{{ need.size }} estudante{{ need.size|pluralize }}</div>
       </div>
-      <a href="{% url 'teacher:suggested_group' classroom.pk need.skill_id %}" class="btn btn-primary">Trabalhar agora</a>
+      <a href="{% url 'teacher:suggested_group' classroom.pk need.skill_id %}" class="btn btn-primary">Iniciar atividade</a>
     </div>
     {% endfor %}
   </div>
@@ -101,4 +101,7 @@
   </div>
 </div>
 {% endif %}
+<p class="small text-muted mt-4 mb-0">
+  <a href="{% url 'teacher:lesson_plan' classroom.pk %}">Planejamento de aula</a> é opcional — o foco é a sondagem lúdica e a intervenção.
+</p>
 {% endblock %}

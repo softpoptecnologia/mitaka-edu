@@ -196,27 +196,32 @@ def _assessment_actions(snapshot: ClassroomSnapshot) -> list[TeacherAction]:
         first_missing = details[0][1][0] if details[0][1] else None
         if first_missing:
             missing_label = skill_label(first_missing.skill)
-    title = "Sondagens pendentes" if len(students) > 1 else f"{first} ainda precisa realizar sondagem"
+    title = "Sondagens lúdicas pendentes" if len(students) > 1 else f"{first} ainda precisa da sondagem lúdica"
     description = (
-        f"{first} ainda precisa realizar a sondagem de {missing_label}."
-        if missing_label and len(students) == 1
-        else "Há estudantes aguardando observação nesta turma."
+        f"Iniciar a sondagem de {missing_label or 'leitura e escrita'} com {first} para gerar dados de intervenção."
+        if len(students) == 1
+        else "Há crianças aguardando sondagem lúdica. Os dados vão orientar a intervenção."
     )
+    first_instrument = details[0][1][0] if details and details[0][1] else None
+    if len(students) == 1 and first_instrument:
+        action_url = reverse("assessment:preview", args=[students[0].enrollment.pk, first_instrument.pk])
+    else:
+        action_url = reverse("teacher:pending_assessments", args=[snapshot.classroom.pk])
     return [
         TeacherAction(
             type=ACTION_ASSESSMENT_PENDING,
-            priority=PRIORITY_MEDIUM,
+            priority=PRIORITY_HIGH,
             classroom_id=snapshot.classroom.pk,
             classroom_name=snapshot.classroom.name,
             title=title,
             description=description,
-            action_url=reverse("teacher:classroom", args=[snapshot.classroom.pk]) + "?filtro=pendentes",
+            action_url=action_url,
             student_ids=[r.student_id for r in students],
             student_names=names,
             count=len(students),
             reason=description,
-            why="Ainda não há observação registrada para estes estudantes no ano letivo ativo.",
-            recommended_action="Iniciar observação",
+            why="Ainda não há observação lúdica registrada para estes estudantes no ano letivo ativo.",
+            recommended_action="Iniciar sondagem",
         )
     ]
 
@@ -236,10 +241,16 @@ def _group_and_individual_actions(snapshot: ClassroomSnapshot) -> list[TeacherAc
             if status and status.status_code in {"needs_support", "not_observed"}:
                 needs_support += 1
         priority = PRIORITY_HIGH if needs_support >= 4 else PRIORITY_MEDIUM
+        activity = group.activity_title if group.template else group.skill_name
         title = (
-            f"Crianças precisam trabalhar {group.skill_name}"
+            f"Atividade lúdica de {group.skill_name}"
             if is_group
-            else f"{first_name(group.students[0].full_name)} precisa trabalhar {group.skill_name}"
+            else f"{first_name(group.students[0].full_name)} precisa de atividade de {group.skill_name}"
+        )
+        description = (
+            f"Sugerido: {activity}. A brincadeira gera dados para a intervenção."
+            if group.template
+            else f"Aplicar atividade lúdica de {group.skill_name} e registrar o que foi observado."
         )
         actions.append(
             TeacherAction(
@@ -248,7 +259,7 @@ def _group_and_individual_actions(snapshot: ClassroomSnapshot) -> list[TeacherAc
                 classroom_id=snapshot.classroom.pk,
                 classroom_name=snapshot.classroom.name,
                 title=title,
-                description=group.reason,
+                description=description,
                 action_url=url,
                 skill_id=group.skill_id,
                 skill_name=group.skill_name,
@@ -257,7 +268,7 @@ def _group_and_individual_actions(snapshot: ClassroomSnapshot) -> list[TeacherAc
                 count=group.size,
                 reason=group.reason,
                 why=group.why,
-                recommended_action="Trabalhar agora" if is_group else "Ver sugestão",
+                recommended_action=f"Iniciar {activity}" if group.template else "Iniciar atividade",
                 extra={"template_id": getattr(group.template, "pk", None), "accessibility_notes": group.accessibility_notes},
             )
         )
@@ -363,7 +374,7 @@ def _reassessment_actions(snapshot: ClassroomSnapshot) -> list[TeacherAction]:
                 count=1,
                 reason=item.reason,
                 why=item.reason,
-                recommended_action="Iniciar observação",
+                recommended_action="Iniciar sondagem",
                 extra={"intervention_id": item.intervention_id or 0, "instrument_id": item.instrument_id},
             )
         )

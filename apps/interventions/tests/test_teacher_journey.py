@@ -276,8 +276,21 @@ class TeacherPortalRBACTests(TeacherJourneyFixture):
         response = client.get(reverse("teacher:today"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hoje")
-        self.assertContains(response, "Trabalhar agora")
+        self.assertContains(response, "Iniciar")
         self.assertNotContains(response, "5 crianças")
+        self.assertNotContains(response, "Planejar minha aula")
+
+    def test_pending_assessments_and_group_open_play(self):
+        client = Client()
+        client.login(username="prof1", password="pass12345")
+        pending = client.get(reverse("teacher:pending_assessments", args=[self.classroom_a.pk]))
+        self.assertEqual(pending.status_code, 200)
+        self.assertContains(pending, "Arthur Lima")
+        self.assertContains(pending, "Iniciar sondagem")
+        group = client.get(reverse("teacher:suggested_group", args=[self.classroom_a.pk, self.skill.pk]))
+        self.assertEqual(group.status_code, 200)
+        self.assertContains(group, "Iniciar sondagem")
+        self.assertContains(group, reverse("assessment:preview", args=[self.enrollment.pk, self.instrument.pk]))
 
     def test_teacher_cannot_open_other_classroom_group(self):
         client = Client()

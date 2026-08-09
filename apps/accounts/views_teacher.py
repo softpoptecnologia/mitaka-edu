@@ -61,6 +61,7 @@ class TeacherHomeView(TeacherRequiredMixin, View):
                 "primary_summary": primary.summary_counts() if primary else None,
                 "actions": queue.actions,
                 "action_count": queue.count,
+                "first_action_url": queue.actions[0].action_url if queue.actions else None,
                 "classroom_cards": classroom_cards,
                 "empty": not queue.actions,
             },

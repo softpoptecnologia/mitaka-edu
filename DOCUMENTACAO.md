@@ -16,25 +16,27 @@ A ideia central: a complexidade pedagógica fica no sistema (matriz, critérios,
 ### Ciclo pedagógico
 
 ```
-Diagnosticar → Analisar → Planejar → Intervir → Registrar evidências → Acompanhar → Reavaliar
+Sondagem lúdica → Dados → Intervir → Registrar evidências → Acompanhar → Reavaliar
 ```
+
+O propósito do sistema é **diagnosticar a escrita/leitura por atividades lúdicas** e gerar dados para intervenção. Planejamento de aula existe como apoio opcional (o edital pede planejamento), mas **não é o CTA principal** do professor.
 
 Na prática isso vira:
 
-1. Sondagem lúdica (web ou app Flutter)
+1. Sondagem lúdica (web ou app Flutter) — a brincadeira gera os dados
 2. Scoring automático (regras no banco, não hardcoded)
 3. Situação da habilidade no estudante (`StudentSkillStatus`)
 4. Sugestão de intervenção (template por habilidade)
-5. Planejamento de turma e evidências
-6. Painéis (estudante / turma / escola / rede)
-7. Portal da família + formação continuada + monitoramento de implantação
+5. Registro de evidências e acompanhamento
+6. Reavaliação quando a intervenção já aconteceu
+7. Painéis (estudante / turma / escola / rede) + portal da família
 
 ### Alinhamento ao edital (8 pontos)
 
 | Ponto | Como o sistema cobre |
 |---|---|
 | 1. Sondagem lúdica | Instrumentos digitais/observacionais + player web + app Flutter |
-| 2. Planejamento | Painel da turma → insights → plano + intervenção de turma |
+| 2. Planejamento | Apoio opcional: painel da turma → insights → intervenção; plano de aula não é o caminho principal |
 | 3. Evidências | Foto, áudio, vídeo, texto; opção de compartilhar com a família |
 | 4. Painéis | Estudante, turma, escola, rede (HTML + PDF) |
 | 5. Intervenção e formação | Templates, intervenções, catálogo de formações |
@@ -425,35 +427,38 @@ Logout: `/logout/` → volta ao login.
 
 ### 8.2 Portal do professor (`/professor/`)
 
-**Início** (`TeacherHomeView`)
+Jornada principal: **Hoje → sondagem lúdica → dados → intervenção → acompanhamento → reavaliação**. Planejamento de aula (`/professor/turmas/<id>/planejar-aula/`) fica disponível, mas fora do caminho principal.
 
-- Lista turmas do ano ativo vinculadas ao professor.
-- Cards com totais: pendentes (sem sondagem), atenção (`needs_attention`), ok (sondagem ok).
-- Lista rápida de crianças em atenção.
+**Hoje** (`TeacherHomeView`)
+
+- Fila de ações: sondagens pendentes, atividade lúdica sugerida para o grupo, acompanhamento, reavaliação, aviso de acesso.
+- CTA principal: **Iniciar sondagem** / **Iniciar atividade** (abre o player lúdico).
+- Sondagens pendentes da turma: `/professor/turmas/<id>/sondagens/`.
 
 **Turmas** → detalhe da turma
 
+- CTA principal: **Iniciar sondagem**.
+- Grupos sugeridos: **Iniciar atividade** → `/professor/turmas/<id>/grupos/<skill_id>/` (player por criança + registro de acompanhamento depois).
 - Filtros: todos / pendentes / acompanhamento / atenção / apoio (`?apoio=1`).
-- Busca por nome ou código.
-- Badge por estudante + recursos de acessibilidade visíveis.
+- Intervenções da turma: `/professor/turmas/<id>/planejamento/` (secundário).
 
 **Perfil do estudante** (`/professor/estudantes/<id>/`)
 
 Abas (query `?tab=`):
 
 - **Geral:** trajetória de matrículas, gráfico de habilidades, status.
-- **Avaliações:** instrumentos publicados + sessões (filtros status/habilidade/modo adaptado). Botão **Preparar**.
+- **Sondagens:** instrumentos publicados + sessões. Botão **Iniciar sondagem**.
 - **Evidências:** lista + nova evidência.
 - **Intervenções:** lista + aceitar template sugerido + nova intervenção + mudar status.
 - **Apoio:** recursos funcionais + plano de apoio (edição só AEE/coordenação).
 
 **Como aplicar uma sondagem (web)**
 
-1. Perfil do estudante → aba Avaliações → **Preparar**  
+1. Hoje / turma / perfil → **Iniciar sondagem**  
    URL: `/avaliacao/preparar/<enrollment_id>/<instrument_id>/`
 2. Tela mostra montagem automática: recursos ativos, quantos itens padrão / equivalentes / alternativos / bloqueados.
 3. Opcional: **Imprimir** versão acessível (`/avaliacao/imprimir/...`).
-4. **Iniciar** (POST) → `start_session`  
+4. **Começar a brincadeira** (POST) → `start_session`  
    - Reaproveita sessão `in_progress` se já existir.  
    - Congela `matrix_version` do instrumento.  
    - Snapshot de `active_features` + `adaptation_summary`.  
@@ -474,18 +479,20 @@ Abas (query `?tab=`):
 
 **Como criar intervenção**
 
-- **Aceitar sugestão:** botão no resultado da sessão / perfil (template da habilidade).
+- Depois da sondagem: o sistema sugere template da habilidade.
+- No grupo: após a brincadeira, **Registrar acompanhamento** (não substitui a sondagem formal).
 - **Manual:** formulário com habilidade, objetivo, atividades, datas.
 - Status: planejada → em andamento → concluída / cancelada (`/professor/intervencoes/<id>/status/`).
 
-**Como planejar a turma**
+**Como planejar a turma (opcional)**
 
-1. Turma → Planejamento (`/professor/turmas/<id>/planejamento/`).
+1. Turma → Intervenções (`/professor/turmas/<id>/planejamento/`).
 2. O sistema lista habilidades com % de crianças em atenção + template sugerido.
 3. POST cria:
    - `ClassroomIntervention`
    - `PedagogicalPlan`
    - `PlanActivity` (uma por linha do template)
+4. Plano de aula (`/professor/turmas/<id>/planejar-aula/`) é apoio, não o problema central.
 
 **Como o AEE edita apoio**
 
@@ -1035,7 +1042,7 @@ Próximos passos naturais (também no README): PDF já existe via ReportLab; off
 
 1. Abrir `/` → explicar os 8 pontos do edital → Entrar.
 2. Login `secretaria` → painel municipal → **Implantação** / **Uso da rede** / **Formação continuada** → indicadores e comparação ética.
-3. Login `professora` → turma Infantil V → **Luna** → aba Avaliações → **Preparar** (ver adaptação automática) → Iniciar → resultado sem penalizar acomodação → registrar evidência **visível à família**.
+3. Login `professora` → Hoje → **Iniciar sondagem** com **Luna** (ver adaptação automática) → jogar → resultado sem penalizar acomodação → registrar evidência **visível à família**.
 4. Login `familia` → ver Luna em linguagem simples + dicas para casa (sem nota).
 5. Login `coordenador` ou `aee` → intervenções / plano de apoio.
 6. Login `gestor` → cadastros da escola, import CSV, relatórios.

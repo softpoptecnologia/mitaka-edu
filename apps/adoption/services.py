@@ -26,7 +26,7 @@ FORMATION_SPECS = [
         "objective": "Aplicar instrumentos digitais de forma lúdica, adequada à faixa etária e respeitosa ao desenvolvimento infantil.",
         "duration_hours": 8,
         "modality": FormationProgram.Modality.HIBRIDO,
-        "agenda": "Ciclo diagnosticar → planejar → praticar\nUso do tablet/PWA sem degradê e sem arrastar\nRecursos de acesso (áudio, imagem, legendas)\nO que não fazer: rótulo clínico ou ranking de crianças",
+        "agenda": "Ciclo sondagem lúdica → dados → intervenção\nUso do tablet/PWA sem degradê e sem arrastar\nRecursos de acesso (áudio, imagem, legendas)\nO que não fazer: rótulo clínico ou ranking de crianças",
         "order": 10,
     },
     {
