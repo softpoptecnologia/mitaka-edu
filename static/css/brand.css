@@ -48,6 +48,7 @@
   width: 2.15rem;
   height: 2.15rem;
   min-width: 2.15rem;
+  object-fit: contain;
   flex-shrink: 0;
 }
 

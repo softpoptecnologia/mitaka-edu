@@ -2,14 +2,16 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui8">
+<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui14">
 <style>
-  .family-nav { background: #0d6e6e; }
-  .family-nav .navbar-brand, .family-nav .nav-link { color: #fff !important; font-weight: 700; }
+  .family-nav { background: var(--navy); }
+  .family-nav .navbar-brand, .family-nav .nav-link { color: #fff !important; font-weight: 600; }
   .family-nav .brand-mark {
-    width: 1.85rem; height: 1.85rem; border-radius: 10px; background: #f4c95d; color: #14302c;
-    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.25rem; height: 2.25rem; border-radius: 10px; background: #fff;
+    display: inline-flex; align-items: center; justify-content: center; overflow: hidden;
+    padding: 0.12rem;
   }
+  .family-nav .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
   .family-main { min-height: calc(100vh - 56px); }
 </style>
 {% endblock %}
@@ -18,7 +20,7 @@
 <nav class="navbar navbar-expand-lg family-nav">
   <div class="container-fluid px-3 px-lg-4">
     <a class="navbar-brand d-inline-flex align-items-center gap-2" href="{% url 'family:home' %}">
-      <span class="brand-mark" aria-hidden="true"><i class="bi bi-house-heart-fill"></i></span>
+      <span class="brand-mark" aria-hidden="true">{% include "components/brand_mark.html" with compact=True %}</span>
       {{ APP_NAME }} · Família
     </a>
     <a class="nav-link ms-auto" href="{% url 'logout' %}">Sair</a>

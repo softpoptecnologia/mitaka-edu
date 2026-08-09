@@ -4,29 +4,31 @@
 
 {% block extra_css %}
 <style>
-  .pub { color: #1f2a2a; }
+  .pub { color: var(--ink); }
   .pub-hero { padding: 2.5rem 0 2rem; }
   .pub-mark {
-    width: 3rem; height: 3rem; border-radius: 14px;
-    background: #f4c95d; color: #14302c;
-    display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem;
+    width: 3rem; height: 3rem; border-radius: 12px;
+    background: var(--canvas);
+    display: inline-flex; align-items: center; justify-content: center; overflow: hidden;
+    padding: 0.2rem;
   }
-  .pub-kicker { font-size: .8rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #0d6e6e; }
+  .pub-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .pub-kicker { font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--brand-strong); }
   .pub-card {
-    background: #fff; border: 1px solid #e5e1d8; border-radius: 18px; padding: 1.15rem 1.2rem; height: 100%;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 1.15rem 1.2rem; height: 100%;
   }
   .pub-num {
-    width: 2rem; height: 2rem; border-radius: 10px; background: #e6f3f3; color: #0a5555;
-    display: inline-flex; align-items: center; justify-content: center; font-weight: 800; margin-right: .5rem;
+    width: 2rem; height: 2rem; border-radius: 10px; background: var(--brand-soft); color: var(--brand-strong);
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: .5rem;
   }
   .pub-cycle {
     display: flex; flex-wrap: wrap; gap: .5rem;
   }
   .pub-cycle span {
-    background: #fff; border: 1px solid #e5e1d8; border-radius: 999px; padding: .4rem .8rem; font-weight: 700; font-size: .9rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: .4rem .8rem; font-weight: 600; font-size: .9rem;
   }
-  .pub-audience { background: #e6f3f3; color: #0a5555; border-radius: 999px; padding: .35rem .75rem; font-weight: 700; font-size: .85rem; display: inline-block; margin: .2rem; }
-  .pub-footer { padding: 2rem 0; color: #5c6b6b; font-size: .9rem; }
+  .pub-audience { background: var(--brand-soft); color: var(--brand-strong); border-radius: 999px; padding: .35rem .75rem; font-weight: 600; font-size: .85rem; display: inline-block; margin: .2rem; }
+  .pub-footer { padding: 2rem 0; color: var(--muted); font-size: .9rem; }
 </style>
 {% endblock %}
 
@@ -35,7 +37,7 @@
   <nav class="navbar navbar-expand-lg bg-white border-bottom">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-primary" href="{% url 'home' %}">
-        <span class="pub-mark" aria-hidden="true"><i class="bi bi-mortarboard-fill"></i></span>
+        <span class="pub-mark" aria-hidden="true">{% include "components/brand_mark.html" with size=48 %}</span>
         {{ APP_NAME }}
       </a>
       <div class="d-flex gap-2">
@@ -49,7 +51,8 @@
     <div class="container">
       <p class="pub-kicker mb-2">Desafio de inovação aberta · {{ MUNICIPALITY_NAME }}</p>
       <h1 class="display-6 fw-bold mb-3" style="max-width: 38rem;">Acompanhar as habilidades precursoras da leitura e escrita em um ciclo contínuo.</h1>
-      <p class="lead text-muted mb-4" style="max-width: 42rem;">
+      <p class="lead text-muted mb-2" style="max-width: 42rem;">{{ APP_TAGLINE }}.</p>
+      <p class="text-muted mb-4" style="max-width: 42rem;">
         Da sondagem lúdica aos dados de intervenção, evidências e decisões da Secretaria —
         em computadores, tablets ou celulares, com segurança e sem retrabalho.
       </p>

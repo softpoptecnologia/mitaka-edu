@@ -1,32 +1,27 @@
 /* Mitaka Edu — gestão escolar (chrome + componentes) */
 
 :root {
-  --ink: #1c2424;
-  --muted: #5f6b6b;
-  --line: #e4e8e6;
-  --surface: #ffffff;
-  --canvas: #f3f6f4;
-  --accent: #0f5c5c;
-  --accent-soft: #e6f3f3;
-  --sidebar: #14302c;
-  --sidebar-2: #0f2421;
+  --accent: var(--brand-strong, #00796b);
+  --accent-soft: var(--brand-soft, #e6faf7);
+  --sidebar: var(--navy, #0d1b2a);
+  --sidebar-2: var(--navy, #0d1b2a);
   --sidebar-w: 260px;
   --sidebar-collapsed: 76px;
-  --tone-student: #e07a5f;
-  --tone-student-soft: #fdeee9;
+  --tone-student: var(--coral, #e07a5f);
+  --tone-student-soft: var(--coral-soft, #fbece7);
   --tone-student-ink: #9a3f28;
-  --tone-class: #3d7ea6;
-  --tone-class-soft: #e8f3f8;
+  --tone-class: var(--sky, #4db6e2);
+  --tone-class-soft: var(--sky-soft, #e8f6fb);
   --tone-class-ink: #1f4e6b;
-  --tone-school: #0f5c5c;
-  --tone-school-soft: #e6f3f3;
-  --tone-attention: #d97706;
-  --tone-attention-soft: #fef3e6;
+  --tone-school: var(--brand-strong, #00796b);
+  --tone-school-soft: var(--brand-soft, #e6faf7);
+  --tone-attention: var(--attention, #b7791f);
+  --tone-attention-soft: var(--attention-soft, #f8efde);
   --tone-attention-ink: #9a3412;
-  --tone-network: #5b4b8a;
-  --tone-network-soft: #f3f0fa;
-  --tone-ok: #2f7d4a;
-  --tone-ok-soft: #e8f5ec;
+  --tone-network: var(--purple, #3a2f6e);
+  --tone-network-soft: var(--purple-soft, #eeeaf8);
+  --tone-ok: var(--ok, #2f7d4a);
+  --tone-ok-soft: var(--ok-soft, #e8f5ec);
 }
 
 body {
@@ -47,8 +42,8 @@ body {
 .admin-sidebar {
   width: var(--sidebar-w);
   flex-shrink: 0;
-  background: linear-gradient(180deg, var(--sidebar) 0%, var(--sidebar-2) 100%);
-  color: #d7dddc;
+  background: var(--sidebar);
+  color: #c5d0dc;
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease;
@@ -64,16 +59,22 @@ body {
 }
 
 .brand-mark {
-  width: 2.15rem;
-  height: 2.15rem;
-  border-radius: 12px;
-  background: #f4c95d;
-  color: #14302c;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 10px;
+  background: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15rem;
   flex-shrink: 0;
+  overflow: hidden;
+  padding: 0.12rem;
+}
+.brand-mark img,
+.brand-mark .brand-mark-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .brand-text {
@@ -134,12 +135,12 @@ body {
 
 .admin-sidebar .nav-link.active {
   color: #fff;
-  background: rgba(244, 201, 93, 0.18);
-  font-weight: 700;
+  background: rgba(0, 191, 165, 0.18);
+  font-weight: 600;
 }
 
 .admin-sidebar .nav-link.active i {
-  color: #f4c95d;
+  color: var(--brand, #00bfa5);
 }
 
 .admin-sidebar .nav-link.nav-exit {
