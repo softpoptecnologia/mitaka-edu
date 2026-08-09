@@ -14,40 +14,22 @@
 {% block content %}
 <div class="login-shell">
   <aside class="login-aside">
-    <div>
-      <div class="login-aside-brand">
-        {% include "components/brand_mark.html" with size=64 %}
-        <p class="login-aside-wordmark mb-0"><span>mitaka</span> <span class="edu">edu</span></p>
-      </div>
+    <div class="login-aside-inner">
+      <img src="{% static 'img/logo.png' %}" alt="Mitaka Edu" class="login-aside-logo" width="280" decoding="async">
       <p class="login-aside-tagline">{{ APP_TAGLINE }}</p>
-      <p class="login-aside-place mb-0">{{ MUNICIPALITY_NAME }} · Educação Infantil e Fundamental</p>
+      <p class="login-aside-place">{{ MUNICIPALITY_NAME }} · Educação Infantil e Fundamental</p>
+      <ul class="login-values">
+        <li><i class="bi bi-heart" aria-hidden="true"></i><span><strong>Acolhedor</strong> Pessoas no centro</span></li>
+        <li><i class="bi bi-eye" aria-hidden="true"></i><span><strong>Claro</strong> Informação compreensível</span></li>
+        <li><i class="bi bi-shield-check" aria-hidden="true"></i><span><strong>Confiável</strong> Ética nos dados</span></li>
+        <li><i class="bi bi-lightning" aria-hidden="true"></i><span><strong>Transformador</strong> Evidências com impacto</span></li>
+      </ul>
     </div>
-    <ul class="login-values">
-      <li>
-        <i class="bi bi-heart" aria-hidden="true"></i>
-        <span><strong>Acolhedor</strong> Pessoas e relações no centro</span>
-      </li>
-      <li>
-        <i class="bi bi-eye" aria-hidden="true"></i>
-        <span><strong>Claro</strong> Informação organizada e compreensível</span>
-      </li>
-      <li>
-        <i class="bi bi-shield-check" aria-hidden="true"></i>
-        <span><strong>Confiável</strong> Ética e segurança no uso dos dados</span>
-      </li>
-      <li>
-        <i class="bi bi-lightning" aria-hidden="true"></i>
-        <span><strong>Transformador</strong> Evidências que geram impacto</span>
-      </li>
-    </ul>
   </aside>
 
   <main class="login-main">
     <div class="login-card">
-      <div class="login-logo-wrap">
-        {% include "components/brand_logo.html" %}
-      </div>
-      <h1 class="login-title">Entrar na plataforma</h1>
+      <h1 class="login-title">Entrar</h1>
       <p class="login-subtitle">Acesse com seu usuário da rede municipal.</p>
 
       {% if error %}
@@ -60,7 +42,7 @@
           <label for="username" class="form-label">Usuário</label>
           <input type="text" name="username" id="username" class="form-control login-input" required autofocus autocomplete="username" placeholder="seu.usuario">
         </div>
-        <div class="mb-4">
+        <div class="mb-3">
           <label for="password" class="form-label">Senha</label>
           <input type="password" name="password" id="password" class="form-control login-input" required autocomplete="current-password" placeholder="••••••••">
         </div>
@@ -69,29 +51,26 @@
 
       {% if show_demo_profiles %}
       <div class="login-demo">
-        <p class="login-demo-label">Acesso rápido para demonstração</p>
+        <p class="login-demo-label">Demonstração</p>
         <div class="login-demo-grid">
           {% for profile in demo_profiles %}
           <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
             <input type="hidden" name="username" value="{{ profile.username }}">
             <input type="hidden" name="password" value="{{ profile.password }}">
-            <button type="submit" class="login-demo-btn">
+            <button type="submit" class="login-demo-btn" title="{{ profile.description }}">
               <i class="bi bi-{{ profile.icon }}" aria-hidden="true"></i>
-              <span>
-                <strong>{{ profile.label }}</strong>
-                <small>{{ profile.description }}</small>
-              </span>
+              <strong>{{ profile.label }}</strong>
             </button>
           </form>
           {% endfor %}
         </div>
-        <p class="login-demo-hint">Senha dos perfis demo: <code>demo1234</code></p>
+        <p class="login-demo-hint">Senha demo: <code>demo1234</code></p>
       </div>
       {% endif %}
 
       <p class="login-footer mb-0">
-        <a href="{% url 'home' %}">Conhecer a solução e o alinhamento ao edital</a>
+        <a href="{% url 'home' %}">Conhecer a solução</a>
       </p>
     </div>
   </main>
