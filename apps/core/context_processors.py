@@ -4,7 +4,7 @@ from apps.core.permissions import nav_flags
 def branding(request):
     return {
         "APP_NAME": "Mitaka Edu",
-        "APP_TAGLINE": "Acompanhamento pedagógico — alfabetizar letrando (Currículo PE)",
+        "APP_TAGLINE": "Evidências que transformam aprendizagens",
         "MUNICIPALITY_NAME": "Jucati/PE",
         "CURRICULUM_FRAMEWORK": "Currículo de Pernambuco / BNCC",
     }
