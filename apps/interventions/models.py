@@ -15,6 +15,10 @@ class InterventionTemplate(TimeStampedModel, SoftDeleteModel):
     objective = models.TextField()
     suggested_activities = models.TextField(help_text="Uma atividade por linha")
     suggested_duration_days = models.PositiveIntegerField(default=14)
+    suggested_activity_minutes = models.PositiveIntegerField(
+        default=15,
+        help_text="Duração sugerida da atividade em uma aula (minutos).",
+    )
     notes = models.TextField(blank=True)
 
     class Meta:
@@ -32,6 +36,12 @@ class InterventionStatus(models.TextChoices):
     IN_PROGRESS = "in_progress", "Em andamento"
     COMPLETED = "completed", "Concluída"
     CANCELLED = "cancelled", "Cancelada"
+
+
+class FollowupResult(models.TextChoices):
+    PROGRESSED = "progressed", "Avançou"
+    NEEDS_MORE_SUPPORT = "needs_more_support", "Ainda precisa de apoio"
+    NOT_OBSERVED = "not_observed", "Não participou / não foi possível observar"
 
 
 class StudentIntervention(TimeStampedModel, SoftDeleteModel):
@@ -60,12 +70,29 @@ class StudentIntervention(TimeStampedModel, SoftDeleteModel):
     ends_on = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=InterventionStatus.choices, default=InterventionStatus.PLANNED)
     observation = models.TextField(blank=True)
+    classroom_intervention = models.ForeignKey(
+        "interventions.ClassroomIntervention",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_links",
+    )
+    followup_result = models.CharField(
+        max_length=32,
+        choices=FollowupResult.choices,
+        blank=True,
+    )
+    followup_recorded_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
         return f"Intervenção {self.student} — {self.skill}"
+
+    @property
+    def has_followup(self) -> bool:
+        return bool(self.followup_result)
 
 
 class ClassroomIntervention(TimeStampedModel, SoftDeleteModel):

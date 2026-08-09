@@ -30,6 +30,11 @@ from apps.evidences.forms import EvidenceForm
 from apps.evidences.models import Evidence
 from apps.interventions.forms import StudentInterventionForm
 from apps.interventions.models import ClassroomIntervention, InterventionStatus, InterventionTemplate, StudentIntervention
+from apps.interventions.services.grouping import suggest_groups
+from apps.interventions.services.labels import day_greeting, first_name
+from apps.interventions.services.snapshot import load_classroom_snapshot, load_snapshots_for_user
+from apps.interventions.services.student_synthesis import build_student_synthesis
+from apps.interventions.services.teacher_actions import build_teacher_action_queue
 from apps.planning.models import PedagogicalPlan, PlanActivity
 from apps.schools.models import Classroom
 from apps.students.models import Enrollment, Student
@@ -37,51 +42,27 @@ from apps.students.models import Enrollment, Student
 
 class TeacherHomeView(TeacherRequiredMixin, View):
     def get(self, request):
-        classrooms = classrooms_for_user(request.user).filter(school_year__is_active=True)
-        cards = []
-        totals = {"count": 0, "pending": 0, "attention": 0, "ok": 0}
-        attention_names = []
-        for classroom in classrooms:
-            enrollments = classroom.enrollments.filter(is_active=True, status=Enrollment.Status.ACTIVE)
-            pending = attention = ok = 0
-            for enrollment in enrollments.select_related("student"):
-                statuses = StudentSkillStatus.objects.filter(student=enrollment.student)
-                needs = statuses.filter(needs_attention=True).exists()
-                has_session = AssessmentSession.objects.filter(
-                    enrollment=enrollment, status=AssessmentSession.Status.COMPLETED
-                ).exists()
-                if needs:
-                    attention += 1
-                    attention_names.append(
-                        {"student": enrollment.student, "classroom": classroom}
-                    )
-                elif has_session:
-                    ok += 1
-                else:
-                    pending += 1
-            count = enrollments.count()
-            cards.append(
-                {
-                    "classroom": classroom,
-                    "count": count,
-                    "pending": pending,
-                    "attention": attention,
-                    "ok": ok,
-                }
-            )
-            totals["count"] += count
-            totals["pending"] += pending
-            totals["attention"] += attention
-            totals["ok"] += ok
+        queue = build_teacher_action_queue(request.user)
+        snapshots = queue.snapshots or load_snapshots_for_user(request.user)
+        primary = snapshots[0] if snapshots else None
         profile = request.user.profile
+        full_greeting = profile.greeting_name if profile else request.user.first_name or request.user.username
+        classroom_cards = []
+        for snapshot in snapshots:
+            summary = snapshot.summary_counts()
+            classroom_cards.append({"classroom": snapshot.classroom, **summary})
         return render(
             request,
             "teacher/home.html",
             {
-                "greeting_name": profile.greeting_name if profile else request.user.first_name or request.user.username,
-                "cards": cards,
-                "totals": totals,
-                "attention_names": attention_names[:8],
+                "greeting_name": first_name(full_greeting),
+                "day_greeting": day_greeting(),
+                "primary_classroom": primary.classroom if primary else None,
+                "primary_summary": primary.summary_counts() if primary else None,
+                "actions": queue.actions,
+                "action_count": queue.count,
+                "classroom_cards": classroom_cards,
+                "empty": not queue.actions,
             },
         )
 
@@ -98,50 +79,45 @@ class TeacherClassroomDetailView(TeacherRequiredMixin, View):
         if not user_can_access_classroom(request.user, classroom):
             messages.error(request, "Você não tem acesso a esta turma.")
             return redirect("teacher:home")
+        snapshot = load_classroom_snapshot(classroom)
         status_filter = request.GET.get("filtro", "todos")
         q = (request.GET.get("q") or "").strip()
         apoio = request.GET.get("apoio") == "1"
         rows = []
-        summary = {"ok": 0, "pending": 0, "attention": 0, "apoio": 0}
-        for enrollment in classroom.enrollments.filter(is_active=True).select_related("student"):
-            student = enrollment.student
-            statuses = list(StudentSkillStatus.objects.filter(student=student))
-            needs = any(s.needs_attention for s in statuses)
-            has_completed = AssessmentSession.objects.filter(
-                enrollment=enrollment, status=AssessmentSession.Status.COMPLETED
-            ).exists()
-            has_a11y = bool(active_resource_labels_for_teacher(student))
-            if has_a11y:
-                summary["apoio"] += 1
-            if needs:
-                badge, label = "attention", "Atenção"
-                summary["attention"] += 1
-            elif has_completed:
-                badge, label = "ok", "Acompanhamento regular"
-                summary["ok"] += 1
+        summary = snapshot.summary_counts()
+        for record in snapshot.records:
+            student = record.student
+            if record.needs_attention:
+                badge, label = "attention", "Maior mediação"
+            elif record.has_completed_session:
+                badge, label = "ok", "Acompanhando bem"
             else:
-                badge, label = "pending", "Sondagem pendente"
-                summary["pending"] += 1
+                badge, label = "pending", "Aguarda observação"
             if status_filter == "pendentes" and badge != "pending":
                 continue
             if status_filter == "acompanhamento" and badge != "ok":
                 continue
             if status_filter == "atencao" and badge != "attention":
                 continue
-            if apoio and not has_a11y:
+            if apoio and not record.feature_codes:
                 continue
             if q and q.lower() not in student.full_name.lower() and q.lower() not in (student.external_code or "").lower():
                 continue
             rows.append(
                 {
-                    "enrollment": enrollment,
+                    "enrollment": record.enrollment,
                     "student": student,
                     "badge": badge,
                     "label": label,
-                    "has_a11y": has_a11y,
-                    "resources": active_resource_labels_for_teacher(student) if has_a11y else [],
+                    "has_a11y": bool(record.feature_codes),
+                    "resources": record.feature_names,
                 }
             )
+        needs = [
+            g
+            for g in suggest_groups(snapshot, include_consolidation=False)
+            if g.kind != "consolidation"
+        ]
         return render(
             request,
             "teacher/classroom_detail.html",
@@ -152,7 +128,8 @@ class TeacherClassroomDetailView(TeacherRequiredMixin, View):
                 "q": q,
                 "apoio": apoio,
                 "summary": summary,
-                "total": classroom.enrollments.filter(is_active=True).count(),
+                "total": summary["total"],
+                "needs": needs,
             },
         )
 
@@ -164,6 +141,10 @@ class StudentProfileView(TeacherRequiredMixin, View):
             messages.error(request, "Você não tem acesso a este estudante.")
             return redirect("teacher:home")
         enrollment = student.current_enrollment()
+        synthesis = None
+        if enrollment and user_can_access_classroom(request.user, enrollment.classroom):
+            snapshot = load_classroom_snapshot(enrollment.classroom)
+            synthesis = build_student_synthesis(snapshot, student.pk)
         tab = request.GET.get("tab", "geral")
         q_status = request.GET.get("status", "")
         q_skill = request.GET.get("habilidade", "")
@@ -213,6 +194,7 @@ class StudentProfileView(TeacherRequiredMixin, View):
             {
                 "student": student,
                 "enrollment": enrollment,
+                "synthesis": synthesis,
                 "tab": tab,
                 "instruments": instruments,
                 "sessions": sessions,

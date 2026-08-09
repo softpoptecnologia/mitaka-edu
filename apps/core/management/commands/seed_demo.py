@@ -41,6 +41,7 @@ from apps.assessments.services.session import complete_session, save_response, s
 from apps.evidences.models import Evidence
 from apps.interventions.models import (
     ClassroomIntervention,
+    FollowupResult,
     InterventionStatus,
     InterventionTemplate,
     StudentIntervention,
@@ -203,8 +204,10 @@ class Command(BaseCommand):
             "Ravi Monteiro", "Olívia Castro", "Caleb Moura", "Ísis Fernandes", "Enzo Batista",
         ]
         students = []
-        # Distribute ~5 per classroom among first 6 (2026)
         targets = classrooms[:6]
+        va_indexes = {0, 1, 6, 7, 8, 9, 10, 15, 20}  # Infantil V A — jornada da professora
+        remaining_rooms = classrooms[1:6]
+        remaining_i = 0
         for i, name in enumerate(names):
             code = f"JUC{2026}{i+1:03d}"
             student, _ = Student.objects.update_or_create(
@@ -215,7 +218,11 @@ class Command(BaseCommand):
                     "is_active": True,
                 },
             )
-            room = targets[i % len(targets)]
+            if i in va_indexes:
+                room = classrooms[0]
+            else:
+                room = remaining_rooms[remaining_i % len(remaining_rooms)]
+                remaining_i += 1
             Enrollment.objects.update_or_create(
                 student=student,
                 school_year=year_2026,
@@ -419,6 +426,12 @@ class Command(BaseCommand):
         ]
 
         skills = {}
+        template_titles = {
+            "rimas": ("Jogo das Rimas", 10),
+            "segmentacao": ("Palmas nas Sílabas", 15),
+            "oralidade": ("Roda de reconto", 15),
+        }
+
         for i, spec in enumerate(skill_specs):
             dim, _ = DevelopmentDimension.objects.update_or_create(
                 matrix_version=version,
@@ -443,9 +456,11 @@ class Command(BaseCommand):
                 },
             )
             skills[spec["dim_code"]] = skill
+            title, minutes = template_titles.get(spec["dim_code"], (f"Intervenção — {spec['dim_name']}", 15))
+            InterventionTemplate.objects.filter(skill=skill).exclude(title=title).update(is_active=False)
             InterventionTemplate.objects.update_or_create(
                 skill=skill,
-                title=f"Intervenção — {spec['dim_name']}",
+                title=title,
                 defaults={
                     "objective": (
                         f"Fortalecer “{spec['name']}” em práticas de linguagem significativas, "
@@ -453,6 +468,7 @@ class Command(BaseCommand):
                     ),
                     "suggested_activities": spec["activities"],
                     "suggested_duration_days": 14,
+                    "suggested_activity_minutes": minutes,
                     "notes": f"Referência curricular: {spec['bncc_code']}",
                     "is_active": True,
                 },
@@ -684,8 +700,8 @@ class Command(BaseCommand):
         # Functional profiles (A–E) — needs, not diagnoses
         demos = [
             (0, ["VISUAL_LARGE_TEXT", "VISUAL_HIGH_CONTRAST"], "Texto ampliado e alto contraste em atividades."),
-            (1, ["VISUAL_SCREEN_READER"], "Priorizar conteúdo legível por leitor de tela."),
-            (2, ["MOTOR_NO_DRAG", "MOTOR_LARGE_TARGET"], "Evitar arrastar; usar seleção e alvos amplos."),
+            (1, ["MOTOR_NO_DRAG", "MOTOR_LARGE_TARGET"], "Evitar arrastar; usar seleção e alvos amplos."),
+            (2, ["VISUAL_SCREEN_READER"], "Priorizar conteúdo legível por leitor de tela."),
             (3, ["SENSORY_REDUCED_STIMULUS", "COGNITIVE_STEP_BY_STEP"], "Reduzir estímulos; instruções passo a passo."),
             (4, ["AUDITORY_CAPTIONS", "AUDITORY_VISUAL_INSTRUCTION"], "Legendas e instrução visual quando houver áudio."),
         ]
@@ -807,15 +823,17 @@ class Command(BaseCommand):
                 )
 
     def _sessions(self, teacher, teacher2, students, classrooms, instruments, skills):
+        # Longitudinal 2025 first, so the 2026 status remains the current snapshot.
+        luna = students[0]
+        luna_2025 = Enrollment.objects.filter(student=luna, school_year__year=2025).first()
+        if luna_2025:
+            self._complete_with_score(teacher, luna_2025, instruments["rimas"], correct=3)
         # Coherent network story: every 2026 classroom has assessments feeding dashboards.
-        # c0 ESC001 V A — desenvolvimento regular (Luna)
-        for enrollment in classrooms[0].enrollments.filter(is_active=True):
+        self._seed_infantil_va_journey(teacher, classrooms[0], students, instruments, skills)
+        # c1 ESC001 V B — acompanhamento regular (não competir com a jornada da V A)
+        for enrollment in classrooms[1].enrollments.filter(is_active=True):
             self._complete_with_score(teacher, enrollment, instruments["rimas"], correct=4)
             self._complete_with_score(teacher, enrollment, instruments["oralidade"], correct=3)
-        # c1 ESC001 V B — atenção em rimas/segmentação (Theo)
-        for enrollment in classrooms[1].enrollments.filter(is_active=True):
-            self._complete_with_score(teacher, enrollment, instruments["rimas"], correct=1)
-            self._complete_with_score(teacher, enrollment, instruments["segmentacao"], correct=1)
         # c2 ESC002 V A — fragmentação na segmentação (Alice)
         for enrollment in classrooms[2].enrollments.filter(is_active=True):
             self._complete_with_score(teacher2, enrollment, instruments["segmentacao"], correct=0)
@@ -833,124 +851,161 @@ class Command(BaseCommand):
             self._complete_with_score(teacher, enrollment, instruments["rimas"], correct=4)
             self._complete_with_score(teacher, enrollment, instruments["oralidade"], correct=3)
 
-        # Longitudinal 2025 for Luna
-        luna = students[0]
-        luna_2025 = Enrollment.objects.filter(student=luna, school_year__year=2025).first()
-        if luna_2025:
-            self._complete_with_score(teacher, luna_2025, instruments["rimas"], correct=3)
-
         self._demo_followup(teacher, students, classrooms, skills)
 
-    def _demo_followup(self, teacher, students, classrooms, skills):
-        template_rimas = InterventionTemplate.objects.filter(skill=skills["rimas"]).first()
-        template_seg = InterventionTemplate.objects.filter(skill=skills["segmentacao"]).first()
-        template_oral = InterventionTemplate.objects.filter(skill=skills["oralidade"]).first()
-
-        followups = [
-            (
-                students[0],
-                skills["rimas"],
-                template_rimas,
-                "Participou de roda de parlendas e cantigas, refletindo sobre rimas (Currículo PE).",
-                InterventionStatus.IN_PROGRESS,
-            ),
-            (
-                students[1],
-                skills["rimas"],
-                template_rimas,
-                "Observação: precisou de mediação para identificar pares que rimam; usou leitor de tela.",
-                InterventionStatus.PLANNED,
-            ),
-            (
-                students[1],
-                skills["segmentacao"],
-                template_seg,
-                "Palmas nas sílabas de parlendas com apoio passo a passo.",
-                InterventionStatus.IN_PROGRESS,
-            ),
-            (
-                students[2],
-                skills["segmentacao"],
-                template_seg,
-                "Associação palavra-imagem sem arrastar; alvos ampliados.",
-                InterventionStatus.IN_PROGRESS,
-            ),
-            (
-                students[3],
-                skills["oralidade"],
-                template_oral,
-                "Reconto com redução de estímulos e instruções curtas.",
-                InterventionStatus.PLANNED,
-            ),
-            (
-                students[4],
-                skills["oralidade"],
-                template_oral,
-                "Reconto com apoio visual e legendas na escuta compartilhada.",
-                InterventionStatus.IN_PROGRESS,
-            ),
-        ]
-        for student, skill, template, description, status in followups:
-            enrollment = student.current_enrollment()
-            if not enrollment:
-                continue
-            Evidence.objects.get_or_create(
-                student=student,
-                enrollment=enrollment,
-                recorded_by=teacher,
-                description=description,
-                defaults={
-                    "skill": skill,
-                    "file_type": Evidence.FileType.TEXT,
-                    "visible_to_family": student == students[0],
-                },
+    def _seed_infantil_va_journey(self, teacher, classroom, students, instruments, skills):
+        student_ids = list(
+            classroom.enrollments.filter(is_active=True, status=Enrollment.Status.ACTIVE).values_list(
+                "student_id", flat=True
             )
-            if template:
-                StudentIntervention.objects.update_or_create(
-                    student=student,
-                    enrollment=enrollment,
-                    skill=skill,
-                    defaults={
-                        "template": template,
-                        "responsible": teacher,
-                        "objective": template.objective,
-                        "activities": template.suggested_activities,
-                        "starts_on": date.today(),
-                        "status": status,
-                        "is_active": True,
-                    },
-                )
+        )
+        StudentSkillStatus.objects.filter(student_id__in=student_ids, enrollment__classroom=classroom).delete()
+        StudentSkillStatus.objects.filter(student_id__in=student_ids, enrollment__school_year__is_active=True).delete()
+        StudentIntervention.objects.filter(
+            enrollment__classroom=classroom,
+            status__in=[InterventionStatus.PLANNED, InterventionStatus.IN_PROGRESS],
+        ).update(status=InterventionStatus.CANCELLED, is_active=False)
+        AssessmentSession.objects.filter(enrollment__classroom=classroom, is_active=True).update(is_active=False)
 
-        if template_rimas:
+        by_name = {student.full_name: student for student in students}
+        rimas = instruments["rimas"]
+        seg = instruments["segmentacao"]
+        oral = instruments["oralidade"]
+
+        def enrollment_of(name):
+            student = by_name[name]
+            return student.enrollments.filter(classroom=classroom, is_active=True).first() or student.current_enrollment()
+
+        for name in ["Luna Ferreira", "Theo Martins", "Laura Mendes", "Noah Barbosa", "Valentina Costa"]:
+            enrollment = enrollment_of(name)
+            if enrollment:
+                self._complete_with_score(teacher, enrollment, rimas, correct=1)
+        for name in ["Theo Martins", "Noah Barbosa", "Valentina Costa"]:
+            enrollment = enrollment_of(name)
+            if enrollment:
+                self._complete_with_score(teacher, enrollment, seg, correct=1)
+        for name in ["Luna Ferreira", "Laura Mendes", "Bernardo Teixeira"]:
+            enrollment = enrollment_of(name)
+            if enrollment:
+                self._complete_with_score(teacher, enrollment, oral, correct=3)
+        bernardo = enrollment_of("Bernardo Teixeira")
+        if bernardo:
+            self._complete_with_score(teacher, bernardo, rimas, correct=4)
+        manuela = enrollment_of("Manuela Alves")
+        if manuela:
+            rimas_session = self._complete_with_score(teacher, manuela, rimas, correct=1)
+            past_session = timezone.now() - timedelta(days=20)
+            AssessmentSession.objects.filter(pk=rimas_session.pk).update(
+                started_at=past_session,
+                completed_at=past_session,
+            )
+            self._complete_with_score(teacher, manuela, oral, correct=3)
+        maya = enrollment_of("Maya Duarte")
+        if maya:
+            self._complete_with_score(teacher, maya, oral, correct=1)
+            self._complete_with_score(teacher, maya, rimas, correct=4)
+        # Arthur Lima: sem sessão — sondagem pendente
+
+    def _demo_followup(self, teacher, students, classrooms, skills):
+        template_rimas = InterventionTemplate.objects.filter(skill=skills["rimas"], is_active=True).first()
+        template_seg = InterventionTemplate.objects.filter(skill=skills["segmentacao"], is_active=True).first()
+        template_oral = InterventionTemplate.objects.filter(skill=skills["oralidade"], is_active=True).first()
+        by_name = {student.full_name: student for student in students}
+        past = timezone.now() - timedelta(days=10)
+
+        maya = by_name.get("Maya Duarte")
+        if maya and template_oral:
+            enrollment = maya.current_enrollment()
             ci, _ = ClassroomIntervention.objects.update_or_create(
-                classroom=classrooms[1],
-                skill=skills["rimas"],
+                classroom=enrollment.classroom,
+                skill=skills["oralidade"],
                 defaults={
-                    "template": template_rimas,
+                    "template": template_oral,
                     "responsible": teacher,
-                    "objective": "Fortalecer rimas em parlendas com toda a turma Infantil V B.",
-                    "activities": template_rimas.suggested_activities,
-                    "starts_on": date.today(),
+                    "objective": template_oral.objective,
+                    "activities": template_oral.suggested_activities,
+                    "starts_on": date.today() - timedelta(days=1),
                     "status": InterventionStatus.IN_PROGRESS,
                     "is_active": True,
                 },
             )
-            plan, _ = PedagogicalPlan.objects.update_or_create(
-                classroom=classrooms[1],
-                title="Planejamento — rimas e tradição oral",
+            StudentIntervention.objects.update_or_create(
+                student=maya,
+                enrollment=enrollment,
+                skill=skills["oralidade"],
                 defaults={
-                    "skill": skills["rimas"],
-                    "created_by": teacher,
-                    "notes": "Gerado a partir dos indicadores da turma (atenção em rimas).",
                     "classroom_intervention": ci,
+                    "template": template_oral,
+                    "responsible": teacher,
+                    "objective": template_oral.objective,
+                    "activities": template_oral.suggested_activities,
+                    "starts_on": date.today() - timedelta(days=1),
+                    "status": InterventionStatus.IN_PROGRESS,
+                    "followup_result": "",
+                    "followup_recorded_at": None,
                     "is_active": True,
                 },
             )
-            plan.activities.all().delete()
-            for i, title in enumerate(
-                ["Roda de parlendas", "Jogo de pares que rimam", "Cantiga regional"], start=1
-            ):
-                PlanActivity.objects.create(plan=plan, title=title, order=i, is_done=i == 1)
+            Evidence.objects.get_or_create(
+                student=maya,
+                enrollment=enrollment,
+                recorded_by=teacher,
+                description="Roda de reconto iniciada; registro de acompanhamento ainda pendente.",
+                defaults={"skill": skills["oralidade"], "file_type": Evidence.FileType.TEXT},
+            )
+
+        manuela = by_name.get("Manuela Alves")
+        if manuela and template_rimas:
+            enrollment = manuela.current_enrollment()
+            iv, _ = StudentIntervention.objects.update_or_create(
+                student=manuela,
+                enrollment=enrollment,
+                skill=skills["rimas"],
+                defaults={
+                    "template": template_rimas,
+                    "responsible": teacher,
+                    "objective": template_rimas.objective,
+                    "activities": template_rimas.suggested_activities,
+                    "starts_on": date.today() - timedelta(days=14),
+                    "ends_on": date.today() - timedelta(days=7),
+                    "status": InterventionStatus.COMPLETED,
+                    "followup_result": FollowupResult.PROGRESSED,
+                    "followup_recorded_at": past,
+                    "observation": "Participou da atividade Jogo das Rimas em grupo. Apresentou avanço durante a atividade.",
+                    "is_active": True,
+                    "classroom_intervention": None,
+                },
+            )
+            StudentIntervention.objects.filter(pk=iv.pk).update(
+                created_at=past - timedelta(days=4),
+                updated_at=past,
+                followup_recorded_at=past,
+            )
+            Evidence.objects.get_or_create(
+                student=manuela,
+                enrollment=enrollment,
+                recorded_by=teacher,
+                description="Participou da atividade Jogo das Rimas em grupo. Apresentou avanço durante a atividade.",
+                defaults={"skill": skills["rimas"], "file_type": Evidence.FileType.TEXT, "visible_to_family": False},
+            )
+
+        # Cancel stale open rimas/segmentation interventions in V A that would hide the suggested groups.
+        va = classrooms[0]
+        StudentIntervention.objects.filter(
+            enrollment__classroom=va,
+            skill__in=[skills["rimas"], skills["segmentacao"]],
+            status__in=[InterventionStatus.PLANNED, InterventionStatus.IN_PROGRESS],
+        ).exclude(student__full_name="Manuela Alves").update(status=InterventionStatus.CANCELLED, is_active=False)
+
+        # Evitar fila ruidosa na V B (turma secundária da professora).
+        ClassroomIntervention.objects.filter(
+            classroom=classrooms[1],
+            status__in=[InterventionStatus.PLANNED, InterventionStatus.IN_PROGRESS],
+        ).update(status=InterventionStatus.COMPLETED)
+        StudentIntervention.objects.filter(
+            enrollment__classroom=classrooms[1],
+            status__in=[InterventionStatus.PLANNED, InterventionStatus.IN_PROGRESS],
+        ).update(status=InterventionStatus.COMPLETED, followup_result=FollowupResult.PROGRESSED)
 
         if template_seg:
             ClassroomIntervention.objects.update_or_create(

@@ -7,47 +7,46 @@
   <div>
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb mb-2">
-        <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Início</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Hoje</a></li>
         <li class="breadcrumb-item"><a href="{% url 'teacher:classrooms' %}">Turmas</a></li>
         <li class="breadcrumb-item active" aria-current="page">{{ classroom.name }}</li>
       </ol>
     </nav>
     <h1 class="h3 mb-1">{{ classroom.name }}</h1>
-    <p class="text-muted mb-0">{{ classroom.grade_label }} · {{ classroom.school.name }} · {{ total }} estudante{{ total|pluralize }}</p>
+    <p class="text-muted mb-0">{{ total }} estudante{{ total|pluralize }} · {{ classroom.grade_label }} · {{ classroom.school.name }}</p>
+    <p class="mb-0 mt-2">
+      {{ summary.ok }} acompanhando bem ·
+      {{ summary.attention }} precisam de maior mediação ·
+      {{ summary.pending }} aguardam observação ·
+      {{ summary.acesso }} com recurso de acesso ativo
+    </p>
   </div>
   <div class="d-flex flex-wrap gap-2">
-    <a href="{% url 'teacher:planning' classroom.pk %}" class="btn btn-outline-primary btn-sm">Planejamento</a>
-    <a href="{% url 'management:report_classroom' classroom.pk %}" class="btn btn-outline-secondary btn-sm">Relatório</a>
-    <a href="{% url 'management:report_classroom' classroom.pk %}?formato=pdf" class="btn btn-primary btn-sm">PDF</a>
+    <a href="{% url 'teacher:lesson_plan' classroom.pk %}" class="btn btn-primary">Planejar minha aula</a>
+    <a href="{% url 'teacher:planning' classroom.pk %}" class="btn btn-outline-primary">Planejamento</a>
+    <a href="{% url 'management:report_classroom' classroom.pk %}?formato=pdf" class="btn btn-outline-secondary">PDF</a>
   </div>
 </div>
 
-<div class="row g-3 mb-4">
-  <div class="col-6 col-md-3">
-    <div class="stat-card stat-card-ok d-flex justify-content-between align-items-start">
-      <div><div class="stat-label">Regular</div><div class="stat-value">{{ summary.ok }}</div></div>
-      <span class="stat-icon" aria-hidden="true"><i class="bi bi-emoji-smile"></i></span>
-    </div>
+{% if needs %}
+<div class="section-card mb-4">
+  <div class="section-card-header">
+    <span class="section-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+    <span>Necessidades da turma</span>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-card stat-card-pending d-flex justify-content-between align-items-start">
-      <div><div class="stat-label">Pendentes</div><div class="stat-value">{{ summary.pending }}</div></div>
-      <span class="stat-icon" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span>
+  <div class="card-body p-0">
+    {% for need in needs %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-3" style="border-bottom: 1px solid #eee8df;">
+      <div>
+        <div class="fw-bold">{{ need.skill_name }}</div>
+        <div class="small text-muted">{{ need.size }} estudante{{ need.size|pluralize }}</div>
+      </div>
+      <a href="{% url 'teacher:suggested_group' classroom.pk need.skill_id %}" class="btn btn-primary">Trabalhar agora</a>
     </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-card stat-card-attention d-flex justify-content-between align-items-start">
-      <div><div class="stat-label">Atenção</div><div class="stat-value">{{ summary.attention }}</div></div>
-      <span class="stat-icon" aria-hidden="true"><i class="bi bi-flag"></i></span>
-    </div>
-  </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-card stat-card-access d-flex justify-content-between align-items-start">
-      <div><div class="stat-label">Com recurso de acesso</div><div class="stat-value">{{ summary.apoio }}</div></div>
-      <span class="stat-icon" aria-hidden="true"><i class="bi bi-universal-access"></i></span>
-    </div>
+    {% endfor %}
   </div>
 </div>
+{% endif %}
 
 <form method="get" class="filter-strip" role="search">
   <div class="d-flex flex-wrap gap-2 align-items-center flex-grow-1">

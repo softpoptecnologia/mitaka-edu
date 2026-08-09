@@ -6,12 +6,18 @@
 <div class="mb-4">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Hoje</a></li>
       <li class="breadcrumb-item"><a href="{% url 'teacher:classroom' classroom.pk %}">{{ classroom.name }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">Planejamento</li>
     </ol>
   </nav>
-  <h1 class="h3 mb-1">Planejamento pedagógico</h1>
-  <p class="text-muted mb-0">{{ classroom.grade_label }} · {{ classroom.school.name }}</p>
+  <div class="d-flex flex-wrap justify-content-between gap-2">
+    <div>
+      <h1 class="h3 mb-1">Planejamento pedagógico</h1>
+      <p class="text-muted mb-0">{{ classroom.grade_label }} · {{ classroom.school.name }}</p>
+    </div>
+    <a href="{% url 'teacher:lesson_plan' classroom.pk %}" class="btn btn-primary">Planejar minha aula</a>
+  </div>
 </div>
 
 <div class="row g-4">

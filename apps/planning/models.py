@@ -6,6 +6,11 @@ from apps.core.models import SoftDeleteModel, TimeStampedModel
 
 
 class PedagogicalPlan(TimeStampedModel, SoftDeleteModel):
+    class Source(models.TextChoices):
+        MANUAL = "manual", "Manual"
+        SUGGESTED = "suggested", "Sugestão aceita"
+        ADJUSTED = "adjusted", "Sugestão ajustada"
+
     classroom = models.ForeignKey(
         "schools.Classroom",
         on_delete=models.CASCADE,
@@ -32,6 +37,12 @@ class PedagogicalPlan(TimeStampedModel, SoftDeleteModel):
         blank=True,
         related_name="plans",
     )
+    duration_minutes = models.PositiveIntegerField(null=True, blank=True)
+    source = models.CharField(
+        max_length=20,
+        choices=Source.choices,
+        default=Source.MANUAL,
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -46,6 +57,7 @@ class PlanActivity(TimeStampedModel):
     description = models.TextField(blank=True)
     order = models.PositiveIntegerField(default=0)
     is_done = models.BooleanField(default=False)
+    duration_minutes = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ["order", "id"]

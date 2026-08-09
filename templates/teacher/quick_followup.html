@@ -1,0 +1,54 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Como foi a atividade? — {{ APP_NAME }}{% endblock %}
+
+{% block teacher_content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-2">
+    <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Hoje</a></li>
+    {% if classroom %}
+    <li class="breadcrumb-item"><a href="{% url 'teacher:classroom' classroom.pk %}">{{ classroom.name }}</a></li>
+    {% endif %}
+    <li class="breadcrumb-item active" aria-current="page">Registro rápido</li>
+  </ol>
+</nav>
+
+<h1 class="h3 mb-1">Como foi a atividade?</h1>
+<p class="text-muted mb-4">{{ activity_title }}{% if targets %} · {{ targets|length }} estudante{{ targets|length|pluralize }}{% endif %}</p>
+
+<form method="post">
+  {% csrf_token %}
+  {% for target in targets %}
+  <div class="section-card mb-3">
+    <div class="card-body p-3">
+      <h2 class="h5 mb-3">{{ target.student.full_name }}</h2>
+      <div class="d-grid gap-2">
+        <label class="followup-choice">
+          <input type="radio" name="result_{{ target.pk }}" value="progressed" {% if target.followup_result == "progressed" %}checked{% endif %} required>
+          <span>Avançou</span>
+        </label>
+        <label class="followup-choice">
+          <input type="radio" name="result_{{ target.pk }}" value="needs_more_support" {% if target.followup_result == "needs_more_support" %}checked{% endif %}>
+          <span>Ainda precisa de apoio</span>
+        </label>
+        <label class="followup-choice">
+          <input type="radio" name="result_{{ target.pk }}" value="not_observed" {% if target.followup_result == "not_observed" %}checked{% endif %}>
+          <span>Não participou / não foi possível observar</span>
+        </label>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-muted">Não há estudantes para registrar nesta atividade.</p>
+  {% endfor %}
+
+  <div class="mb-4">
+    <label class="form-label fw-bold" for="general_notes">Observação geral (opcional)</label>
+    <textarea class="form-control" id="general_notes" name="general_notes" rows="3" placeholder="Ex.: a turma se envolveu bem com a parlenda."></textarea>
+  </div>
+
+  {% if targets %}
+  <button type="submit" class="btn btn-primary today-cta">Salvar registros</button>
+  {% endif %}
+</form>
+{% endblock %}

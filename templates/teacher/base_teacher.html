@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui8">
+<link rel="stylesheet" href="{% static 'css/app.css' %}?v=ui9">
 <style>
   .teacher-nav {
     background: var(--mitaka-teal);
@@ -97,8 +97,8 @@
     <div class="collapse navbar-collapse" id="teacherNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link{% if request.resolver_match.url_name == 'home' %} active{% endif %}" href="{% url 'teacher:home' %}">
-            <i class="bi bi-house-heart" aria-hidden="true"></i> Início
+          <a class="nav-link{% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'today' %} active{% endif %}" href="{% url 'teacher:today' %}">
+            <i class="bi bi-house-heart" aria-hidden="true"></i> Hoje
           </a>
         </li>
         <li class="nav-item">

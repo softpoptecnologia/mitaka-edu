@@ -2,6 +2,8 @@
 
 Plataforma educacional de acompanhamento contínuo das habilidades precursoras e iniciais da leitura e escrita, desenvolvida como MVP para o desafio de inovação aberta da Secretaria Municipal de Educação de Jucati/PE.
 
+**Documentação completa (raio-X do sistema, fluxos e “como fazer cada coisa”):** [DOCUMENTACAO.md](DOCUMENTACAO.md)
+
 ## Objetivo
 
 Transformar o ciclo pedagógico fragmentado em uma rotina digital integrada:
@@ -153,7 +155,7 @@ Padrão visual único (cabeçalho Mitaka Edu, tabelas, rodapé pedagógico):
 ## Testes
 
 ```bash
-python manage.py test apps.core.tests apps.accessibility.tests apps.reports.tests
+python manage.py test apps.core.tests apps.accessibility.tests apps.reports.tests apps.interventions.tests
 ```
 
 Cobertura crítica: RBAC, longitudinalidade, freeze de matriz, scoring, CSV, **resolver de acessibilidade**, privacidade de perfil e preservação histórica de variantes.

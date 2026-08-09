@@ -19,6 +19,7 @@ urlpatterns = [
     path("secretaria/", include("apps.analytics.urls_secretaria")),
     path("avaliacao/", include("apps.assessments.urls")),
     path("api/", include("apps.assessments.urls_api")),
+    path("api/", include("apps.interventions.urls_api")),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,78 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Sugestão para {{ classroom.name }} — {{ APP_NAME }}{% endblock %}
+
+{% block teacher_content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-2">
+    <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Hoje</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'teacher:classroom' classroom.pk %}">{{ classroom.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Grupo sugerido</li>
+  </ol>
+</nav>
+
+<p class="text-muted mb-1">Sugestão para esta turma</p>
+<h1 class="h3 mb-2">{{ group.skill_name|upper }}</h1>
+<p class="mb-4">{{ group.size }} estudante{{ group.size|pluralize }} precisam de maior mediação</p>
+
+{% if group.template %}
+<div class="section-card mb-4">
+  <div class="card-body p-3">
+    <div class="mb-2"><span class="text-muted d-block">Atividade sugerida</span><strong>{{ group.template.title }}</strong></div>
+    {% if group.template.suggested_activity_minutes %}
+    <div class="mb-2"><span class="text-muted d-block">Duração sugerida</span><strong>{{ group.template.suggested_activity_minutes }} minutos</strong></div>
+    {% endif %}
+    {% if group.template.objective %}<p class="mb-0">{{ group.template.objective }}</p>{% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% if group.accessibility_notes %}
+<div class="section-card mb-4">
+  <div class="section-card-header">
+    <span class="section-icon" aria-hidden="true"><i class="bi bi-universal-access"></i></span>
+    <span>Acesso e adaptação</span>
+  </div>
+  <div class="card-body p-3">
+    <ul class="mb-0 ps-3">
+      {% for note in group.accessibility_notes %}
+      <li>{{ note }}</li>
+      {% endfor %}
+    </ul>
+    {% if group.alternative_needed %}
+    <a href="{% url 'teacher:classroom' classroom.pk %}" class="btn btn-outline-primary mt-3">Ver alternativa</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <div class="section-card mb-4">
+    <div class="section-card-header">
+      <span class="section-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+      <span>Grupo sugerido pelo Mitaka</span>
+    </div>
+    <div class="card-body p-3">
+      <p class="small text-muted">Você pode remover ou incluir estudantes da própria turma antes de aplicar.</p>
+      {% for student in classmates %}
+      <label class="d-flex align-items-center gap-2 py-2" style="border-bottom: 1px solid #eee8df;">
+        <input type="checkbox" name="student_ids" value="{{ student.pk }}" {% if student.pk in group.student_ids %}checked{% endif %}>
+        <span>{{ student.full_name }}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <details class="mb-4">
+    <summary class="fw-bold">Por que estou vendo isso?</summary>
+    <p class="mt-2 mb-0">{{ group.why }}</p>
+  </details>
+
+  <div class="d-grid gap-2">
+    <button type="submit" class="btn btn-primary today-cta">Aplicar com o grupo</button>
+    <button type="submit" name="ignorar" value="1" class="btn btn-outline-secondary">Ignorar sugestão</button>
+    <a href="{% url 'teacher:classroom' classroom.pk %}" class="btn btn-outline-primary">Ajustar depois</a>
+  </div>
+</form>
+{% endblock %}

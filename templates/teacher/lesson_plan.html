@@ -1,0 +1,77 @@
+{% extends "teacher/base_teacher.html" %}
+
+{% block title %}Planejar aula — {{ classroom.name }}{% endblock %}
+
+{% block teacher_content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-2">
+    <li class="breadcrumb-item"><a href="{% url 'teacher:home' %}">Hoje</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'teacher:classroom' classroom.pk %}">{{ classroom.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Planejar aula</li>
+  </ol>
+</nav>
+
+<h1 class="h3 mb-3">Planejar minha aula</h1>
+
+<form method="get" class="filter-strip mb-4">
+  <label class="fw-bold me-2" for="duracao">Duração</label>
+  {% for option in durations %}
+  <a href="?duracao={{ option }}" class="profile-nav-item{% if duration == option %} active{% endif %}">{{ option }} min</a>
+  {% endfor %}
+  <div class="d-flex align-items-center gap-2 ms-auto">
+    <input class="form-control" style="max-width: 6rem;" type="number" min="20" max="120" name="duracao" id="duracao" value="{{ duration }}" aria-label="Duração personalizada">
+    <button class="btn btn-outline-primary" type="submit">Atualizar</button>
+  </div>
+</form>
+
+<div class="section-card mb-4">
+  <div class="section-card-header">
+    <span class="section-icon" aria-hidden="true"><i class="bi bi-journal-check"></i></span>
+    <span>Plano sugerido — {{ proposal.duration_minutes }} minutos</span>
+  </div>
+  <div class="card-body p-3">
+    {% for block in proposal.blocks %}
+    <div class="mb-3 pb-3" {% if not forloop.last %}style="border-bottom: 1px solid #eee8df;"{% endif %}>
+      <div class="fw-bold">{{ block.minutes }} min · {{ block.title }}</div>
+      {% if block.description %}<div class="text-muted">{{ block.description }}</div>{% endif %}
+      {% if block.activity_title %}<div class="mt-1">Atividade: {{ block.activity_title }}</div>{% endif %}
+      {% if block.accessibility_notes %}
+      <ul class="small mt-2 mb-0 ps-3">
+        {% for note in block.accessibility_notes %}<li>{{ note }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% if proposal.observations %}
+<div class="section-card mb-4">
+  <div class="section-card-header">
+    <span class="section-icon" aria-hidden="true"><i class="bi bi-eye"></i></span>
+    <span>Observações sugeridas</span>
+  </div>
+  <div class="card-body p-3">
+    <ul class="mb-0 ps-3">
+      {% for note in proposal.observations %}<li>{{ note }}</li>{% endfor %}
+    </ul>
+  </div>
+</div>
+{% endif %}
+
+<details class="mb-4">
+  <summary class="fw-bold">Por que este plano?</summary>
+  <p class="mt-2 mb-0">{{ proposal.why }}</p>
+</details>
+
+<form method="post" class="d-grid gap-2">
+  {% csrf_token %}
+  <input type="hidden" name="duracao" value="{{ duration }}">
+  {% for block in proposal.blocks %}
+  <input type="hidden" name="minutes_{{ forloop.counter0 }}" value="{{ block.minutes }}">
+  {% endfor %}
+  <button type="submit" class="btn btn-primary today-cta">Usar este plano</button>
+  <button type="submit" name="ajustar" value="1" class="btn btn-outline-primary">Ajustar e usar</button>
+  <a href="{% url 'teacher:classroom' classroom.pk %}" class="btn btn-outline-secondary">Voltar à turma</a>
+</form>
+{% endblock %}
