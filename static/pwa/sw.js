@@ -1,4 +1,4 @@
-const CACHE = "mitaka-static-v3";
+const CACHE = "mitaka-static-v4";
 const ASSETS = ["/static/pwa/manifest.json"];
 
 self.addEventListener("install", (event) => {

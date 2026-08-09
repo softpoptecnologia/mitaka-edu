@@ -23,7 +23,10 @@ do
 done
 
 python manage.py migrate --noinput
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --clear
 mkdir -p tmp
+# Passenger recarrega ao ver mtime novo neste arquivo.
+rm -f tmp/restart.txt
 touch tmp/restart.txt
+find "$ROOT" -name '*.pyc' -delete 2>/dev/null || true
 echo "Mitaka Edu publicado: static atualizado e Passenger recarregado."

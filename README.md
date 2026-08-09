@@ -89,7 +89,7 @@ git pull
 bash scripts/cpanel_deploy.sh
 ```
 
-O script roda `migrate`, `collectstatic` e `touch tmp/restart.txt` (recarrega o Passenger). Sem isso o WhiteNoise continua servindo o CSS antigo.
+O script roda `migrate`, `collectstatic --clear` e recarrega o Passenger. Sem o `collectstatic`, o HTML novo sobe com o CSS antigo e o layout do professor não aplica.
 
 3. No navegador: `Ctrl + F5` (o PWA pode guardar cache velho).
 

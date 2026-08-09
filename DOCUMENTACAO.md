@@ -147,7 +147,7 @@ git pull
 bash scripts/cpanel_deploy.sh
 ```
 
-O script roda `migrate`, `collectstatic` e `touch tmp/restart.txt` (Passenger). Depois: `Ctrl + F5` no navegador (PWA pode cachear CSS antigo).
+O script roda `migrate`, `collectstatic --clear` e recarrega o Passenger. Sem o `collectstatic`, o HTML novo pode ir ao ar com o CSS antigo (hash `app.xxxx.css`) e o Hoje fica sem cards. Depois: `Ctrl + F5` no navegador (PWA pode cachear CSS antigo).
 
 ---
 
