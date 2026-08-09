@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mitaka Edu">
+  <!-- Dois corpos que formam o M: teal à esquerda, roxo à direita. -->
+  <circle cx="18" cy="14" r="7" fill="#00BFA5"/>
+  <path fill="#00BFA5" d="M8 54c0-12.7 5.8-22 14.5-22S37 41.3 37 54H8z"/>
+  <circle cx="46" cy="14" r="7" fill="#3A2F6E"/>
+  <path fill="#3A2F6E" d="M27 54c0-12.7 5.8-22 14.5-22S56 41.3 56 54H27z"/>
+</svg>
