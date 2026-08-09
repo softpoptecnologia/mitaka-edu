@@ -3,7 +3,7 @@ from .base import *  # noqa: F401,F403
 
 DEBUG = True
 CELERY_TASK_ALWAYS_EAGER = True
-ALLOWED_HOSTS = list(set(ALLOWED_HOSTS + ["localhost", "127.0.0.1", "testserver", "web"]))
+ALLOWED_HOSTS = list(set(ALLOWED_HOSTS + ["localhost", "127.0.0.1", "testserver", "web", "10.0.2.2"]))
 
 # Prefer simple static serving in local without requiring collectstatic hashes
 STORAGES = {

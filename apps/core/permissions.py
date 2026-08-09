@@ -9,6 +9,7 @@ SCHOOL_ROLES = ("GESTOR", "COORDENADOR", "AEE")
 SCHOOL_WRITE_ROLES = ("GESTOR", "COORDENADOR")
 AEE_ROLES = ("AEE", "COORDENADOR", "GESTOR", "SUPERADMIN", "SECRETARIA", "TECNICO")
 HARD_DELETE_ROLES = ("SUPERADMIN", "SECRETARIA")
+TEACHER_APP_ROLES = ("PROFESSOR",)
 
 ROLE_NAV_LABELS = {
     "SUPERADMIN": "Superadmin",
@@ -91,6 +92,11 @@ def can_write_school(user, school=None) -> bool:
 
 def can_hard_delete(user) -> bool:
     return user_role_code(user) in HARD_DELETE_ROLES
+
+
+def can_use_teacher_app(user) -> bool:
+    """Flutter tablet app: professora only. AEE/gestão/família use the web."""
+    return user_role_code(user) in TEACHER_APP_ROLES
 
 
 def cadastro_flags(user, school=None) -> dict:

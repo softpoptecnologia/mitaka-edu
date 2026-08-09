@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.selectors import user_can_access_classroom
-from apps.core.permissions import MANAGEMENT_ROLES, user_role_code
+from apps.core.permissions import can_use_teacher_app
 from apps.interventions.models import ClassroomIntervention
 from apps.interventions.services.apply_group import apply_suggested_group
 from apps.interventions.services.grouping import suggest_group_for_skill, suggest_groups
@@ -25,8 +25,7 @@ class IsTeacherPortalUser(IsAuthenticated):
     def has_permission(self, request, view):
         if not super().has_permission(request, view):
             return False
-        code = user_role_code(request.user)
-        return code == "PROFESSOR" or code in MANAGEMENT_ROLES
+        return can_use_teacher_app(request.user)
 
 
 def _forbidden():

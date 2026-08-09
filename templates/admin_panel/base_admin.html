@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/admin.css' %}?v=ui8">
+<link rel="stylesheet" href="{% static 'css/admin.css' %}?v=ui10">
 <style>
   .chrono { list-style: none; margin: 0; padding: 1rem 1.1rem; }
   .chrono-group { margin: .15rem 0 .7rem 1.9rem; font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #5f6b6b; }
@@ -69,7 +69,7 @@
       <a class="nav-link{% if request.resolver_match.url_name == 'import_students' %} active{% endif %}" href="{% url 'management:import_students' %}" title="Importar matrículas">
         <i class="bi bi-upload" aria-hidden="true"></i><span>Importar matrículas</span>
       </a>
-      <a class="nav-link{% if request.resolver_match.url_name == 'teachers' %} active{% endif %}" href="{% url 'management:teachers' %}" title="Equipe">
+      <a class="nav-link{% if 'teacher' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'management:teachers' %}" title="Equipe">
         <i class="bi bi-person-badge" aria-hidden="true"></i><span>Equipe</span>
       </a>
       {% endif %}

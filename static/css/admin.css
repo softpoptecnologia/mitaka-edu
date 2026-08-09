@@ -523,6 +523,137 @@ body {
   font-size: 0.95rem;
 }
 
+.entity-avatar-staff {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+  background: #eef1f1;
+  color: #3d4848;
+}
+
+.role-pill-professor,
+.role-pill-aee {
+  background: var(--tone-class-soft);
+  color: var(--tone-class-ink);
+}
+
+.role-pill-gestor,
+.role-pill-coordenador {
+  background: var(--tone-school-soft);
+  color: var(--tone-school);
+}
+
+.role-pill-secretaria,
+.role-pill-tecnico,
+.role-pill-superadmin {
+  background: var(--tone-network-soft);
+  color: var(--tone-network);
+}
+
+.class-link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.class-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--tone-class-soft);
+  color: var(--tone-class-ink);
+  border-radius: 999px;
+  padding: 0.22rem 0.35rem 0.22rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.class-link-chip i {
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.class-link-chip .class-link-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.class-link-chip form {
+  display: inline;
+}
+
+.class-link-remove {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0.7;
+}
+
+.class-link-remove:hover {
+  background: rgba(31, 78, 107, 0.12);
+  opacity: 1;
+}
+
+.class-link-add {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.class-link-add:hover {
+  text-decoration: underline;
+}
+
+.class-link-empty {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.staff-callout {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  background: var(--tone-attention-soft);
+  border: 1px solid #ead9b8;
+  border-radius: 14px;
+  padding: 0.9rem 1.05rem;
+  margin-bottom: 1.25rem;
+  color: var(--tone-attention-ink);
+}
+
+.staff-callout i {
+  font-size: 1.15rem;
+  margin-top: 0.1rem;
+}
+
+.staff-callout a {
+  color: inherit;
+  font-weight: 800;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;

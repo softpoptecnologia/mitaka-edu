@@ -21,12 +21,12 @@ class ActivityCatalogScreen extends StatelessWidget {
     final body = ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       children: [
-        if (!standalone) Text('Atividades', style: Theme.of(context).textTheme.headlineMedium),
+        if (!standalone) Text('Jogos', style: Theme.of(context).textTheme.headlineMedium),
         if (!standalone) const SizedBox(height: 4),
         Text(
           student == null
-              ? 'Jogos lúdicos com áudio, imagem e recursos de acessibilidade. Sem degradê, sem arrastar.'
-              : 'Escolha o jogo para ${student.fullName}. Os recursos de apoio entram sozinhos.',
+              ? 'Sondagens lúdicas com áudio, imagem e toque. Sem arrastar e sem cronômetro.'
+              : 'Escolha o jogo para ${student.fullName}. Os apoios entram sozinhos.',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
         ),
         const SizedBox(height: 16),
@@ -65,7 +65,7 @@ class ActivityCatalogScreen extends StatelessWidget {
                         Text(activity.subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.muted)),
                         const SizedBox(height: 6),
                         Text(
-                          '${activity.skillCode} · ${activity.estimatedMinutes} min',
+                          '${activity.estimatedMinutes} min · ${activity.dimension}',
                           style: Theme.of(context).textTheme.labelLarge?.copyWith(color: accentSolid(activity.accentToken)),
                         ),
                         const SizedBox(height: 8),

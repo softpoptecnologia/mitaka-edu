@@ -71,6 +71,7 @@ copy .env.example .env   # ou cp .env.example .env
 # No .env local: DATABASE_URL=sqlite:///db.sqlite3
 
 python manage.py migrate
+# o migrate cria a tabela authtoken — sem ela o login do app Flutter quebra
 python manage.py seed_demo
 python manage.py runserver
 ```
@@ -163,7 +164,7 @@ O script roda `migrate`, `collectstatic --clear` e recarrega o Passenger. Sem o 
 | Front professor web | Templates + Bootstrap 5 + HTMX |
 | Front família | Templates simples, linguagem cotidiana |
 | Avaliação web | Tela cheia lúdica (`/avaliacao/`) |
-| App professor | Flutter (`teacher_app/`) — dados demo locais |
+| App professor | Flutter (`teacher_app/`) — só `PROFESSOR`; AEE/gestão/família na web |
 | Infra | Docker Compose, Nginx, Gunicorn, Redis, Celery (preparado) |
 | PWA | `static/pwa/manifest.json` + service worker básico |
 | PDF | ReportLab (`apps/reports/services/pdf.py`) |
@@ -217,7 +218,7 @@ mitaka-edu/
 
 ### 3.5 Context processors
 
-- `branding` → `APP_NAME`, tagline, município, framework curricular
+- `branding` → `APP_NAME`, tagline (“Evidências que transformam aprendizagens”), município, framework curricular
 - `navigation` → flags do menu lateral por papel (`nav_flags`)
 
 ---
@@ -264,10 +265,12 @@ Definido em `config/urls.py`.
 | `GESTOR` | Gestor Escolar | Escola do perfil |
 | `COORDENADOR` | Coordenador Pedagógico | Escola do perfil |
 | `AEE` | Atendimento Educacional Especializado | Escola do perfil |
-| `PROFESSOR` | Professor | Só turmas vinculadas (`TeacherClassroom`) |
+| `PROFESSOR` | Professor | Só turmas vinculadas (`TeacherClassroom`) + **app Flutter** |
 | `FAMILIA` | Família / responsável | Só crianças em `FamilyLink` |
 
 O usuário Django (`accounts.User`) tem `UserProfile` com `role` + `school` opcional.
+
+**App Flutter:** só `PROFESSOR`. AEE, gestão e família **não entram no tablet**; usam a web.
 
 Aliases aceitos (`ROLE_ALIASES`): “gestora”, “diretora”, “coordenadora”, “professora”, etc.
 
@@ -279,6 +282,7 @@ Aliases aceitos (`ROLE_ALIASES`): “gestora”, “diretora”, “coordenadora
 - **MANAGEMENT_ROLES:** rede + escola (sem professor/família)
 - **HARD_DELETE:** só SUPERADMIN e SECRETARIA
 - **AEE_ROLES:** AEE + coordenação/gestão/rede (plano de apoio)
+- **TEACHER_APP_ROLES:** só PROFESSOR (`can_use_teacher_app`) — login/token do Flutter
 
 Mixins: `RoleRequiredMixin`, `ManagementRequiredMixin`, `TeacherRequiredMixin`, `AEERequiredMixin`, `NetworkRequiredMixin`, `FamilyRequiredMixin`.
 
@@ -319,11 +323,11 @@ Criados por `python manage.py seed_demo`.
 | `admin` | Superadmin (staff/superuser) | Secretaria |
 | `secretaria` | Secretaria Municipal | Secretaria |
 | `tecnico` | Técnico pedagógico | Secretaria |
-| `gestor` | Gestora (EMEI Sol Nascente) | Gestão |
-| `coordenador` | Coordenadora (Sol Nascente) | Gestão |
-| `aee` | AEE (Sol Nascente) | Portal professor (apoio) |
-| `professora` | Ana — Infantil V A/B + turmas Horizonte | Portal professor |
-| `professor2` | Bruno — Estrela do Saber | Portal professor |
+| `gestor` | Gestora (Creche Maria Inez de Melo) | Gestão |
+| `coordenador` | Coordenadora (Maria Inez) | Gestão |
+| `aee` | AEE (Maria Inez) | Portal professor **web** (apoio; sem app) |
+| `professora` | Ana — Maria Inez + Eliel Peixoto + Ananias | Portal professor + **app Flutter** |
+| `professor2` | Bruno — Tia Noêmia + Albino Moreira | Portal professor + **app Flutter** |
 | `familia` | Lúcia — responsável de Luna Ferreira | Portal família |
 
 A tela de login pode mostrar atalhos desses perfis se `DJANGO_SHOW_DEMO_PROFILES=True`.
@@ -336,12 +340,19 @@ A tela de login pode mostrar atalhos desses perfis se `DJANGO_SHOW_DEMO_PROFILES
 
 - Município: **Jucati/PE** (`slug=jucati`)
 - Anos: 2025 (inativo) e **2026 (ativo)**
-- Escolas:
-  - EMEI Sol Nascente (`ESC001`)
-  - EMEI Estrela do Saber (`ESC002`)
-  - Escola Municipal Horizonte (`ESC003`)
-- Turmas 2026: Infantil V A/B (Sol), Infantil V A + 1º Ano A (Estrela), Infantil IV A + Infantil V A (Horizonte)
-- Turma histórica 2025: Infantil IV A (Sol) — usada na trajetória da Luna
+- Escolas e creches de Jucati:
+  - Creche Municipal Maria Inez de Melo (`ESC001`)
+  - Creche Municipal Noêmia Eloy de Melo — Tia Noêmia (`ESC002`)
+  - Escola Albino Moreira (`ESC003`, EF · Centro)
+  - Escola Municipal Vereador Eliel Peixoto de Melo (`ESC004`, Vila Neves / zona rural)
+  - Escola Municipal Ananias Crisóstomo (`ESC005`)
+  - Escola Municipal Deputado Airon Rios (`ESC006`)
+  - Escola Antonio Alves de Pontes (`ESC007`)
+  - Escola José Ferreira da Silva (`ESC008`)
+  - EREM Henrique Justino de Melo (`ESC009`, EM · rede estadual)
+- Turmas 2026 com estudantes demo: Infantil V A/B (Maria Inez), Infantil V A (Tia Noêmia), 1º Ano A (Albino Moreira), Infantil IV A (Eliel Peixoto), Infantil V A (Ananias)
+- Turma histórica 2025: Infantil IV A (Maria Inez) — trajetória da Luna
+- Airon Rios, Antonio Alves, José Ferreira e o EREM entram na rede sem turmas demo (visíveis na gestão/secretaria)
 
 ~30 estudantes fictícios (`JUC2026001`…). Luna tem matrícula 2025 concluída + 2026 ativa (longitudinalidade).
 
@@ -701,7 +712,17 @@ Se a sessão inteira é bloqueio de acessibilidade / N/A: **não chama** `score_
 
 ### 9.4 API
 
-Única rota DRF/JSON de produto: responder item da sessão (session auth). Não há API REST completa de cadastros no MVP. O Flutter **ainda não consome** essa API.
+API JSON do **app da professora** (token DRF; só `PROFESSOR`):
+
+- `POST /api/auth/login/` / `POST /api/auth/logout/`
+- `GET /api/professor/bootstrap/` — professor, turmas, alunos, status, recursos de acesso
+- `GET /api/professor/hoje/` e resumo/grupos/aula/follow-up (já existentes)
+- `POST /api/professor/atividades-ludicas/` — app Flutter grava sondagem lúdica
+- `POST /api/sessoes/<id>/responder/` — autosave do player web (sessão web, não o app)
+
+AEE/gestão/família recebem **403** no login do app.
+
+Não há API REST completa de cadastros no MVP.
 
 ---
 
@@ -806,12 +827,13 @@ Campos: enrollment, student, skill opcional, recorded_by, description, file, fil
 
 ---
 
-## 14. App Flutter (`teacher_app/`) — Mitaka Atividades
+## 14. App Flutter (`teacher_app/`) — Mitaka Edu
 
 Projeto **separado** do Django. Pacote: `mitaka_teacher`.  
-Dependências: `provider`, `flutter_tts`, Material 3, localização pt-BR.
+Dependências: `provider`, `flutter_tts`, `http`, `shared_preferences`, Material 3, localização pt-BR, fonte **Poppins** (offline, em `fonts/`).
+Identidade: navy `#0D1B2A`, teal `#00BFA5` / `#00796B` (botões acessíveis), roxo `#3A2F6E`.
 
-**Esta versão é 100% demo local.** Login e turmas estão em `lib/data/demo_data.dart`, alinhados ao seed, mas **não há HTTP** para a API Django. Próximo passo natural: integrar `/api/` e sessões reais.
+O app Flutter **entra na API Django** só com papel `PROFESSOR`: `POST /api/auth/login/` (token), `GET /api/professor/bootstrap/` (turmas/alunos/status/a11y) e `POST /api/professor/atividades-ludicas/` (evidência + sessão de sondagem). AEE, gestão e família usam a web. Em Ajustes/login escolhe-se **Web** (`edu.innomove.com.br`) ou **Local** (`127.0.0.1:8000` / `10.0.2.2:8000`). Sem `python manage.py migrate` (app `authtoken`) o login local falha. O alvo Web só funciona depois de publicar esse código. `DemoTeacherApi` existe só para testes de widget.
 
 ### Princípios de UX
 
@@ -836,11 +858,11 @@ Dependências: `provider`, `flutter_tts`, Material 3, localização pt-BR.
 | Preparar | `activity_prepare_screen.dart` | Mostra adaptações que o app vai aplicar |
 | Player | `activity_player_screen.dart` | Item a item + TTS + Libras hint + passo a passo |
 | Resultado | `activity_result_screen.dart` | Status pedagógico + observação da professora |
-| Ajustes | `settings_screen.dart` | Forçar texto grande, contraste, menos movimento, TTS |
+| Ajustes | `settings_screen.dart` | Servidor Web/Local, texto grande, contraste, menos movimento, TTS |
 
-Estado: `AppState` (ChangeNotifier). Sessões e login **não persistem** (só memória). Fechar o app zera histórico.
+Estado: `AppState` (ChangeNotifier). Token e servidor persistem no aparelho (`shared_preferences`). Fechar o app mantém o login; as sessões lúdicas em andamento não.
 
-Demo local: 6 turmas × 5 alunos = 30 estudantes (mesmos nomes do seed). `professora` vê Sol Nascente + Horizonte; `professor2` vê Estrela do Saber.
+Demo local: 6 turmas × 5 alunos = 30 estudantes (mesmos nomes do seed). `professora` vê Maria Inez, Eliel Peixoto e Ananias; `professor2` vê Tia Noêmia e Albino Moreira.
 
 ### Layouts de item (`PromptLayout`)
 
@@ -934,7 +956,10 @@ Componente: `components/status_badge.html`.
 - `static/css/admin.css` — gestão (sidebar 260 px)
 - `static/css/accessibility.css` — skip-link, `:focus-visible`, `a11y-large-text` / `high-contrast` / `large-target` / `reduced-stimulus`, `prefers-reduced-motion`, print
 - `static/js/admin.js` — sidebar colapsável (localStorage) + drawer mobile
-- `static/pwa/manifest.json` — PWA “Mitaka Edu”, standalone, tema `#0d6e6e`, `lang: pt-BR`
+- `static/css/brand.css` — tokens da identidade (navy `#0D1B2A`, teal `#00BFA5`, roxo `#3A2F6E`, Poppins) + página de login
+- `static/img/logo-mark.svg` — marca (dois corpos formando o M)
+- `static/img/logo.png` — logotipo completo da identidade visual (ícone + mitaka edu)
+- `static/pwa/manifest.json` — PWA “Mitaka Edu”, standalone, tema `#0D1B2A`, `lang: pt-BR`
 - `static/pwa/sw.js` — cache `mitaka-static-v3`; navegações `no-store`
 
 O `base.html` referencia `icon-192.png` / `icon-512.png` em `/static/pwa/`; no repo esses PNGs ainda podem não estar versionados nessa pasta (o Flutter web tem ícones em `teacher_app/web/icons/`).
@@ -1026,7 +1051,6 @@ Sem models, sem views úteis, sem admin, sem API externa. **Não envia dados de 
 ## 20. O que ainda NÃO está no MVP
 
 - Sincronização offline avançada de respostas (web/Flutter)
-- Flutter **conectado** à API Django (hoje demo local)
 - Integração com sistemas municipais (matricula oficial, SSO)
 - IA externa ou geração automática de itens
 - Instrumentos clínicos validados
@@ -1046,7 +1070,7 @@ Próximos passos naturais (também no README): PDF já existe via ReportLab; off
 4. Login `familia` → ver Luna em linguagem simples + dicas para casa (sem nota).
 5. Login `coordenador` ou `aee` → intervenções / plano de apoio.
 6. Login `gestor` → cadastros da escola, import CSV, relatórios.
-7. (Opcional) `cd teacher_app && flutter run` → mesma Luna no tablet, Jogo das rimas, sem degradê/drag.
+7. (Opcional) `cd teacher_app && flutter run` → login `professora` → mesma Luna no tablet, Jogo das rimas. AEE/gestão não entram no app.
 
 ---
 

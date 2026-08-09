@@ -95,10 +95,10 @@ class Command(BaseCommand):
                 username=username,
                 defaults={"first_name": first, "email": f"{username}@mitaka.local"},
             )
-            if created or not user.has_usable_password():
-                user.set_password(DEMO_PASSWORD)
-                user.first_name = first
-                user.save()
+            user.set_password(DEMO_PASSWORD)
+            user.first_name = first
+            user.is_active = True
+            user.save()
             UserProfile.objects.update_or_create(
                 user=user,
                 defaults={

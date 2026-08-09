@@ -14,7 +14,7 @@ abstract final class ActivityCatalog {
   static LudicActivity byId(String id) => all.firstWhere((a) => a.id == id);
 }
 
-const _rimas = LudicActivity(
+final _rimas = LudicActivity(
   id: 'rimas',
   title: 'Jogo das rimas',
   subtitle: 'Parlendas e tradição oral',
@@ -24,7 +24,7 @@ const _rimas = LudicActivity(
   dimension: 'Rimas e jogos sonoros',
   description:
       'Ouça a palavra da parlenda e toque na imagem que rima. Sem arrastar: só tocar.',
-  estimatedMinutes: 8,
+  estimatedMinutes: 10,
   accentToken: 'coral',
   resources: ['Áudio', 'Imagem', 'Legendas', 'Libras', 'Toque amplo'],
   items: [
@@ -178,8 +178,55 @@ const _rimas = LudicActivity(
         ),
       ],
     ),
+    _rhyme('BOLO', 'COLO', 'MESA', '🎂', '🧥', '🪑', 'Um bolo', 'Um colo', 'Uma mesa'),
+    _rhyme('MALA', 'SALA', 'PÃO', '🧳', '🚪', '🍞', 'Uma mala', 'Uma sala', 'Um pão'),
+    _rhyme('FOGO', 'JOGO', 'CASA', '🔥', '🎲', '🏠', 'Fogo', 'Um jogo', 'Uma casa'),
+    _rhyme('PIPA', 'FITA', 'SOL', '🪁', '🎀', '☀️', 'Uma pipa', 'Uma fita', 'O sol'),
   ],
 );
+
+ActivityItem _rhyme(
+  String word,
+  String match,
+  String distractor,
+  String wordEmoji,
+  String matchEmoji,
+  String distractorEmoji,
+  String wordAlt,
+  String matchAlt,
+  String distractorAlt,
+) {
+  return ActivityItem(
+    id: 'rim-$word',
+    layout: PromptLayout.audioImage,
+    prompt: 'Qual palavra rima com $word?',
+    promptShort: 'O que rima com $word?',
+    audioText: 'Qual palavra rima com $word? $match ou $distractor?',
+    caption: 'Qual palavra rima com $word?',
+    emoji: wordEmoji,
+    imageAlt: wordAlt,
+    librasHint: 'RIMA: duas mãos em “R”, depois apontar as duas imagens.',
+    steps: ['Ouça $word', 'Olhe as duas imagens', 'Toque na que rima'],
+    choices: [
+      ActivityChoice(
+        id: match.toLowerCase(),
+        label: match,
+        emoji: matchEmoji,
+        audioText: match,
+        imageAlt: matchAlt,
+        isCorrect: true,
+        scoreValue: 1,
+      ),
+      ActivityChoice(
+        id: distractor.toLowerCase(),
+        label: distractor,
+        emoji: distractorEmoji,
+        audioText: distractor,
+        imageAlt: distractorAlt,
+      ),
+    ],
+  );
+}
 
 final _silabas = LudicActivity(
   id: 'silabas',
@@ -191,7 +238,7 @@ final _silabas = LudicActivity(
   dimension: 'Segmentação silábica',
   description:
       'Ouça a palavra, bata palmas com a voz do app e toque em quantas sílabas você ouviu.',
-  estimatedMinutes: 8,
+  estimatedMinutes: 10,
   accentToken: 'sky',
   resources: ['Áudio', 'Imagem', 'Legendas', 'Toque amplo'],
   items: [
@@ -200,6 +247,11 @@ final _silabas = LudicActivity(
     _syllable('JANELA', '🪟', 'Uma janela', 3),
     _syllable('PATO', '🦆', 'Um pato', 2),
     _syllable('BORBOLETA', '🦋', 'Uma borboleta', 4),
+    _syllable('SAPATO', '👟', 'Um sapato', 3),
+    _syllable('PÃO', '🍞', 'Um pão', 1),
+    _syllable('MELANCIA', '🍉', 'Uma melancia', 4),
+    _syllable('CAVALO', '🐴', 'Um cavalo', 3),
+    _syllable('MENINA', '👧', 'Uma menina', 3),
   ],
 );
 
@@ -239,7 +291,7 @@ const _reconto = LudicActivity(
   dimension: 'Oralidade',
   description:
       'A criança ouve e vê a história. Depois reconta com apoio das imagens. A professora registra a observação.',
-  estimatedMinutes: 10,
+  estimatedMinutes: 12,
   accentToken: 'grape',
   resources: ['Áudio', 'Imagem', 'Legendas', 'Libras', 'Observação'],
   items: [
@@ -249,15 +301,18 @@ const _reconto = LudicActivity(
       prompt: 'A criança consegue recontar a história do pato com apoio das imagens?',
       promptShort: 'A criança reconta a história?',
       audioText:
-          'Era uma vez um pato. O pato foi ao rio. Encontrou o sol na água. Depois voltou para casa.',
+          'Era uma vez um pato. O pato acordou cedo. Foi ao rio. Encontrou o sol na água. Brincou com uma folha. Depois voltou para casa e dormiu.',
       caption: 'Era uma vez um pato. Ele foi ao rio, viu o sol na água e voltou para casa.',
       librasHint: 'HISTÓRIA: abrir as mãos como livro. Depois apontar cada imagem na ordem.',
       steps: ['Ouça a história', 'Olhe as imagens', 'Reconte com as imagens'],
       story: [
         StoryFrame(emoji: '🦆', caption: 'Era uma vez um pato.', audioText: 'Era uma vez um pato.'),
-        StoryFrame(emoji: '🌊', caption: 'O pato foi ao rio.', audioText: 'O pato foi ao rio.'),
+        StoryFrame(emoji: '🌅', caption: 'O pato acordou cedo.', audioText: 'O pato acordou cedo.'),
+        StoryFrame(emoji: '🌊', caption: 'Foi ao rio.', audioText: 'O pato foi ao rio.'),
         StoryFrame(emoji: '☀️', caption: 'Viu o sol na água.', audioText: 'Encontrou o sol na água.'),
+        StoryFrame(emoji: '🍃', caption: 'Brincou com uma folha.', audioText: 'Brincou com uma folha.'),
         StoryFrame(emoji: '🏠', caption: 'Voltou para casa.', audioText: 'Depois voltou para casa.'),
+        StoryFrame(emoji: '😴', caption: 'E dormiu.', audioText: 'E dormiu.'),
       ],
       choices: [
         ActivityChoice(id: '0', label: 'Ainda não observado', emoji: '○', scoreValue: 0),
@@ -272,6 +327,31 @@ const _reconto = LudicActivity(
         ),
       ],
     ),
+    ActivityItem(
+      id: 'rec-2',
+      layout: PromptLayout.storyThenObserve,
+      prompt: 'A criança consegue recontar a história da Luna e o livro?',
+      promptShort: 'A criança reconta a história da Luna?',
+      audioText:
+          'A Luna pegou um livro. Leu no pátio. O Theo chegou. Os dois olharam as imagens. Depois guardaram o livro.',
+      caption: 'A Luna leu um livro no pátio com o Theo e depois guardou.',
+      librasHint: 'LIVRO: abrir as mãos. Depois apontar Luna e Theo.',
+      steps: ['Ouça a história', 'Olhe as imagens', 'Reconte com as imagens'],
+      story: [
+        StoryFrame(emoji: '👧', caption: 'A Luna pegou um livro.', audioText: 'A Luna pegou um livro.'),
+        StoryFrame(emoji: '📘', caption: 'Abriu o livro.', audioText: 'Abriu o livro.'),
+        StoryFrame(emoji: '🌳', caption: 'Leu no pátio.', audioText: 'Leu no pátio.'),
+        StoryFrame(emoji: '👦', caption: 'O Theo chegou.', audioText: 'O Theo chegou.'),
+        StoryFrame(emoji: '👀', caption: 'Olharam as imagens juntos.', audioText: 'Os dois olharam as imagens.'),
+        StoryFrame(emoji: '📚', caption: 'Guardaram o livro.', audioText: 'Depois guardaram o livro.'),
+      ],
+      choices: [
+        ActivityChoice(id: '0', label: 'Ainda não observado', emoji: '○', scoreValue: 0),
+        ActivityChoice(id: '1', label: 'Com bastante apoio', emoji: '🤝', scoreValue: 1),
+        ActivityChoice(id: '2', label: 'Com algum apoio', emoji: '🙂', scoreValue: 2),
+        ActivityChoice(id: '3', label: 'Autonomamente', emoji: '⭐', scoreValue: 3, isCorrect: true),
+      ],
+    ),
   ],
 );
 
@@ -284,7 +364,7 @@ const _compreensao = LudicActivity(
   skillName: 'Localizar informações explícitas em textos ouvidos',
   dimension: 'Leitura/escuta compartilhada',
   description: 'Ouça a historinha e toque na imagem que responde. Legendas sempre disponíveis.',
-  estimatedMinutes: 7,
+  estimatedMinutes: 10,
   accentToken: 'brand',
   resources: ['Áudio', 'Imagem', 'Legendas', 'Instrução visual'],
   items: [
@@ -378,6 +458,81 @@ const _compreensao = LudicActivity(
         ),
       ],
     ),
+    ActivityItem(
+      id: 'comp-4',
+      layout: PromptLayout.audioImage,
+      prompt: 'Quem chegou depois no pátio?',
+      promptShort: 'Quem chegou depois?',
+      audioText: 'A Luna já estava no pátio. O Theo chegou depois. Quem chegou depois?',
+      caption: 'A Luna já estava no pátio. O Theo chegou depois.',
+      emoji: '🌳',
+      imageAlt: 'O pátio',
+      steps: ['Ouça', 'Olhe Luna e Theo', 'Toque em quem chegou depois'],
+      choices: [
+        ActivityChoice(id: 'theo2', label: 'Theo', emoji: '👦', audioText: 'Theo', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'luna2', label: 'Luna', emoji: '👧', audioText: 'Luna'),
+      ],
+    ),
+    ActivityItem(
+      id: 'comp-5',
+      layout: PromptLayout.audioImage,
+      prompt: 'O que a Luna pegou?',
+      promptShort: 'A Luna pegou o quê?',
+      audioText: 'A Luna pegou um livro. O que a Luna pegou? Livro ou pato?',
+      caption: 'A Luna pegou um livro.',
+      emoji: '👧',
+      imageAlt: 'A Luna',
+      steps: ['Ouça', 'Olhe as imagens', 'Toque na resposta'],
+      choices: [
+        ActivityChoice(id: 'livro2', label: 'Livro', emoji: '📘', audioText: 'Livro', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'pato2', label: 'Pato', emoji: '🦆', audioText: 'Pato'),
+      ],
+    ),
+    ActivityItem(
+      id: 'comp-6',
+      layout: PromptLayout.audioImage,
+      prompt: 'Onde eles olharam as imagens?',
+      promptShort: 'Onde olharam as imagens?',
+      audioText: 'Luna e Theo olharam as imagens no pátio. Onde? No pátio ou na cozinha?',
+      caption: 'Luna e Theo olharam as imagens no pátio.',
+      emoji: '📘',
+      imageAlt: 'Um livro',
+      steps: ['Ouça', 'Olhe os lugares', 'Toque no lugar'],
+      choices: [
+        ActivityChoice(id: 'patio2', label: 'Pátio', emoji: '🌳', audioText: 'Pátio', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'cozinha', label: 'Cozinha', emoji: '🍳', audioText: 'Cozinha'),
+      ],
+    ),
+    ActivityItem(
+      id: 'comp-7',
+      layout: PromptLayout.audioImage,
+      prompt: 'O que eles fizeram no fim?',
+      promptShort: 'O que fizeram no fim?',
+      audioText: 'No fim, Luna e Theo guardaram o livro. O que fizeram? Guardaram ou comeram?',
+      caption: 'No fim, guardaram o livro.',
+      emoji: '📚',
+      imageAlt: 'Livros',
+      steps: ['Ouça o fim', 'Olhe as imagens', 'Toque na resposta'],
+      choices: [
+        ActivityChoice(id: 'guardar', label: 'Guardaram', emoji: '📚', audioText: 'Guardaram', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'comer', label: 'Comeram', emoji: '🍪', audioText: 'Comeram'),
+      ],
+    ),
+    ActivityItem(
+      id: 'comp-8',
+      layout: PromptLayout.audioImage,
+      prompt: 'Quem leu no pátio primeiro?',
+      promptShort: 'Quem leu primeiro?',
+      audioText: 'A Luna leu no pátio primeiro. O Theo chegou depois. Quem leu primeiro?',
+      caption: 'A Luna leu no pátio primeiro.',
+      emoji: '📖',
+      imageAlt: 'Leitura',
+      steps: ['Ouça', 'Olhe Luna e Theo', 'Toque em quem leu primeiro'],
+      choices: [
+        ActivityChoice(id: 'luna3', label: 'Luna', emoji: '👧', audioText: 'Luna', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'theo3', label: 'Theo', emoji: '👦', audioText: 'Theo'),
+      ],
+    ),
   ],
 );
 
@@ -391,7 +546,7 @@ final _vocabulario = LudicActivity(
   dimension: 'Vocabulário em uso',
   description:
       'Toque na imagem e depois no cesto certo: frutas ou brinquedos. Sem arrastar.',
-  estimatedMinutes: 7,
+  estimatedMinutes: 10,
   accentToken: 'ok',
   resources: ['Áudio', 'Imagem', 'Toque (sem arrastar)', 'Legendas'],
   items: [
@@ -400,6 +555,11 @@ final _vocabulario = LudicActivity(
     _groupItem('MAÇÃ', '🍎', 'Uma maçã', fruit: true),
     _groupItem('URSINHO', '🧸', 'Um ursinho de pelúcia', fruit: false),
     _groupItem('LARANJA', '🍊', 'Uma laranja', fruit: true),
+    _groupItem('UVA', '🍇', 'Uvas', fruit: true),
+    _groupItem('CARRINHO', '🚗', 'Um carrinho', fruit: false),
+    _groupItem('PERA', '🍐', 'Uma pera', fruit: true),
+    _groupItem('BONECA', '🎎', 'Uma boneca', fruit: false),
+    _groupItem('ABACAXI', '🍍', 'Um abacaxi', fruit: true),
   ],
 );
 
@@ -414,7 +574,7 @@ ActivityItem _groupItem(String word, String emoji, String alt, {required bool fr
     emoji: emoji,
     imageAlt: alt,
     librasHint: fruit ? 'FRUTA: gesto de morder uma fruta.' : 'BRINQUEDO: gesto de brincar.',
-    steps: ['Olhe a imagem', 'Ouça o nome', 'Toque no cesto: frutas ou brinquedos'],
+    steps: ['Olhe a imagem', 'Toque nela', 'Toque no cesto certo: frutas ou brinquedos'],
     choices: [
       ActivityChoice(
         id: 'frutas',
@@ -447,7 +607,7 @@ const _fonologica = LudicActivity(
   skillName: 'Comparar sons de sílabas em palavras conhecidas',
   dimension: 'Consciência fonológica',
   description: 'Ouça o som inicial e toque na palavra que começa igual.',
-  estimatedMinutes: 8,
+  estimatedMinutes: 10,
   accentToken: 'sun',
   resources: ['Áudio', 'Imagem', 'Legendas', 'Passo a passo'],
   items: [
@@ -539,6 +699,81 @@ const _fonologica = LudicActivity(
         ),
       ],
     ),
+    ActivityItem(
+      id: 'fon-4',
+      layout: PromptLayout.audioImage,
+      prompt: 'Qual palavra começa como PATO?',
+      promptShort: 'Qual começa como PATO?',
+      audioText: 'Pato começa com PA. Qual também começa com PA? Palhaço ou gato?',
+      caption: 'PATO começa com PA. Qual também começa com PA?',
+      emoji: '🦆',
+      imageAlt: 'Um pato',
+      steps: ['Ouça PATO', 'Ouça PA', 'Toque na palavra que começa igual'],
+      choices: [
+        ActivityChoice(id: 'palhaco', label: 'PALHAÇO', emoji: '🤡', audioText: 'Palhaço', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'gato2', label: 'GATO', emoji: '🐱', audioText: 'Gato'),
+      ],
+    ),
+    ActivityItem(
+      id: 'fon-5',
+      layout: PromptLayout.audioImage,
+      prompt: 'Qual palavra começa como BOLA?',
+      promptShort: 'Qual começa como BOLA?',
+      audioText: 'Bola começa com BO. Qual também começa com BO? Bolo ou casa?',
+      caption: 'BOLA começa com BO. Qual também começa com BO?',
+      emoji: '⚽',
+      imageAlt: 'Uma bola',
+      steps: ['Ouça BOLA', 'Ouça BO', 'Toque na palavra que começa igual'],
+      choices: [
+        ActivityChoice(id: 'bolo', label: 'BOLO', emoji: '🎂', audioText: 'Bolo', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'casa2', label: 'CASA', emoji: '🏠', audioText: 'Casa'),
+      ],
+    ),
+    ActivityItem(
+      id: 'fon-6',
+      layout: PromptLayout.audioImage,
+      prompt: 'Qual palavra começa como FADA?',
+      promptShort: 'Qual começa como FADA?',
+      audioText: 'Fada começa com FA. Qual também começa com FA? Faca ou sol?',
+      caption: 'FADA começa com FA. Qual também começa com FA?',
+      emoji: '🧚',
+      imageAlt: 'Uma fada',
+      steps: ['Ouça FADA', 'Ouça FA', 'Toque na palavra que começa igual'],
+      choices: [
+        ActivityChoice(id: 'faca', label: 'FACA', emoji: '🔪', audioText: 'Faca', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'sol2', label: 'SOL', emoji: '☀️', audioText: 'Sol'),
+      ],
+    ),
+    ActivityItem(
+      id: 'fon-7',
+      layout: PromptLayout.audioImage,
+      prompt: 'Qual palavra começa como CASA?',
+      promptShort: 'Qual começa como CASA?',
+      audioText: 'Casa começa com CA. Qual também começa com CA? Cavalo ou pato?',
+      caption: 'CASA começa com CA. Qual também começa com CA?',
+      emoji: '🏠',
+      imageAlt: 'Uma casa',
+      steps: ['Ouça CASA', 'Ouça CA', 'Toque na palavra que começa igual'],
+      choices: [
+        ActivityChoice(id: 'cavalo', label: 'CAVALO', emoji: '🐴', audioText: 'Cavalo', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'pato3', label: 'PATO', emoji: '🦆', audioText: 'Pato'),
+      ],
+    ),
+    ActivityItem(
+      id: 'fon-8',
+      layout: PromptLayout.audioImage,
+      prompt: 'Qual palavra começa como DADO?',
+      promptShort: 'Qual começa como DADO?',
+      audioText: 'Dado começa com DA. Qual também começa com DA? Dama ou lua?',
+      caption: 'DADO começa com DA. Qual também começa com DA?',
+      emoji: '🎲',
+      imageAlt: 'Um dado',
+      steps: ['Ouça DADO', 'Ouça DA', 'Toque na palavra que começa igual'],
+      choices: [
+        ActivityChoice(id: 'dama', label: 'DAMA', emoji: '👸', audioText: 'Dama', isCorrect: true, scoreValue: 1),
+        ActivityChoice(id: 'lua2', label: 'LUA', emoji: '🌙', audioText: 'Lua'),
+      ],
+    ),
   ],
 );
 
@@ -551,7 +786,7 @@ final _letras = LudicActivity(
   skillName: 'Reconhecer a escrita alfabética como sons da fala',
   dimension: 'Sistema de escrita alfabética',
   description: 'Veja a palavra do cotidiano da turma e toque na letra que começa o nome.',
-  estimatedMinutes: 6,
+  estimatedMinutes: 10,
   accentToken: 'attention',
   resources: ['Áudio', 'Imagem', 'Letra ampliada', 'Legendas'],
   items: [
@@ -559,6 +794,11 @@ final _letras = LudicActivity(
     _letterItem('PATO', '🦆', 'P', ['L', 'P', 'S']),
     _letterItem('LUNA', '👧', 'L', ['L', 'T', 'B']),
     _letterItem('SOL', '☀️', 'S', ['F', 'S', 'G']),
+    _letterItem('MESA', '🪑', 'M', ['M', 'B', 'R']),
+    _letterItem('BOLA', '⚽', 'B', ['D', 'B', 'N']),
+    _letterItem('FADA', '🧚', 'F', ['F', 'V', 'T']),
+    _letterItem('GATO', '🐱', 'G', ['G', 'C', 'J']),
+    _letterItem('RIO', '🏞️', 'R', ['R', 'L', 'P']),
   ],
 );
 

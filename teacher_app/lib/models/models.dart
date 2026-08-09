@@ -1,3 +1,5 @@
+import '../config/server_config.dart';
+
 enum StudentStatus { pending, ok, attention }
 
 enum ActivityMode { practice, survey }
@@ -145,11 +147,15 @@ class TeacherUser {
     required this.displayName,
     required this.schoolName,
     required this.classroomIds,
+    this.id = '',
+    this.role = 'PROFESSOR',
   });
 
+  final String id;
   final String username;
   final String displayName;
   final String schoolName;
+  final String role;
   final List<String> classroomIds;
 }
 
@@ -159,11 +165,13 @@ class Student {
     required this.fullName,
     required this.classroomId,
     required this.status,
+    this.enrollmentId = '',
     this.features = const [],
     this.supportNotes = '',
   });
 
   final String id;
+  final String enrollmentId;
   final String fullName;
   final String classroomId;
   final StudentStatus status;
@@ -375,10 +383,18 @@ class AppSettings {
     this.forceHighContrast = false,
     this.forceReducedMotion = false,
     this.ttsEnabled = true,
-  });
+    this.serverTarget = ServerTarget.local,
+    String? localBaseUrl,
+  }) : localBaseUrl = localBaseUrl ?? ServerConfig.defaultLocalUrl();
 
   bool forceLargeText;
   bool forceHighContrast;
   bool forceReducedMotion;
   bool ttsEnabled;
+  ServerTarget serverTarget;
+  String localBaseUrl;
+
+  String get baseUrl => serverTarget == ServerTarget.web
+      ? ServerConfig.webUrl
+      : ServerConfig.normalize(localBaseUrl.isEmpty ? ServerConfig.defaultLocalUrl() : localBaseUrl);
 }

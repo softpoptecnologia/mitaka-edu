@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from apps.accounts.models import Role, UserProfile
 from apps.accounts.selectors import classrooms_for_user, schools_for_user
+from apps.analytics.models import StudentSkillStatus
 from apps.assessments.models import (
     AssessmentInstrument,
     AssessmentItem,
@@ -501,6 +502,92 @@ class ScoringAndRecommendationTests(BaseFixtureTestCase):
         template = recommend_template_for_result(skill=self.skill, status_code="needs_support")
         self.assertIsNotNone(template)
         self.assertEqual(template.skill_id, self.skill.pk)
+
+
+class TeacherStaffPageTests(BaseFixtureTestCase):
+    def test_secretaria_sees_unified_team_list(self):
+        self._user("fam_staff", Role.Code.FAMILIA, self.school_a)
+        self._user("aee_unlinked", Role.Code.AEE, self.school_a)
+        self._user("sec_staff", Role.Code.SECRETARIA, self.school_a)
+        client = Client()
+        client.login(username="sec_staff", password="pass12345")
+        response = client.get(reverse("management:teachers"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "prof1")
+        self.assertContains(response, self.classroom_a.name)
+        self.assertContains(response, "Sem turma")
+        self.assertContains(response, "aee_unlinked")
+        self.assertNotContains(response, "fam_staff")
+        self.assertNotContains(response, "Usuários da escola / rede")
+        self.assertNotContains(response, "Vínculos professor-turma")
+        self.assertNotContains(response, "sem turma vinculada")
+        self.assertNotContains(response, "em atenção neste período")
+
+    def test_filter_by_role_and_school(self):
+        self._user("sec_staff2", Role.Code.SECRETARIA, self.school_a)
+        client = Client()
+        client.login(username="sec_staff2", password="pass12345")
+        response = client.get(
+            reverse("management:teachers"),
+            {"papel": Role.Code.PROFESSOR, "escola": self.school_a.pk},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "prof1")
+        self.assertNotContains(response, "prof2")
+        self.assertNotContains(response, "gestor1")
+
+    def test_gestor_only_sees_own_school_staff(self):
+        client = Client()
+        client.login(username="gestor1", password="pass12345")
+        response = client.get(reverse("management:teachers"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "prof1")
+        self.assertNotContains(response, "prof2")
+
+    def test_inactive_staff_hidden_until_requested(self):
+        self.professor_other.is_active = False
+        self.professor_other.save(update_fields=["is_active"])
+        self._user("sec_staff3", Role.Code.SECRETARIA, self.school_a)
+        client = Client()
+        client.login(username="sec_staff3", password="pass12345")
+        hidden = client.get(reverse("management:teachers"))
+        self.assertNotContains(hidden, "prof2")
+        shown = client.get(reverse("management:teachers"), {"inativas": "1"})
+        self.assertContains(shown, "prof2")
+
+    def test_warns_only_when_attention_students_lack_teacher(self):
+        uncovered = Classroom.objects.create(
+            school=self.school_a, school_year=self.year, name="Infantil V C", grade_label="Infantil V"
+        )
+        child = Student.objects.create(full_name="Criança Atenção", external_code="T009", birth_date=date(2020, 6, 1))
+        enrollment = Enrollment.objects.create(student=child, classroom=uncovered, school_year=self.year)
+        StudentSkillStatus.objects.create(
+            student=child,
+            skill=self.skill,
+            enrollment=enrollment,
+            status_code="needs_support",
+            status_label="Necessita maior mediação",
+            needs_attention=True,
+        )
+        self._user("sec_attn", Role.Code.SECRETARIA, self.school_a)
+        client = Client()
+        client.login(username="sec_attn", password="pass12345")
+        response = client.get(reverse("management:teachers"))
+        self.assertContains(response, "em atenção neste período")
+        self.assertContains(response, "Vincular agora")
+
+    def test_link_form_preselects_teacher(self):
+        self._user("sec_link", Role.Code.SECRETARIA, self.school_a)
+        client = Client()
+        client.login(username="sec_link", password="pass12345")
+        response = client.get(reverse("management:teacher_link_create"), {"professor": self.professor.pk})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "A professora ou o AEE passa a ver a turma")
+        self.assertContains(response, f'value="{self.professor.pk}"')
+        self.assertRegex(
+            response.content.decode(),
+            rf'<option[^>]+value="{self.professor.pk}"[^>]*selected',
+        )
 
 
 class ImportTests(BaseFixtureTestCase):

@@ -1,103 +1,151 @@
 {% extends "admin_panel/base_admin.html" %}
 
 {% block page_title %}Equipe{% endblock %}
+{% block page_subtitle %}<span class="text-muted small ms-2">Quem acessa a escola e quais turmas cada professora ou AEE acompanha</span>{% endblock %}
 
 {% block admin_content %}
-{% if can_write_school %}
-<div class="d-flex justify-content-end gap-2 mb-3">
-  <a href="{% url 'management:teacher_create' %}" class="btn btn-sm btn-accent">Novo usuário</a>
-  <a href="{% url 'management:teacher_link_create' %}" class="btn btn-sm btn-outline-secondary">Vincular à turma</a>
+<form method="get" class="filter-bar">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label" for="q">Buscar</label>
+      <input class="form-control form-control-sm" id="q" name="q" value="{{ q }}" placeholder="Nome ou usuário">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label" for="papel">Papel</label>
+      <select class="form-select form-select-sm" id="papel" name="papel">
+        <option value="">Todos</option>
+        {% for role in roles %}
+        <option value="{{ role.code }}" {% if role_code == role.code %}selected{% endif %}>{{ role.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="escola">Escola</label>
+      <select class="form-select form-select-sm" id="escola" name="escola">
+        <option value="">Todas</option>
+        {% for school in schools %}
+        <option value="{{ school.pk }}" {% if school_id == school.pk|stringformat:'s' %}selected{% endif %}>{{ school.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <div class="form-check mt-4">
+        <input class="form-check-input" type="checkbox" name="inativas" value="1" id="inativas" {% if include_inactive %}checked{% endif %}>
+        <label class="form-check-label" for="inativas">Incluir inativos</label>
+      </div>
+    </div>
+    <div class="col-md-2 d-flex gap-2 flex-wrap justify-content-md-end">
+      <button class="btn btn-sm btn-outline-secondary" type="submit">Filtrar</button>
+      {% if can_write_school %}
+      <a href="{% url 'management:teacher_create' %}" class="btn btn-sm btn-accent">Novo usuário</a>
+      {% endif %}
+    </div>
+  </div>
+</form>
+
+{% if attention_uncovered %}
+<div class="staff-callout" role="status">
+  <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+  <div>
+    {% if attention_uncovered == 1 %}
+    1 criança em atenção neste período está em turma sem professora ou AEE.
+    {% else %}
+    {{ attention_uncovered }} crianças em atenção neste período estão em turmas sem professora ou AEE.
+    {% endif %}
+    {% if can_write_school %}
+    <a href="{% url 'management:teacher_link_create' %}">Vincular agora</a>
+    {% endif %}
+  </div>
 </div>
 {% endif %}
 
-<div class="row g-3">
-  <div class="col-lg-6">
-    <div class="panel">
-      <div class="panel-header">Usuários da escola / rede</div>
-      <div class="panel-body p-0">
-        {% if teachers %}
-        <div class="table-responsive">
-          <table class="table table-clean table-hover mb-0 align-middle">
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Usuário</th>
-                <th>Papel</th>
-                <th>Escola</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for teacher in teachers %}
-              <tr>
-                <td class="fw-medium">{{ teacher.get_full_name|default:teacher.username }}</td>
-                <td>{{ teacher.username }}</td>
-                <td>{{ teacher.userprofile.role.name|default:"—" }}</td>
-                <td>{{ teacher.userprofile.school.name|default:"—" }}</td>
-                <td>{% if teacher.is_active %}<span class="badge text-bg-success">Ativo</span>{% else %}<span class="badge text-bg-secondary">Inativo</span>{% endif %}</td>
-                <td class="text-end text-nowrap">
-                  {% if can_write_school %}
-                  <a href="{% url 'management:teacher_update' teacher.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
-                  <form method="post" action="{% url 'management:teacher_archive' teacher.pk %}" class="d-inline">
-                    {% csrf_token %}
-                    <button class="btn btn-sm btn-outline-secondary" type="submit">{% if teacher.is_active %}Desativar{% else %}Reativar{% endif %}</button>
-                  </form>
-                  {% endif %}
-                  {% if can_hard_delete %}
-                  <a href="{% url 'management:teacher_delete' teacher.pk %}" class="btn btn-sm btn-outline-danger">Excluir</a>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% else %}
-        <p class="text-muted p-4 mb-0">Nenhum usuário cadastrado.</p>
-        {% endif %}
-      </div>
-    </div>
+<div class="panel panel-tone-school">
+  <div class="panel-header">
+    <span class="panel-icon" aria-hidden="true"><i class="bi bi-person-badge"></i></span>
+    <span>Equipe</span>
+    <span class="text-muted small ms-auto">{{ teachers|length }}</span>
+    {% if can_write_school %}
+    <a href="{% url 'management:teacher_link_create' %}" class="btn btn-sm btn-outline-secondary">Vincular turma</a>
+    {% endif %}
   </div>
-  <div class="col-lg-6">
-    <div class="panel">
-      <div class="panel-header">Vínculos professor-turma</div>
-      <div class="panel-body p-0">
-        {% if links %}
-        <div class="table-responsive">
-          <table class="table table-clean table-hover mb-0 align-middle">
-            <thead>
-              <tr>
-                <th>Professor</th>
-                <th>Turma</th>
-                <th>Principal</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for link in links %}
-              <tr>
-                <td>{{ link.teacher.get_full_name|default:link.teacher.username }}</td>
-                <td>{{ link.classroom.name }}</td>
-                <td>{% if link.is_primary %}Sim{% else %}—{% endif %}</td>
-                <td class="text-end">
+  <div class="panel-body p-0">
+    {% if teachers %}
+    <div class="table-responsive">
+      <table class="table table-clean table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Pessoa</th>
+            <th>Papel</th>
+            <th>Turmas</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for teacher in teachers %}
+          {% with role_code_row=teacher.userprofile.role.code|default:"" %}
+          <tr>
+            <td>
+              <div class="entity-chip">
+                <span class="entity-avatar entity-avatar-staff" aria-hidden="true">{{ teacher.get_full_name|default:teacher.username|slice:":1"|upper }}</span>
+                <span>
+                  <span class="fw-medium">{{ teacher.get_full_name|default:teacher.username }}</span>
+                  <span class="small text-muted">{{ teacher.username }}{% if teacher.userprofile.school %} · {{ teacher.userprofile.school.name }}{% endif %}</span>
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="role-pill role-pill-{{ role_code_row|lower }}">{{ teacher.userprofile.role.name|default:"—" }}</span>
+            </td>
+            <td>
+              {% if role_code_row in classroom_roles %}
+              <div class="class-link-list">
+                {% for link in teacher.teacher_classrooms.all %}
+                <span class="class-link-chip" title="{{ link.classroom.school.name }} · {{ link.classroom.school_year }}{% if link.is_primary %} · Professora principal{% endif %}">
+                  {% if link.is_primary %}<i class="bi bi-star-fill" aria-hidden="true"></i>{% endif %}
+                  <span class="class-link-name">{{ link.classroom.name }}{% if not teacher.userprofile.school_id or teacher.userprofile.school_id != link.classroom.school_id %} · {{ link.classroom.school.name }}{% endif %}</span>
                   {% if can_write_school %}
-                  <form method="post" action="{% url 'management:teacher_link_delete' link.pk %}" class="d-inline" onsubmit="return confirm('Remover este vínculo?');">
+                  <form method="post" action="{% url 'management:teacher_link_delete' link.pk %}" onsubmit="return confirm('Remover o vínculo de {{ teacher.get_full_name|default:teacher.username }} com {{ link.classroom.name }}?');">
                     {% csrf_token %}
-                    <button class="btn btn-sm btn-outline-danger" type="submit">Remover</button>
+                    <button class="class-link-remove" type="submit" aria-label="Remover vínculo com {{ link.classroom.name }}">
+                      <i class="bi bi-x" aria-hidden="true"></i>
+                    </button>
                   </form>
                   {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% else %}
-        <p class="text-muted p-4 mb-0">Nenhum vínculo registrado.</p>
-        {% endif %}
-      </div>
+                </span>
+                {% empty %}
+                <span class="class-link-empty">Sem turma</span>
+                {% endfor %}
+                {% if can_write_school %}
+                <a class="class-link-add" href="{% url 'management:teacher_link_create' %}?professor={{ teacher.pk }}">+ turma</a>
+                {% endif %}
+              </div>
+              {% else %}
+              <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>{% if teacher.is_active %}<span class="badge text-bg-success">Ativo</span>{% else %}<span class="badge text-bg-secondary">Inativo</span>{% endif %}</td>
+            <td class="text-end text-nowrap">
+              {% if can_write_school %}
+              <a href="{% url 'management:teacher_update' teacher.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+              <form method="post" action="{% url 'management:teacher_archive' teacher.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-secondary" type="submit">{% if teacher.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+              </form>
+              {% endif %}
+              {% if can_hard_delete %}
+              <a href="{% url 'management:teacher_delete' teacher.pk %}" class="btn btn-sm btn-outline-danger">Excluir</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0 text-center">Nenhuma pessoa encontrada.</p>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

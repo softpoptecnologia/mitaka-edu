@@ -9,10 +9,16 @@ import '../widgets/common.dart';
 import 'activity_player_screen.dart';
 
 class ActivityPrepareScreen extends StatefulWidget {
-  const ActivityPrepareScreen({super.key, required this.activityId, this.preselectedStudentId});
+  const ActivityPrepareScreen({
+    super.key,
+    required this.activityId,
+    this.preselectedStudentId,
+    this.initialMode,
+  });
 
   final String activityId;
   final String? preselectedStudentId;
+  final ActivityMode? initialMode;
 
   @override
   State<ActivityPrepareScreen> createState() => _ActivityPrepareScreenState();
@@ -26,6 +32,7 @@ class _ActivityPrepareScreenState extends State<ActivityPrepareScreen> {
   void initState() {
     super.initState();
     studentId = widget.preselectedStudentId;
+    mode = widget.initialMode ?? ActivityMode.practice;
   }
 
   @override
@@ -43,7 +50,7 @@ class _ActivityPrepareScreenState extends State<ActivityPrepareScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Preparar atividade')),
+      appBar: AppBar(title: const Text('Antes de começar')),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
@@ -76,44 +83,41 @@ class _ActivityPrepareScreenState extends State<ActivityPrepareScreen> {
           const SizedBox(height: 12),
           Text(activity.description, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 16),
-          Text('Estudante', style: Theme.of(context).textTheme.titleLarge),
+          Text('Com quem', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           SectionCard(
             padding: EdgeInsets.zero,
             child: ListTile(
               leading: student == null ? const Icon(Icons.person_search_rounded) : StudentAvatar(student: student),
-              title: Text(student?.fullName ?? 'Escolher estudante'),
+              title: Text(student?.fullName ?? 'Escolher a criança'),
               subtitle: Text(
                 student == null
-                    ? 'Toque para selecionar'
+                    ? 'Toque para escolher'
                     : (state.classroomById(student.classroomId)?.name ?? ''),
               ),
-              trailing: const Icon(Icons.expand_more_rounded),
-              onTap: () async {
-                final chosen = await showModalBottomSheet<String>(
-                  context: context,
-                  showDragHandle: true,
-                  builder: (ctx) => ListView(
-                    children: [
-                      const ListTile(title: Text('Quem vai jogar?')),
-                      for (final s in students)
-                        ListTile(
-                          leading: StudentAvatar(student: s),
-                          title: Text(s.fullName),
-                          subtitle: Wrap(
-                            spacing: 6,
-                            children: [
-                              StatusChip(status: s.status),
-                              if (s.hasSupport) const ResourceChip(label: 'Recursos', compact: true),
-                            ],
-                          ),
-                          onTap: () => Navigator.pop(ctx, s.id),
+              trailing: widget.preselectedStudentId == null ? const Icon(Icons.expand_more_rounded) : null,
+              onTap: widget.preselectedStudentId != null
+                  ? null
+                  : () async {
+                      final chosen = await showModalBottomSheet<String>(
+                        context: context,
+                        showDragHandle: true,
+                        builder: (ctx) => ListView(
+                          children: [
+                            const ListTile(title: Text('Quem vai jogar?')),
+                            for (final s in students)
+                              ListTile(
+                                leading: StudentAvatar(student: s),
+                                title: Text(s.fullName),
+                                subtitle: Text(state.classroomById(s.classroomId)?.name ?? ''),
+                                trailing: StatusChip(status: s.status),
+                                onTap: () => Navigator.pop(ctx, s.id),
+                              ),
+                          ],
                         ),
-                    ],
-                  ),
-                );
-                if (chosen != null) setState(() => studentId = chosen);
-              },
+                      );
+                      if (chosen != null) setState(() => studentId = chosen);
+                    },
             ),
           ),
           const SizedBox(height: 16),
@@ -143,12 +147,12 @@ class _ActivityPrepareScreenState extends State<ActivityPrepareScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Text('O app vai adaptar', style: Theme.of(context).textTheme.titleLarge),
+          Text('Apoios que o app já aplica', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           SectionCard(
             child: student == null
                 ? Text(
-                    'Escolha o estudante para ver os recursos (áudio, imagem, texto ampliado, legendas, Libras…).',
+                    'Escolha a criança para ver os apoios (áudio, legendas, texto maior…).',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
                   )
                 : Column(

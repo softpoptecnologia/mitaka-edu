@@ -22,6 +22,7 @@ class _ActivityPlayerScreenState extends State<ActivityPlayerScreen> {
   bool _feedbackOk = false;
   int _storyIndex = 0;
   bool _storyDone = false;
+  bool _objectTouched = false;
 
   @override
   void initState() {
@@ -73,6 +74,7 @@ class _ActivityPlayerScreenState extends State<ActivityPlayerScreen> {
       _feedback = null;
       _storyIndex = 0;
       _storyDone = false;
+      _objectTouched = false;
     });
     final hasMore = state.nextItem();
     if (!hasMore) {
@@ -113,7 +115,31 @@ class _ActivityPlayerScreenState extends State<ActivityPlayerScreen> {
                       children: [
                         IconButton(
                           tooltip: 'Encerrar',
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () async {
+                            final leave = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Encerrar atividade?'),
+                                content: const Text(
+                                  'A criança ainda não terminou. Nesta versão demo, o que já foi feito não fica salvo.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx, false),
+                                    child: const Text('Continuar jogando'),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () => Navigator.pop(ctx, true),
+                                    child: const Text('Encerrar'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (leave == true && context.mounted) {
+                              context.read<AppState>().abandonSession();
+                              Navigator.pop(context);
+                            }
+                          },
                           icon: const Icon(Icons.close_rounded),
                         ),
                         Expanded(
@@ -181,14 +207,27 @@ class _ActivityPlayerScreenState extends State<ActivityPlayerScreen> {
                                 onStoryDone: () => setState(() => _storyDone = true),
                                 onChoose: _choose,
                               )
-                            : _ChoiceItem(
-                                item: item,
-                                prompt: prompt,
-                                profile: profile,
-                                selectedId: _selectedId,
-                                reducedStimulus: profile.reducedStimulus,
-                                onChoose: _choose,
-                              ),
+                            : item.layout == PromptLayout.tapGroup
+                                ? _TapGroupPlay(
+                                    item: item,
+                                    prompt: prompt,
+                                    profile: profile,
+                                    objectTouched: _objectTouched,
+                                    selectedId: _selectedId,
+                                    onTouchObject: () {
+                                      setState(() => _objectTouched = true);
+                                      state.speak(item.audioText);
+                                    },
+                                    onChoose: _choose,
+                                  )
+                                : _ChoiceItem(
+                                    item: item,
+                                    prompt: prompt,
+                                    profile: profile,
+                                    selectedId: _selectedId,
+                                    reducedStimulus: profile.reducedStimulus,
+                                    onChoose: _choose,
+                                  ),
                       ),
                       if (profile.captions) ...[
                         const SizedBox(height: 8),
@@ -290,6 +329,101 @@ class _StepsCard extends StatelessWidget {
           FilledButton(onPressed: onContinue, child: const Text('Começar')),
         ],
       ),
+    );
+  }
+}
+
+class _TapGroupPlay extends StatelessWidget {
+  const _TapGroupPlay({
+    required this.item,
+    required this.prompt,
+    required this.profile,
+    required this.objectTouched,
+    required this.selectedId,
+    required this.onTouchObject,
+    required this.onChoose,
+  });
+
+  final ActivityItem item;
+  final String prompt;
+  final PlayerProfile profile;
+  final bool objectTouched;
+  final String? selectedId;
+  final VoidCallback onTouchObject;
+  final Future<void> Function(ActivityChoice) onChoose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(prompt, textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall),
+        const SizedBox(height: 8),
+        Text(
+          objectTouched ? 'Agora toque no cesto certo.' : 'Primeiro toque na imagem.',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.muted),
+        ),
+        const SizedBox(height: 16),
+        Semantics(
+          button: true,
+          label: item.imageAlt ?? item.emoji ?? item.promptShort,
+          child: Material(
+            color: objectTouched ? AppColors.brandSoft : AppColors.surface,
+            borderRadius: BorderRadius.circular(28),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(28),
+              onTap: objectTouched ? null : onTouchObject,
+              child: Ink(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: objectTouched ? AppColors.brand : AppColors.line,
+                    width: objectTouched ? 4 : 2,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(item.emoji ?? '🧺', style: TextStyle(fontSize: profile.largeText ? 88 : 72)),
+                    const SizedBox(height: 8),
+                    Text(
+                      objectTouched ? 'Escolhida' : 'Toque aqui',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Expanded(
+          child: IgnorePointer(
+            ignoring: !objectTouched,
+            child: Opacity(
+              opacity: objectTouched ? 1 : 0.45,
+              child: Row(
+                children: [
+                  for (var i = 0; i < item.choices.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 12),
+                    Expanded(
+                      child: _ChoiceCard(
+                        choice: item.choices[i],
+                        selected: selectedId == item.choices[i].id,
+                        minHeight: profile.targetMin + 24,
+                        largeText: profile.largeText,
+                        letterStyle: false,
+                        onTap: () => onChoose(item.choices[i]),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

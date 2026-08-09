@@ -18,8 +18,10 @@ def _forbidden(request):
 
 
 def _staff_qs(user):
-    qs = User.objects.filter(userprofile__role__isnull=False).select_related(
-        "userprofile", "userprofile__school", "userprofile__role"
+    qs = (
+        User.objects.filter(userprofile__role__isnull=False)
+        .exclude(userprofile__role__code=Role.Code.FAMILIA)
+        .select_related("userprofile", "userprofile__school", "userprofile__role")
     )
     code = user_role_code(user)
     if code not in NETWORK_ROLES:
@@ -34,13 +36,23 @@ def _staff_qs(user):
 
 
 def _roles_for_user(user):
-    qs = Role.objects.all().order_by("name")
+    qs = Role.objects.exclude(code=Role.Code.FAMILIA).order_by("name")
     code = user_role_code(user)
     if code in NETWORK_ROLES:
         if code != Role.Code.SUPERADMIN:
             qs = qs.exclude(code=Role.Code.SUPERADMIN)
         return qs
     return qs.filter(code__in=[Role.Code.PROFESSOR, Role.Code.AEE])
+
+
+def _filter_roles_for_user(user):
+    qs = Role.objects.exclude(code=Role.Code.FAMILIA).order_by("name")
+    code = user_role_code(user)
+    if code not in NETWORK_ROLES:
+        return qs.filter(code__in=[Role.Code.PROFESSOR, Role.Code.AEE, Role.Code.GESTOR, Role.Code.COORDENADOR])
+    if code != Role.Code.SUPERADMIN:
+        qs = qs.exclude(code=Role.Code.SUPERADMIN)
+    return qs
 
 
 _teachers_qs = _staff_qs
@@ -165,10 +177,18 @@ class TeacherLinkCreateView(ManagementRequiredMixin, View):
             ),
             classrooms=classrooms_for_user(request.user),
         )
+        teacher_id = request.GET.get("professor") or request.GET.get("teacher")
+        if teacher_id and str(teacher_id).isdigit():
+            form.fields["teacher"].initial = int(teacher_id)
         return render(
             request,
             "admin_panel/form.html",
-            {"form": form, "page_title": "Vincular professor à turma", "cancel_url": "management:teachers"},
+            {
+                "form": form,
+                "page_title": "Vincular professor à turma",
+                "form_help": "A professora ou o AEE passa a ver a turma em Minhas turmas.",
+                "cancel_url": "management:teachers",
+            },
         )
 
     def post(self, request):

@@ -9,6 +9,9 @@
     <span>{{ page_title }}</span>
   </div>
   <div class="panel-body p-3">
+    {% if form_help %}
+    <p class="text-muted mb-3">{{ form_help }}</p>
+    {% endif %}
     <form method="post" novalidate>
       {% csrf_token %}
       {% if form.non_field_errors %}

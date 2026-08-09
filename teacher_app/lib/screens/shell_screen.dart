@@ -30,9 +30,9 @@ class _ShellScreenState extends State<ShellScreen> {
         onDestinationSelected: (i) => setState(() => index = i),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Início',
+            icon: Icon(Icons.wb_sunny_outlined),
+            selectedIcon: Icon(Icons.wb_sunny_rounded),
+            label: 'Hoje',
           ),
           NavigationDestination(
             icon: Icon(Icons.groups_outlined),
@@ -42,7 +42,7 @@ class _ShellScreenState extends State<ShellScreen> {
           NavigationDestination(
             icon: Icon(Icons.extension_outlined),
             selectedIcon: Icon(Icons.extension_rounded),
-            label: 'Atividades',
+            label: 'Jogos',
           ),
           NavigationDestination(
             icon: Icon(Icons.tune_outlined),

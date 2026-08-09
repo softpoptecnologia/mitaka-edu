@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../state/app_state.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common.dart';
+import '../widgets/server_picker.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -18,8 +19,40 @@ class SettingsScreen extends StatelessWidget {
           Text('Ajustes', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 4),
           Text(
-            'Estes ajustes do tablet se somam ao perfil do estudante. Sem degradês e sem cronômetro.',
+            'Estes ajustes do tablet se somam ao perfil da criança. Sem cronômetro.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+          ),
+          const SizedBox(height: 16),
+          const SectionCard(child: ServerPicker()),
+          const SizedBox(height: 12),
+          SectionCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  state.isDemoApi
+                      ? 'Modo teste: dados demo neste aparelho.'
+                      : state.online
+                          ? 'Usando as turmas e crianças da web Mitaka Edu.'
+                          : 'Ainda não conectou. Entre de novo depois de escolher o servidor.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                if (state.lastSyncError != null) ...[
+                  const SizedBox(height: 8),
+                  Text(state.lastSyncError!, style: const TextStyle(color: Color(0xFFB42318))),
+                ],
+                if (!state.isDemoApi) ...[
+                  const SizedBox(height: 12),
+                  FilledButton.tonalIcon(
+                    onPressed: state.syncing || !state.isLoggedIn ? null : () => state.refreshFromServer(),
+                    icon: state.syncing
+                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.sync_rounded),
+                    label: Text(state.syncing ? 'Sincronizando…' : 'Sincronizar agora'),
+                  ),
+                ],
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           SectionCard(
@@ -34,7 +67,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 SwitchListTile(
                   title: const Text('Alto contraste'),
-                  subtitle: const Text('Fundo escuro, texto claro — sem degradê'),
+                  subtitle: const Text('Fundo escuro e texto claro'),
                   value: state.settings.forceHighContrast,
                   onChanged: (v) => state.updateSetting(highContrast: v),
                 ),

@@ -6,6 +6,7 @@ import '../state/app_state.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common.dart';
 import 'activity_catalog_screen.dart';
+import 'activity_prepare_screen.dart';
 
 class StudentDetailScreen extends StatelessWidget {
   const StudentDetailScreen({super.key, required this.studentId});
@@ -25,6 +26,8 @@ class StudentDetailScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
+          Text('Como esta criança está agora?', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 10),
           SectionCard(
             child: Row(
               children: [
@@ -51,14 +54,14 @@ class StudentDetailScreen extends StatelessWidget {
           Text('Recursos necessários', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           Text(
-            'O app aplica estes recursos automaticamente na atividade. Não são diagnóstico.',
+            'O app aplica estes apoios na atividade. Não é diagnóstico.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.muted),
           ),
           const SizedBox(height: 12),
           if (!student.hasSupport)
             SectionCard(
               child: Text(
-                'Nenhum recurso específico cadastrado. A atividade já evita arrastar e não usa cronômetro.',
+                'Nenhum apoio extra cadastrado. A atividade já é só toque, sem cronômetro.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             )
@@ -98,14 +101,33 @@ class StudentDetailScreen extends StatelessWidget {
             ),
           const SizedBox(height: 20),
           FilledButton.icon(
+            onPressed: () {
+              final activity = state.suggestedActivityFor(student);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ActivityPrepareScreen(
+                    activityId: activity.id,
+                    preselectedStudentId: student.id,
+                    initialMode: student.status == StudentStatus.pending
+                        ? ActivityMode.survey
+                        : ActivityMode.practice,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.play_arrow_rounded),
+            label: const Text('Iniciar com esta criança'),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton(
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => ActivityCatalogScreen(standalone: true, preselectedStudentId: student.id),
               ),
             ),
-            icon: const Icon(Icons.extension_rounded),
-            label: const Text('Iniciar atividade com este aluno'),
+            child: const Text('Escolher outro jogo'),
           ),
         ],
       ),

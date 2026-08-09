@@ -132,6 +132,8 @@ class StatCard extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.soft,
+    this.selected = false,
+    this.onTap,
   });
 
   final String label;
@@ -139,15 +141,20 @@ class StatCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final Color soft;
+  final bool selected;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final card = Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color ?? AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).dividerColor),
+        border: Border.all(
+          color: selected ? color : Theme.of(context).dividerColor,
+          width: selected ? 2 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,6 +172,8 @@ class StatCard extends StatelessWidget {
         ],
       ),
     );
+    if (onTap == null) return card;
+    return InkWell(borderRadius: BorderRadius.circular(20), onTap: onTap, child: card);
   }
 }
 

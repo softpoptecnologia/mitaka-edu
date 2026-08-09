@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from django.contrib import messages
+from django.db.models import Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
@@ -9,7 +10,7 @@ from apps.accounts.models import Role, User, UserProfile
 from apps.accounts.selectors import classrooms_for_user, schools_for_user, students_for_user
 from apps.analytics.models import AggregatedIndicator, StudentSkillStatus
 from apps.assessments.models import AssessmentInstrument
-from apps.accounts.views_teachers import _teachers_qs
+from apps.accounts.views_teachers import _filter_roles_for_user, _teachers_qs
 from apps.core.permissions import ManagementRequiredMixin, NetworkRequiredMixin, cadastro_flags
 from apps.curriculum.models import DevelopmentDimension, MatrixVersion, PedagogicalMatrix, Skill
 from apps.interventions.models import ClassroomIntervention, StudentIntervention
@@ -188,14 +189,71 @@ class EnrollmentListView(ManagementRequiredMixin, View):
 
 class TeacherListView(ManagementRequiredMixin, View):
     def get(self, request):
-        teachers = _teachers_qs(request.user)
-        links = TeacherClassroom.objects.filter(teacher__in=teachers).select_related(
-            "classroom", "teacher", "classroom__school"
-        )
+        q = (request.GET.get("q") or "").strip()
+        school_id = request.GET.get("escola")
+        role_code = (request.GET.get("papel") or "").strip()
+        include_inactive = request.GET.get("inativas") == "1"
+        schools = schools_for_user(request.user)
+        link_qs = TeacherClassroom.objects.select_related(
+            "classroom", "classroom__school", "classroom__school_year"
+        ).order_by("-is_primary", "classroom__name")
+        qs = _teachers_qs(request.user).prefetch_related(Prefetch("teacher_classrooms", queryset=link_qs))
+        if not include_inactive:
+            qs = qs.filter(is_active=True)
+        if q:
+            qs = qs.filter(
+                Q(first_name__icontains=q)
+                | Q(last_name__icontains=q)
+                | Q(username__icontains=q)
+                | Q(email__icontains=q)
+                | Q(userprofile__display_name__icontains=q)
+            )
+        if school_id:
+            qs = qs.filter(userprofile__school_id=school_id)
+        if role_code:
+            qs = qs.filter(userprofile__role__code=role_code)
+        teachers = list(qs)
+        classroom_roles = {Role.Code.PROFESSOR, Role.Code.AEE}
+        year = SchoolYear.objects.filter(is_active=True).first()
+        attention_uncovered = 0
+        if year:
+            classroom_qs = classrooms_for_user(request.user).filter(school_year=year)
+            if school_id:
+                classroom_qs = classroom_qs.filter(school_id=school_id)
+            linked_ids = TeacherClassroom.objects.filter(
+                classroom_id__in=classroom_qs.values("id"),
+                teacher__is_active=True,
+                teacher__userprofile__role__code__in=[Role.Code.PROFESSOR, Role.Code.AEE],
+            ).values_list("classroom_id", flat=True)
+            uncovered_ids = list(classroom_qs.exclude(pk__in=linked_ids).values_list("id", flat=True))
+            if uncovered_ids:
+                attention_uncovered = (
+                    StudentSkillStatus.objects.filter(
+                        needs_attention=True,
+                        student__is_active=True,
+                        student__enrollments__is_active=True,
+                        student__enrollments__school_year=year,
+                        student__enrollments__classroom_id__in=uncovered_ids,
+                    )
+                    .values("student_id")
+                    .distinct()
+                    .count()
+                )
         return render(
             request,
             "admin_panel/teachers.html",
-            {"teachers": teachers, "links": links, **cadastro_flags(request.user)},
+            {
+                "teachers": teachers,
+                "q": q,
+                "school_id": school_id or "",
+                "role_code": role_code,
+                "schools": schools,
+                "roles": _filter_roles_for_user(request.user),
+                "include_inactive": include_inactive,
+                "attention_uncovered": attention_uncovered,
+                "classroom_roles": tuple(classroom_roles),
+                **cadastro_flags(request.user),
+            },
         )
 
 

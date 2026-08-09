@@ -371,6 +371,66 @@ class TeacherAPITests(TeacherJourneyFixture):
         response = client.get(reverse("api_teacher_today"))
         self.assertIn(response.status_code, (401, 403))
 
+    def test_app_login_rejects_aee_gestao_and_familia(self):
+        self._user("aee1", Role.Code.AEE, self.school_a)
+        client = APIClient()
+        for username in ("aee1", "gestor1", "familia1"):
+            denied = client.post(
+                reverse("api_teacher_login"),
+                {"username": username, "password": "pass12345"},
+                format="json",
+            )
+            self.assertEqual(denied.status_code, 403, username)
+            self.assertIn("só para a professora", denied.data["detail"])
+
+        session = APIClient()
+        session.login(username="aee1", password="pass12345")
+        bootstrap = session.get(reverse("api_teacher_bootstrap"))
+        self.assertEqual(bootstrap.status_code, 403)
+
+    def test_app_login_bootstrap_and_ludic(self):
+        client = APIClient()
+        denied = client.post(reverse("api_teacher_login"), {"username": "familia1", "password": "pass12345"}, format="json")
+        self.assertEqual(denied.status_code, 403)
+        bad = client.post(reverse("api_teacher_login"), {"username": "prof1", "password": "wrong"}, format="json")
+        self.assertEqual(bad.status_code, 400)
+        login = client.post(reverse("api_teacher_login"), {"username": "prof1", "password": "pass12345"}, format="json")
+        self.assertEqual(login.status_code, 200)
+        self.assertTrue(login.data["token"])
+        self.assertEqual(login.data["teacher"]["username"], "prof1")
+        classroom_ids = {item["id"] for item in login.data["classrooms"]}
+        self.assertIn(self.classroom_a.pk, classroom_ids)
+        self.assertNotIn(self.classroom_b.pk, classroom_ids)
+        room = next(c for c in login.data["classrooms"] if c["id"] == self.classroom_a.pk)
+        self.assertTrue(any(s["full_name"] == "Criança Teste" for s in room["students"]))
+
+        client.credentials(HTTP_AUTHORIZATION=f"Token {login.data['token']}")
+        bootstrap = client.get(reverse("api_teacher_bootstrap"))
+        self.assertEqual(bootstrap.status_code, 200)
+        self.assertEqual(len(bootstrap.data["classrooms"]), len(login.data["classrooms"]))
+
+        ludic = client.post(
+            reverse("api_teacher_ludic"),
+            {
+                "student_id": self.student.pk,
+                "enrollment_id": self.enrollment.pk,
+                "activity_id": "rimas",
+                "activity_title": "Jogo das rimas",
+                "skill_code": self.skill.code,
+                "mode": "survey",
+                "label": "Habilidade demonstrada",
+                "score": 1,
+                "total": 1,
+                "needs_attention": False,
+                "answers": [{"correct": True, "score": 1}],
+            },
+            format="json",
+        )
+        self.assertEqual(ludic.status_code, 201)
+        self.assertTrue(ludic.data["session_id"])
+        self.assertTrue(Evidence.objects.filter(student=self.student, recorded_by=self.professor).exists())
+        self.assertTrue(StudentSkillStatus.objects.filter(student=self.student, skill=self.skill).exists())
+
 
 class LongitudinalJourneyTests(TeacherJourneyFixture):
     def test_new_year_keeps_followup_history(self):

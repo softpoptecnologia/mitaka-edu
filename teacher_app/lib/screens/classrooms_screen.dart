@@ -19,7 +19,7 @@ class ClassroomsScreen extends StatelessWidget {
           Text('Turmas', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 4),
           Text(
-            'Toque na turma para ver os estudantes e os recursos de apoio.',
+            'Toque na turma para ver as crianças e iniciar a sondagem.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
           ),
           const SizedBox(height: 16),

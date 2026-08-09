@@ -1,50 +1,139 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../config/server_config.dart';
 import '../data/activity_catalog.dart';
-import '../data/demo_data.dart';
 import '../models/models.dart';
+import '../services/teacher_api.dart';
 import '../services/tts_service.dart';
 
 class AppState extends ChangeNotifier {
+  AppState({TeacherApi? api}) : api = api ?? HttpTeacherApi();
+
+  final TeacherApi api;
   TeacherUser? user;
   List<Classroom> classrooms = const [];
   final sessions = <ActivitySession>[];
   final settings = AppSettings();
   final tts = TtsService();
 
+  static const _kServerTarget = 'server_target';
+  static const _kLocalBaseUrl = 'local_base_url';
+  static const _kAuthToken = 'auth_token';
+
+  bool loading = false;
+  bool syncing = false;
+  bool online = false;
+  String? lastSyncError;
+
+  String get baseUrl => settings.baseUrl;
+  bool get isDemoApi => api is DemoTeacherApi;
+  bool get isLoggedIn => user != null;
+
   ActivitySession? activeSession;
   int activeIndex = 0;
   bool showSteps = true;
-
-  bool get isLoggedIn => user != null;
 
   int get studentCount => classrooms.fold(0, (n, c) => n + c.students.length);
   int get pendingCount => classrooms.fold(0, (n, c) => n + c.pendingCount);
   int get okCount => classrooms.fold(0, (n, c) => n + c.okCount);
   int get attentionCount => classrooms.fold(0, (n, c) => n + c.attentionCount);
 
+  List<Student> get pendingStudents => classrooms
+      .expand((c) => c.students)
+      .where((s) => s.status == StudentStatus.pending)
+      .toList();
+
   List<Student> get attentionStudents => classrooms
       .expand((c) => c.students)
       .where((s) => s.status == StudentStatus.attention)
       .toList();
 
-  bool login(String username, String password) {
-    if (password != DemoData.password) return false;
-    final found = DemoData.teachers.where(
-      (t) => t.username.toLowerCase() == username.trim().toLowerCase(),
-    );
-    if (found.isEmpty) return false;
-    user = found.first;
-    classrooms = DemoData.classroomsFor(user!);
-    notifyListeners();
-    return true;
+  List<Student> get okStudents => classrooms
+      .expand((c) => c.students)
+      .where((s) => s.status == StudentStatus.ok)
+      .toList();
+
+  List<Student> get todayQueue => [...pendingStudents, ...attentionStudents];
+
+  Student? nextPendingAfter(String studentId) {
+    final pending = pendingStudents;
+    if (pending.isEmpty) return null;
+    final index = pending.indexWhere((s) => s.id == studentId);
+    if (index >= 0 && index + 1 < pending.length) {
+      return pending[index + 1];
+    }
+    final others = pending.where((s) => s.id != studentId);
+    return others.isEmpty ? null : others.first;
   }
 
-  void logout() {
+  LudicActivity suggestedActivityFor(Student student) {
+    final pool = switch (student.status) {
+      StudentStatus.pending => const ['rimas', 'silabas', 'fonologica', 'letras'],
+      StudentStatus.attention => const ['silabas', 'reconto', 'compreensao'],
+      StudentStatus.ok => const ['vocabulario', 'letras', 'rimas'],
+    };
+    return ActivityCatalog.byId(pool[student.id.hashCode.abs() % pool.length]);
+  }
+
+  void abandonSession() {
+    activeSession = null;
+    activeIndex = 0;
+    notifyListeners();
+  }
+
+  void _applyBootstrap(BootstrapData data) {
+    user = data.teacher;
+    classrooms = data.classrooms;
+    online = !isDemoApi;
+    lastSyncError = null;
+  }
+
+  Future<String?> login(String username, String password) async {
+    loading = true;
+    lastSyncError = null;
+    notifyListeners();
+    try {
+      final data = await api.login(baseUrl, username, password);
+      _applyBootstrap(data);
+      await _savePrefs();
+      return null;
+    } on TeacherApiException catch (error) {
+      lastSyncError = error.message;
+      return error.message;
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> logout() async {
+    final url = baseUrl;
+    await api.logout(url);
     user = null;
     classrooms = const [];
     activeSession = null;
+    online = false;
+    await _savePrefs();
     notifyListeners();
+  }
+
+  Future<String?> refreshFromServer() async {
+    if (!isLoggedIn) return 'Entre de novo para sincronizar.';
+    syncing = true;
+    notifyListeners();
+    try {
+      final data = await api.bootstrap(baseUrl);
+      _applyBootstrap(data);
+      await _savePrefs();
+      return null;
+    } on TeacherApiException catch (error) {
+      lastSyncError = error.message;
+      return error.message;
+    } finally {
+      syncing = false;
+      notifyListeners();
+    }
   }
 
   Classroom? classroomById(String id) {
@@ -168,13 +257,51 @@ class AppState extends ChangeNotifier {
     sessions.insert(0, session);
     activeSession = null;
     activeIndex = 0;
+    if (!isDemoApi) syncing = true;
     notifyListeners();
+    syncLudic(session);
   }
 
-  void updateLastObservation(String observation) {
-    if (sessions.isEmpty) return;
+  Future<String?> updateLastObservation(String observation) async {
+    if (sessions.isEmpty) return null;
     sessions.first.observation = observation;
     notifyListeners();
+    return syncLudic(sessions.first);
+  }
+
+  Future<String?> syncLudic(ActivitySession session) async {
+    if (isDemoApi) return null;
+    syncing = true;
+    lastSyncError = null;
+    notifyListeners();
+    try {
+      final data = await api.submitLudic(
+        baseUrl,
+        LudicSyncPayload(
+          studentId: session.student.id,
+          enrollmentId: session.student.enrollmentId,
+          activityId: session.activity.id,
+          activityTitle: session.activity.title,
+          skillCode: session.activity.skillCode,
+          mode: session.mode == ActivityMode.survey ? 'survey' : 'practice',
+          label: session.pedagogicalLabel,
+          score: session.totalScore,
+          total: session.answers.isEmpty ? 1 : session.answers.length,
+          needsAttention: session.needsAttention,
+          observational: session.isObservational,
+          observation: session.observation,
+          answers: session.answers,
+        ),
+      );
+      _applyBootstrap(data);
+      return null;
+    } on TeacherApiException catch (error) {
+      lastSyncError = error.message;
+      return error.message;
+    } finally {
+      syncing = false;
+      notifyListeners();
+    }
   }
 
   void updateSetting({
@@ -188,6 +315,65 @@ class AppState extends ChangeNotifier {
     if (reducedMotion != null) settings.forceReducedMotion = reducedMotion;
     if (ttsEnabled != null) settings.ttsEnabled = ttsEnabled;
     notifyListeners();
+  }
+
+  Future<void> loadPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final target = prefs.getString(_kServerTarget);
+      if (target == ServerTarget.web.name) {
+        settings.serverTarget = ServerTarget.web;
+      } else if (target == ServerTarget.local.name) {
+        settings.serverTarget = ServerTarget.local;
+      }
+      final localUrl = prefs.getString(_kLocalBaseUrl);
+      if (localUrl != null && localUrl.trim().isNotEmpty) {
+        settings.localBaseUrl = ServerConfig.normalize(localUrl);
+      }
+      final savedToken = prefs.getString(_kAuthToken);
+      if (savedToken != null && savedToken.isNotEmpty && !isDemoApi) {
+        api.token = savedToken;
+        try {
+          final data = await api.bootstrap(baseUrl);
+          _applyBootstrap(data);
+        } catch (_) {
+          api.token = null;
+        }
+      }
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  void updateServer({ServerTarget? target, String? localBaseUrl}) {
+    final changedTarget = target != null && target != settings.serverTarget;
+    if (target != null) settings.serverTarget = target;
+    if (localBaseUrl != null) {
+      settings.localBaseUrl = ServerConfig.normalize(localBaseUrl);
+    }
+    if (settings.localBaseUrl.isEmpty) {
+      settings.localBaseUrl = ServerConfig.defaultLocalUrl();
+    }
+    if (changedTarget && isLoggedIn && !isDemoApi) {
+      user = null;
+      classrooms = const [];
+      api.token = null;
+      online = false;
+    }
+    notifyListeners();
+    _savePrefs();
+  }
+
+  Future<void> _savePrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kServerTarget, settings.serverTarget.name);
+      await prefs.setString(_kLocalBaseUrl, settings.localBaseUrl);
+      if (api.token != null && api.token!.isNotEmpty) {
+        await prefs.setString(_kAuthToken, api.token!);
+      } else {
+        await prefs.remove(_kAuthToken);
+      }
+    } catch (_) {}
   }
 }
 

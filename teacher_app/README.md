@@ -8,7 +8,7 @@ Pasta: `teacher_app/` (separada do Django web).
 
 ## Princípios de UX
 
-- Fácil: poucos toques, botões grandes, linguagem clara.
+- Fácil: poucos toques, botões grandes, linguagem clara. O Início (**Hoje**) mostra a fila do dia.
 - Atrativo sem excesso: ilustrações sólidas, estrelas no modo praticar.
 - **Sem degradês** (gradientes prejudicam contraste, leitura e crianças com hipersensibilidade visual).
 - **Sem arrastar e soltar** e **sem cronômetro**.
@@ -41,6 +41,8 @@ No Windows: `flutter run -d windows`
 
 ## Acesso demo
 
+**Só professora.** AEE, gestor, coordenador, secretaria e família **não entram no app** — usam a web (`/professor/`, `/gestao/`, `/secretaria/`, `/familia/`).
+
 Senha: `demo1234`
 
 | Usuário | Turmas |
@@ -52,10 +54,13 @@ Experimente **Luna** (texto ampliado + alto contraste) ou **Theo** (áudio / lei
 
 ## Fluxo
 
-1. Entrar → Início  
-2. Turma ou estudante → ver recursos necessários  
-3. Atividades → preparar (o app monta as adaptações)  
-4. **Praticar** (estrelas) ou **Sondagem** (sem certo/errado na tela da criança)  
-5. Resultado pedagógico + observação  
+1. Entrar → **Hoje** (o que fazer agora, com quem)  
+2. **Iniciar sondagem** na criança pendente (ou abrir Turma)  
+3. Praticar (estrelas) ou Sondagem (sem certo/errado na tela da criança)  
+4. Jogar → resultado pedagógico + observação → próxima pendente  
 
-Os dados desta versão são **demonstrativos locais** (alinhados ao seed do Mitaka Edu). A integração com a API Django pode ser o próximo passo.
+Em **Ajustes** (e no login) escolha o servidor **Web** (`https://edu.innomove.com.br`) ou **Local** (`http://127.0.0.1:8000` no PC, `http://10.0.2.2:8000` no emulador Android). O app entra com o usuário **da professora** (o mesmo da web) e carrega turmas, crianças, status e apoios. A sondagem lúdica grava evidência (e atualiza a habilidade) no Django.
+
+Com o Django no ar: `python manage.py migrate` (cria a tabela `authtoken`) e `python manage.py runserver`. Sem o migrate, o login do app quebra. Seed: `professora` / `professor2` · senha `demo1234`.
+
+O servidor **Web** (`edu.innomove.com.br`) só aceita o app depois de publicar esse código. Até lá, use **Local**.

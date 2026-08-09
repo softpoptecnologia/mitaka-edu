@@ -11,11 +11,11 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm, mm
 from reportlab.platypus import HRFlowable, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-TEAL = colors.HexColor("#0f5c5c")
-INK = colors.HexColor("#1c2424")
-MUTED = colors.HexColor("#5f6b6b")
-LINE = colors.HexColor("#e2e6e6")
-HEADER_BG = colors.HexColor("#f7f8f8")
+TEAL = colors.HexColor("#00796b")
+INK = colors.HexColor("#0d1b2a")
+MUTED = colors.HexColor("#5c6b7a")
+LINE = colors.HexColor("#e4e8ee")
+HEADER_BG = colors.HexColor("#f7f9fb")
 WHITE = colors.white
 
 
@@ -122,7 +122,7 @@ class MitakaPdfBuilder:
 
     def _header(self):
         s = self.styles
-        self.story.append(Paragraph("MITAKA EDU", s["brand"]))
+        self.story.append(Paragraph("MITAKA EDU · Evidências que transformam aprendizagens", s["brand"]))
         self.story.append(Paragraph(self.title, s["title"]))
         if self.subtitle:
             self.story.append(Paragraph(self.subtitle, s["subtitle"]))

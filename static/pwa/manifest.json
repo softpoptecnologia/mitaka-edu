@@ -1,11 +1,11 @@
 {
   "name": "Mitaka Edu",
   "short_name": "Mitaka",
-  "description": "Acompanhamento pedagógico da leitura e escrita — Jucati/PE",
+  "description": "Evidências que transformam aprendizagens — Jucati/PE",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f7f5f0",
-  "theme_color": "#0d6e6e",
+  "background_color": "#f7f9fb",
+  "theme_color": "#0d1b2a",
   "lang": "pt-BR",
   "icons": [
     {

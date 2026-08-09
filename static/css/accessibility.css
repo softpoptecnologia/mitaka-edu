@@ -1,7 +1,7 @@
 /* Transversal accessibility — Mitaka Edu */
 
 :focus-visible {
-  outline: 3px solid var(--mitaka-teal, #0d6e6e);
+  outline: 3px solid var(--brand-strong, #00796b);
   outline-offset: 2px;
 }
 
@@ -12,9 +12,9 @@
   z-index: 9999;
   padding: 0.75rem 1rem;
   background: #fff;
-  color: var(--mitaka-teal, #0d6e6e);
+  color: var(--brand-strong, #00796b);
   font-weight: 600;
-  border: 2px solid var(--mitaka-teal, #0d6e6e);
+  border: 2px solid var(--brand-strong, #00796b);
 }
 
 .skip-link:focus {
@@ -33,7 +33,7 @@
 }
 
 .a11y-high-contrast {
-  --play-teal: #003d3d;
+  --play-teal: #004d40;
   --play-cream: #fff;
   --mitaka-text: #000;
   --mitaka-muted: #222;

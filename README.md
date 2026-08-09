@@ -213,7 +213,7 @@ flutter pub get
 flutter run
 ```
 
-Login demo: `professora` / `demo1234`. Ver `teacher_app/README.md`.
+Login demo: `professora` / `demo1234` (só professor; AEE/gestão/família usam a web). Ver `teacher_app/README.md`.
 
 ## Próximos passos
 
