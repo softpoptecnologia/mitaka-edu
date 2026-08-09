@@ -45,8 +45,8 @@ Senha: `demo1234`
 
 | Usuário | Turmas |
 |---|---|
-| `professora` | Infantil V A/B (Sol Nascente) e turmas Horizonte |
-| `professor2` | Estrela do Saber |
+| `professora` | Maria Inez (Inf. V A/B), Eliel Peixoto (Inf. IV A), Ananias (Inf. V A) |
+| `professor2` | Tia Noêmia (Inf. V A) e Albino Moreira (1º Ano A) |
 
 Experimente **Luna** (texto ampliado + alto contraste) ou **Theo** (áudio / leitor de tela).
 

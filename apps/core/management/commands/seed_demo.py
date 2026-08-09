@@ -137,15 +137,26 @@ class Command(BaseCommand):
             year=2026, defaults={"label": "2026", "is_active": True, "starts_on": date(2026, 2, 1)}
         )
         schools_data = [
-            ("EMEI Sol Nascente", "ESC001"),
-            ("EMEI Estrela do Saber", "ESC002"),
-            ("Escola Municipal Horizonte", "ESC003"),
+            ("Creche Municipal Maria Inez de Melo", "ESC001", "Educação Infantil"),
+            ("Creche Municipal Noêmia Eloy de Melo (Tia Noêmia)", "ESC002", "Educação Infantil"),
+            ("Escola Albino Moreira", "ESC003", "Ensino Fundamental · Centro"),
+            ("Escola Municipal Vereador Eliel Peixoto de Melo", "ESC004", "Vila Neves / Zona Rural"),
+            ("Escola Municipal Ananias Crisóstomo", "ESC005", ""),
+            ("Escola Municipal Deputado Airon Rios", "ESC006", ""),
+            ("Escola Antonio Alves de Pontes", "ESC007", ""),
+            ("Escola José Ferreira da Silva", "ESC008", ""),
+            ("EREM Henrique Justino de Melo", "ESC009", "Ensino Médio · rede estadual"),
         ]
         schools = []
-        for name, code in schools_data:
+        for name, code, address in schools_data:
             school, _ = School.objects.update_or_create(
                 code=code,
-                defaults={"name": name, "municipality": municipality, "is_active": True},
+                defaults={
+                    "name": name,
+                    "municipality": municipality,
+                    "address": address,
+                    "is_active": True,
+                },
             )
             schools.append(school)
 
@@ -155,14 +166,36 @@ class Command(BaseCommand):
         UserProfile.objects.filter(user=users["professor"]).update(school=schools[0])
         UserProfile.objects.filter(user=users["professor2"]).update(school=schools[1])
 
+        # Rede fictícia anterior: 1º Ano em ESC002 e Inf IV/V em ESC003.
+        for from_code, year, name, target in [
+            ("ESC002", year_2026, "1º Ano A", schools[2]),
+            ("ESC003", year_2026, "Infantil IV A", schools[3]),
+            ("ESC003", year_2026, "Infantil V A", schools[4]),
+        ]:
+            source = (
+                Classroom.objects.filter(school__code=from_code, school_year=year, name=name)
+                .exclude(school=target)
+                .first()
+            )
+            if not source:
+                continue
+            dest_exists = Classroom.objects.filter(school=target, school_year=year, name=name).exists()
+            if dest_exists:
+                source.is_active = False
+                source.save(update_fields=["is_active", "updated_at"])
+            else:
+                source.school = target
+                source.is_active = True
+                source.save(update_fields=["school", "is_active", "updated_at"])
+
         classrooms = []
         specs = [
-            (schools[0], year_2026, "Infantil V A", "Infantil V"),
+            (schools[0], year_2026, "Infantil V A", "Infantil V"),  # Maria Inez
             (schools[0], year_2026, "Infantil V B", "Infantil V"),
-            (schools[1], year_2026, "Infantil V A", "Infantil V"),
-            (schools[1], year_2026, "1º Ano A", "1º Ano"),
-            (schools[2], year_2026, "Infantil IV A", "Infantil IV"),
-            (schools[2], year_2026, "Infantil V A", "Infantil V"),
+            (schools[1], year_2026, "Infantil V A", "Infantil V"),  # Tia Noêmia
+            (schools[2], year_2026, "1º Ano A", "1º Ano"),  # Albino Moreira (Centro)
+            (schools[3], year_2026, "Infantil IV A", "Infantil IV"),  # Eliel Peixoto (rural)
+            (schools[4], year_2026, "Infantil V A", "Infantil V"),  # Ananias Crisóstomo
             (schools[0], year_2025, "Infantil IV A", "Infantil IV"),
         ]
         for school, year, name, grade in specs:
@@ -174,6 +207,7 @@ class Command(BaseCommand):
             )
             classrooms.append(room)
 
+        intended_ids = {c.pk for c in classrooms}
         TeacherClassroom.objects.update_or_create(
             teacher=users["professor"], classroom=classrooms[0], defaults={"is_primary": True}
         )
@@ -192,6 +226,9 @@ class Command(BaseCommand):
         TeacherClassroom.objects.update_or_create(
             teacher=users["professor2"], classroom=classrooms[3], defaults={"is_primary": True}
         )
+        TeacherClassroom.objects.filter(
+            teacher__in=[users["professor"], users["professor2"]],
+        ).exclude(classroom_id__in=intended_ids).delete()
         return municipality, schools, year_2025, year_2026, classrooms
 
     def _students(self, classrooms, year_2025, year_2026):
@@ -830,23 +867,23 @@ class Command(BaseCommand):
             self._complete_with_score(teacher, luna_2025, instruments["rimas"], correct=3)
         # Coherent network story: every 2026 classroom has assessments feeding dashboards.
         self._seed_infantil_va_journey(teacher, classrooms[0], students, instruments, skills)
-        # c1 ESC001 V B — acompanhamento regular (não competir com a jornada da V A)
+        # c1 Maria Inez V B — acompanhamento regular (não competir com a jornada da V A)
         for enrollment in classrooms[1].enrollments.filter(is_active=True):
             self._complete_with_score(teacher, enrollment, instruments["rimas"], correct=4)
             self._complete_with_score(teacher, enrollment, instruments["oralidade"], correct=3)
-        # c2 ESC002 V A — fragmentação na segmentação (Alice)
+        # c2 Tia Noêmia V A — fragmentação na segmentação (Alice)
         for enrollment in classrooms[2].enrollments.filter(is_active=True):
             self._complete_with_score(teacher2, enrollment, instruments["segmentacao"], correct=0)
             self._complete_with_score(teacher2, enrollment, instruments["rimas"], correct=2)
-        # c3 ESC002 1º A — em desenvolvimento (Benício)
+        # c3 Albino Moreira 1º A — em desenvolvimento (Benício)
         for enrollment in classrooms[3].enrollments.filter(is_active=True):
             self._complete_with_score(teacher2, enrollment, instruments["rimas"], correct=3)
             self._complete_with_score(teacher2, enrollment, instruments["oralidade"], correct=2)
-        # c4 ESC003 IV A — misto (Helena)
+        # c4 Eliel Peixoto IV A — misto (Helena)
         for enrollment in classrooms[4].enrollments.filter(is_active=True):
             self._complete_with_score(teacher, enrollment, instruments["rimas"], correct=4)
             self._complete_with_score(teacher, enrollment, instruments["oralidade"], correct=2)
-        # c5 ESC003 V A — regular
+        # c5 Ananias Crisóstomo V A — regular
         for enrollment in classrooms[5].enrollments.filter(is_active=True):
             self._complete_with_score(teacher, enrollment, instruments["rimas"], correct=4)
             self._complete_with_score(teacher, enrollment, instruments["oralidade"], correct=3)

@@ -7,13 +7,13 @@ abstract final class DemoData {
     TeacherUser(
       username: 'professora',
       displayName: 'Ana Professora',
-      schoolName: 'EMEI Sol Nascente',
+      schoolName: 'Creche Municipal Maria Inez de Melo',
       classroomIds: ['c1', 'c2', 'c3', 'c4'],
     ),
     TeacherUser(
       username: 'professor2',
       displayName: 'Bruno Professor',
-      schoolName: 'EMEI Estrela do Saber',
+      schoolName: 'Creche Municipal Noêmia Eloy de Melo (Tia Noêmia)',
       classroomIds: ['c5', 'c6'],
     ),
   ];
@@ -27,7 +27,7 @@ abstract final class DemoData {
       id: 'c1',
       name: 'Infantil V A',
       grade: 'Infantil V',
-      schoolName: 'EMEI Sol Nascente',
+      schoolName: 'Creche Municipal Maria Inez de Melo',
       students: const [
         Student(
           id: 's1',
@@ -72,7 +72,7 @@ abstract final class DemoData {
       id: 'c2',
       name: 'Infantil V B',
       grade: 'Infantil V',
-      schoolName: 'EMEI Sol Nascente',
+      schoolName: 'Creche Municipal Maria Inez de Melo',
       students: const [
         Student(
           id: 's2',
@@ -117,7 +117,7 @@ abstract final class DemoData {
       id: 'c3',
       name: 'Infantil IV A',
       grade: 'Infantil IV',
-      schoolName: 'Escola Municipal Horizonte',
+      schoolName: 'Escola Municipal Vereador Eliel Peixoto de Melo',
       students: const [
         Student(
           id: 's5',
@@ -160,7 +160,7 @@ abstract final class DemoData {
       id: 'c4',
       name: 'Infantil V A',
       grade: 'Infantil V',
-      schoolName: 'Escola Municipal Horizonte',
+      schoolName: 'Escola Municipal Ananias Crisóstomo',
       students: const [
         Student(
           id: 's6',
@@ -209,7 +209,7 @@ abstract final class DemoData {
       id: 'c5',
       name: 'Infantil V A',
       grade: 'Infantil V',
-      schoolName: 'EMEI Estrela do Saber',
+      schoolName: 'Creche Municipal Noêmia Eloy de Melo (Tia Noêmia)',
       students: const [
         Student(
           id: 's3',
@@ -249,7 +249,7 @@ abstract final class DemoData {
       id: 'c6',
       name: '1º Ano A',
       grade: '1º Ano',
-      schoolName: 'EMEI Estrela do Saber',
+      schoolName: 'Escola Albino Moreira',
       students: const [
         Student(
           id: 's4',
