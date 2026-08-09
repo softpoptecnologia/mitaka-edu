@@ -3,30 +3,39 @@
 {% block title %}Hoje — {{ APP_NAME }}{% endblock %}
 
 {% block teacher_content %}
-<div class="mb-4">
-  <p class="text-muted mb-1">{{ day_greeting }}, {{ greeting_name }}</p>
+<header class="today-hero mb-4">
+  <p class="today-kicker mb-1">{{ day_greeting }}, {{ greeting_name }}</p>
   {% if primary_classroom %}
-  <h1 class="h3 mb-1">{{ primary_classroom.name }}</h1>
-  <p class="text-muted mb-0">
+  <h1 class="today-title mb-2">{{ primary_classroom.name }}</h1>
+  <p class="today-sub mb-0">
     {% if action_count %}{{ action_count }} ação{{ action_count|pluralize }} recomendada{{ action_count|pluralize }} para hoje
     {% else %}Tudo acompanhado por enquanto.{% endif %}
   </p>
   {% else %}
-  <h1 class="h3 mb-1">Hoje</h1>
-  <p class="text-muted mb-0">Nenhuma turma vinculada no ano letivo ativo.</p>
+  <h1 class="today-title mb-2">Hoje</h1>
+  <p class="today-sub mb-0">Nenhuma turma vinculada no ano letivo ativo.</p>
   {% endif %}
-</div>
+</header>
 
 {% if actions %}
-<div class="d-grid gap-2 mb-4">
+<div class="today-stack mb-4" role="list">
   {% for action in actions %}
-  <a href="{{ action.action_url }}" class="today-action{% if action.priority == 'high' %} is-high{% elif action.priority == 'low' %} is-low{% endif %}">
-    <span class="today-action-count" aria-hidden="true">{{ action.count }}</span>
-    <span class="today-action-body">
-      <strong>{{ action.title }}</strong>
-      <span class="today-action-meta">{{ action.classroom_name }}{% if action.recommended_action %} · {{ action.recommended_action }}{% endif %}</span>
-    </span>
-  </a>
+  <article class="today-card today-card-{{ action.priority }}" role="listitem">
+    <div class="today-card-top">
+      <div class="today-count" aria-hidden="true">{{ action.count }}</div>
+      <div class="today-copy">
+        <p class="today-card-kicker mb-1">
+          <i class="bi {{ action.icon }}" aria-hidden="true"></i>
+          {{ action.classroom_name }}
+        </p>
+        <h2 class="today-card-title">{{ action.title }}</h2>
+        {% if action.description %}
+        <p class="today-card-desc mb-0">{{ action.description }}</p>
+        {% endif %}
+      </div>
+    </div>
+    <a href="{{ action.action_url }}" class="btn btn-primary today-card-btn">{{ action.recommended_action|default:"Abrir" }}</a>
+  </article>
   {% endfor %}
 </div>
 {% if primary_classroom %}
@@ -55,16 +64,16 @@
   {% for card in classroom_cards %}
   <div class="col-md-6 col-lg-4">
     <div class="classroom-tile">
-      <h2 class="h5 mb-1">{{ card.classroom.name }}</h2>
+      <h2 class="mb-1">{{ card.classroom.name }}</h2>
       <p class="text-muted small mb-3">{{ card.total }} estudante{{ card.total|pluralize }}</p>
-      <div class="d-flex flex-wrap gap-3 mb-3 small">
-        <span>{{ card.ok }} acompanhando bem</span>
-        <span>{{ card.attention }} maior mediação</span>
-        <span>{{ card.pending }} observação</span>
+      <div class="student-chips mb-3">
+        <span class="status-pill status-pill-completed">{{ card.ok }} acompanhando bem</span>
+        <span class="status-pill status-pill-attention">{{ card.attention }} maior mediação</span>
+        <span class="status-pill status-pill-planned">{{ card.pending }} observação</span>
       </div>
-      <div class="d-flex flex-wrap gap-2">
-        <a href="{% url 'teacher:classroom' card.classroom.pk %}" class="btn btn-primary btn-sm">Abrir turma</a>
-        <a href="{% url 'teacher:lesson_plan' card.classroom.pk %}" class="btn btn-outline-primary btn-sm">Planejar aula</a>
+      <div class="d-grid gap-2">
+        <a href="{% url 'teacher:classroom' card.classroom.pk %}" class="btn btn-primary">Abrir turma</a>
+        <a href="{% url 'teacher:lesson_plan' card.classroom.pk %}" class="btn btn-outline-primary">Planejar aula</a>
       </div>
     </div>
   </div>

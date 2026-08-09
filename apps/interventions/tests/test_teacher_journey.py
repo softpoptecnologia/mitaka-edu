@@ -111,6 +111,7 @@ class TeacherActionQueueTests(TeacherJourneyFixture):
         group = next(a for a in queue.actions if a.type == "SKILL_GROUP_INTERVENTION" and a.skill_id == self.skill.pk)
         self.assertGreaterEqual(group.count, 4)
         self.assertIn(self.student.pk, group.student_ids)
+        self.assertFalse(group.title.startswith(str(group.count)))
 
 
 class GroupingTests(TeacherJourneyFixture):
@@ -275,6 +276,8 @@ class TeacherPortalRBACTests(TeacherJourneyFixture):
         response = client.get(reverse("teacher:today"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hoje")
+        self.assertContains(response, "Trabalhar agora")
+        self.assertNotContains(response, "5 crianças")
 
     def test_teacher_cannot_open_other_classroom_group(self):
         client = Client()

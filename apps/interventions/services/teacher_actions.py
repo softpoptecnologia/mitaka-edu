@@ -51,6 +51,18 @@ class TeacherAction:
     extra: dict = field(default_factory=dict)
 
     @property
+    def icon(self) -> str:
+        return {
+            ACTION_ASSESSMENT_PENDING: "bi-hourglass-split",
+            ACTION_SKILL_GROUP_INTERVENTION: "bi-people",
+            ACTION_INDIVIDUAL_INTERVENTION: "bi-person-heart",
+            ACTION_INTERVENTION_FOLLOWUP: "bi-journal-check",
+            ACTION_EVIDENCE_PENDING: "bi-journal-text",
+            ACTION_REASSESSMENT_DUE: "bi-eye",
+            ACTION_ACCESSIBILITY_NOTICE: "bi-universal-access",
+        }.get(self.type, "bi-lightning-charge")
+
+    @property
     def key(self) -> str:
         return (
             f"{self.type}:{self.classroom_id}:{self.skill_id or 0}:"
@@ -75,6 +87,7 @@ class TeacherAction:
             "why": self.why,
             "recommended_action": self.recommended_action,
             "key": self.key,
+            "icon": self.icon,
             "extra": self.extra,
         }
 
@@ -183,7 +196,7 @@ def _assessment_actions(snapshot: ClassroomSnapshot) -> list[TeacherAction]:
         first_missing = details[0][1][0] if details[0][1] else None
         if first_missing:
             missing_label = skill_label(first_missing.skill)
-    title = f"{len(students)} sondagens pendentes" if len(students) > 1 else f"{first} ainda precisa realizar sondagem"
+    title = "Sondagens pendentes" if len(students) > 1 else f"{first} ainda precisa realizar sondagem"
     description = (
         f"{first} ainda precisa realizar a sondagem de {missing_label}."
         if missing_label and len(students) == 1
@@ -224,7 +237,7 @@ def _group_and_individual_actions(snapshot: ClassroomSnapshot) -> list[TeacherAc
                 needs_support += 1
         priority = PRIORITY_HIGH if needs_support >= 4 else PRIORITY_MEDIUM
         title = (
-            f"{group.size} crianças precisam trabalhar {group.skill_name}"
+            f"Crianças precisam trabalhar {group.skill_name}"
             if is_group
             else f"{first_name(group.students[0].full_name)} precisa trabalhar {group.skill_name}"
         )
@@ -279,7 +292,7 @@ def _followup_actions(snapshot: ClassroomSnapshot) -> list[TeacherAction]:
                 priority=PRIORITY_HIGH,
                 classroom_id=snapshot.classroom.pk,
                 classroom_name=snapshot.classroom.name,
-                title="Atividade realizada aguardando registro" if count == 1 else f"{count} acompanhamentos aguardando registro",
+                title="Atividade realizada aguardando registro" if count == 1 else "Acompanhamentos aguardando registro",
                 description=f"Como foi a atividade {activity}?",
                 action_url=reverse("teacher:quick_followup", args=[ci.pk]),
                 skill_id=ci.skill_id,
@@ -340,7 +353,7 @@ def _reassessment_actions(snapshot: ClassroomSnapshot) -> list[TeacherAction]:
                 priority=PRIORITY_HIGH,
                 classroom_id=snapshot.classroom.pk,
                 classroom_name=snapshot.classroom.name,
-                title=f"Pode ser um bom momento para observar {item.skill_name} com {first_name(item.student_name)}",
+                title=f"Observar {item.skill_name} com {first_name(item.student_name)}",
                 description=item.reason,
                 action_url=url,
                 skill_id=item.skill_id,
