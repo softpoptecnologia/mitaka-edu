@@ -1,2 +1,6 @@
-{% load static %}
-<img src="{% static 'img/logo-mark.svg' %}" alt="" width="{{ size|default:'34' }}" height="{{ size|default:'34' }}" class="brand-mark-img{% if compact %} sm{% endif %}" decoding="async">
+<svg class="brand-mark-img{% if compact %} sm{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="{{ size|default:'34' }}" height="{{ size|default:'34' }}" role="img" aria-hidden="true" focusable="false">
+  <circle cx="18" cy="14" r="7" fill="#00BFA5"/>
+  <path fill="#00BFA5" d="M8 54c0-12.7 5.8-22 14.5-22S37 41.3 37 54H8z"/>
+  <circle cx="46" cy="14" r="7" fill="#3A2F6E"/>
+  <path fill="#3A2F6E" d="M27 54c0-12.7 5.8-22 14.5-22S56 41.3 56 54H27z"/>
+</svg>
