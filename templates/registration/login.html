@@ -16,8 +16,7 @@
   <aside class="login-aside">
     <div>
       <div class="login-aside-brand">
-        {% include "components/brand_mark.html" with size=64 %}
-        <p class="login-aside-wordmark mb-0"><span>mitaka</span> <span class="edu">edu</span></p>
+        <img src="{% static 'img/logo.png' %}" alt="Mitaka Edu" class="login-aside-logo" width="220" decoding="async">
       </div>
       <p class="login-aside-tagline">{{ APP_TAGLINE }}</p>
       <p class="login-aside-place mb-0">{{ MUNICIPALITY_NAME }} · Educação Infantil e Fundamental</p>

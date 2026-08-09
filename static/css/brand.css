@@ -131,30 +131,20 @@
 .login-aside-brand {
   position: relative;
   z-index: 1;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.9rem;
-  margin-bottom: 1.75rem;
+  justify-content: center;
+  background: #fff;
+  border-radius: 1.1rem;
+  padding: 0.7rem 0.9rem 0.55rem;
+  margin-bottom: 1.35rem;
+  max-width: 100%;
 }
 
-.login-aside-brand .brand-mark-img {
-  width: 3.5rem;
-  height: 3.5rem;
-  min-width: 3.5rem;
-}
-
-.login-aside-wordmark {
-  font-size: 1.65rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: #fff;
-}
-
-.login-aside-wordmark .edu {
-  margin-left: 0.28rem;
-  font-weight: 500;
-  color: var(--brand);
+.login-aside-logo {
+  display: block;
+  width: min(11.5rem, 100%);
+  height: auto;
 }
 
 .login-aside-tagline {
@@ -362,17 +352,13 @@
   }
 
   .login-aside-brand {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.35rem;
+    padding: 0.4rem 0.55rem 0.3rem;
+    border-radius: 0.85rem;
   }
 
-  .login-aside-brand .brand-mark-img {
-    width: 2.4rem;
-    height: 2.4rem;
-    min-width: 2.4rem;
-  }
-
-  .login-aside-wordmark {
-    font-size: 1.25rem;
+  .login-aside-logo {
+    width: 7.5rem;
   }
 
   .login-aside-tagline {
@@ -400,9 +386,8 @@
     padding: 1rem 1rem 0.9rem;
   }
 
-  .login-logo-wrap .brand-logo,
-  .login-logo {
-    width: min(120px, 48%);
+  .login-logo-wrap {
+    display: none;
   }
 }
 
@@ -410,6 +395,7 @@
   .login-aside-tagline { font-size: 1.1rem; }
   .login-values { gap: 0.45rem; }
   .login-demo-btn small { display: none; }
+  .login-aside-logo { width: min(9.5rem, 100%); }
   .login-logo-wrap .brand-logo,
   .login-logo { width: min(120px, 50%); }
 }
